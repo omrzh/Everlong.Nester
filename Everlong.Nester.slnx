@@ -4,4 +4,7 @@
     <Project Path="src/Everlong.Nester.Abstractions/Everlong.Nester.Abstractions.csproj" />
     <Project Path="src/Everlong.Nester/Everlong.Nester.csproj" Id="6d91e27e-dcef-45cb-b8c8-f24d49ac9322" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Everlong.Nester.Tests/Everlong.Nester.Tests.csproj" />
+  </Folder>
 </Solution>
