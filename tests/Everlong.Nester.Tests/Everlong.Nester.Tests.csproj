@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Everlong.Nester.Abstractions\Everlong.Nester.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\Everlong.Nester\Everlong.Nester.csproj" />
   </ItemGroup>
 
 </Project>

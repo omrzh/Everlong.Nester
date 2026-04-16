@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Everlong.Nester.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Everlong.Nester.Abstractions\Everlong.Nester.Abstractions.csproj" />
   </ItemGroup>
 
