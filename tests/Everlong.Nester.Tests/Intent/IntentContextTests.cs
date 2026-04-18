@@ -1,6 +1,7 @@
+using Everlong.Nester.Intent;
 using Xunit;
 
-namespace Everlong.Nester.Intent.Tests;
+namespace Everlong.Nester.Tests.Intent;
 
 public class IntentContextTests
 {

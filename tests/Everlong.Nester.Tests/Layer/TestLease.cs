@@ -1,6 +1,6 @@
 using Everlong.Nester.Layer;
 
-namespace Everlong.Nester.Tests.Shell;
+namespace Everlong.Nester.Tests.Layer;
 
 /// <summary>A minimal <see cref="LayerLeaseBase"/> backed by plain fields.</summary>
 internal sealed class TestLease : LayerLeaseBase

@@ -1,11 +1,11 @@
 using Everlong.Nester.Intent;
 using Everlong.Nester.Layer;
 
-namespace Everlong.Nester.Tests.Shell;
+namespace Everlong.Nester.Tests.Layer;
 
 /// <summary>
-///   Test-side ledger mirroring the shell broker's contract over
-///   <see cref="TestLease"/> leases.
+///   A test-side <see cref="ILayerLedger"/> backed by <see cref="TestLease"/>
+///   leases.
 /// </summary>
 internal sealed class TestBrokerCore : ILayerLedger
 {

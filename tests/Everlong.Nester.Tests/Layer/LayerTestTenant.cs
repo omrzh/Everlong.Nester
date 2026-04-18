@@ -1,6 +1,6 @@
 using Everlong.Nester.Layer;
 
-namespace Everlong.Nester.Tests.Shell;
+namespace Everlong.Nester.Tests.Layer;
 
 /// <summary>Shared tenant identity for tests that cut slices without a specific operator.</summary>
 internal sealed class LayerTestTenant : ILayerTenant

@@ -1,7 +1,7 @@
 using Everlong.Nester.Layer;
 using Xunit;
 
-namespace Everlong.Nester.Tests.Shell;
+namespace Everlong.Nester.Tests.Layer;
 
 /// <summary>
 ///   The band table's structural contract: the named bands are disjoint and

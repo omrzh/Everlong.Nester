@@ -1,6 +1,6 @@
 using Everlong.Nester.Layer;
 
-namespace Everlong.Nester.Tests.Shell;
+namespace Everlong.Nester.Tests.Layer;
 
 /// <summary>Records the mount/unmount calls a ledger issues.</summary>
 internal sealed class RecordingLayerStage : ILayerStage

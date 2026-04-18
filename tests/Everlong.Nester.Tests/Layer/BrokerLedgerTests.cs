@@ -2,7 +2,7 @@ using Everlong.Nester.Intent;
 using Everlong.Nester.Layer;
 using Xunit;
 
-namespace Everlong.Nester.Tests.Shell;
+namespace Everlong.Nester.Tests.Layer;
 
 /// <summary>
 ///   Contract tests for the z-ledger lease model: every acquire cuts a
