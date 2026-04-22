@@ -15,8 +15,8 @@ public interface IShellLifetime : IHostLifetime
   ShellLifecycle Lifecycle { get; }
 
   /// <summary>
-  ///   The startup flow's completion signal — completes when the first
-  ///   navigation settles and the startup presentation finishes.
+  ///   The startup flow's completion signal — completes when the async
+  ///   startup process settles.
   /// </summary>
   /// <remarks>
   ///   Always available; faulted when startup failed, or when the shell is

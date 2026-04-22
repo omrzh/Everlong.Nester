@@ -1,7 +1,7 @@
 namespace Everlong.Nester.Shell;
 
 /// <summary>
-///   The shell's stage — the visual surface a shell presents its layers on.
+///   The shell's stage — the visual surface of a shell.
 /// </summary>
 public interface IShellStage
 {
