@@ -8,6 +8,8 @@ Nester is a compile-time-first UI infrastructure. Its axiom is `state' = f(impul
 2. Coding style must follow `.editorconfig` (indent with 2 spaces/ LF line end/ utf-8 encoding/ insert final new line)
 3. Reduce warning noise during middle steps by `dotnet build Everlong.Nester.slnx -v:q --nologo -clp:ErrorsOnly` or a chained `tail` command.
 4. Never run `dotnet format` solution-wide: it rewrites files you never touched and buries the diff.
+5. Projects under `src/` and `tests/` write their imports per file: no global usings without a hard reason, because a global using hides where a file's dependencies come from.
+6. Tests under `tests/` are filed under the domain they test: directory `tests/Everlong.Nester.Tests/<Domain>/` and namespace `Everlong.Nester.Tests.<Domain>`.
 
 ## Common Traps
 
