@@ -1,0 +1,91 @@
+{
+  "$KeyPrefix": "Everlong.Nester.Dialog",
+  "Close": "Close",
+  "Alert": {
+    "Title": "Alert",
+    "ButtonText": "OK"
+  },
+  "Confirm": {
+    "Title": "Confirm",
+    "ConfirmText": "Yes",
+    "CancelText": "Cancel"
+  },
+  "Choice": {
+    "Title": "Choose",
+    "PrimaryText": "Yes",
+    "SecondaryText": "No",
+    "CancelText": "Cancel"
+  },
+  "OptionSelect": {
+    "Title": "Select"
+  },
+  "Numpad": {
+    "Title": "Input number",
+    "Message": "",
+    "ConfirmText": "Confirm",
+    "ClearToolTip": "Clear",
+    "BackspaceToolTip": "Backspace",
+    "RangeHintFormat": "Range: {min} - {max}{step}",
+    "ResultHintInvalid": "= ?",
+    "ResultHintFormat": "= {value}{suffix}",
+    "InvalidExpressionError": "Invalid expression",
+    "OutOfRangeWarningFormat": "Result out of range: {range}"
+  },
+  "ColorPicker": {
+    "Title": "Select Color",
+    "Message": "Adjust channel values to select a color",
+    "ConfirmText": "Confirm",
+    "ResetText": "Reset"
+  },
+  "DateTimePicker": {
+    "Title": "Select Date and Time",
+    "Message": "Enter date and time",
+    "ConfirmText": "Confirm",
+    "NowText": "Now",
+    "InvalidInput": "Invalid date/time input",
+    "UnlimitedRange": "Range: Unlimited",
+    "RangeHintFormat": "Range: {min} - {max}",
+    "YearLabel": "Year",
+    "MonthLabel": "Month",
+    "DayLabel": "Day",
+    "HourLabel": "Hour",
+    "MinuteLabel": "Minute",
+    "SecondLabel": "Second"
+  },
+  "ImagePreview": {
+    "Title": "Image Preview",
+    "PreviousText": "Previous",
+    "NextText": "Next",
+    "LoadingStatus": "Loading image...",
+    "LoadFailedError": "Failed to load image",
+    "NoHttpClientError": "Cannot load network image: HttpClient not provided. Please pass it through ImagePreviewInput.HttpClient.",
+    "BytesSourceDisplayFormat": "Memory Data ({count} bytes)"
+  },
+  "SignaturePad": {
+    "Title": "Signature Pad",
+    "Message": "Please sign in the area below to confirm",
+    "ConfirmText": "Confirm",
+    "ClearText": "Clear",
+    "StrokeCountFormat": "Signed strokes: {count}"
+  },
+  "Ipv4": {
+    "Title": "Enter IP Address",
+    "Message": "Please enter an IPv4 address",
+    "ConfirmText": "Confirm",
+    "ClearText": "Clear",
+    "PingText": "Ping Test",
+    "BackspaceToolTip": "Backspace",
+    "PingSuccessFormat": "Ping succeeded ({time} ms)",
+    "PingFailedFormat": "Ping failed ({reason})",
+    "PingUnavailableError": "Ping unavailable",
+    "PingTimedOutReason": "Timed out",
+    "PingHostUnreachableReason": "Host unreachable",
+    "PingNetworkUnreachableReason": "Network unreachable",
+    "PingProtocolUnreachableReason": "Protocol unreachable",
+    "PingPortUnreachableReason": "Port unreachable",
+    "PingPacketTooBigReason": "Packet too big",
+    "PingTtlExpiredReason": "TTL expired",
+    "PingBadRouteReason": "Bad route",
+    "PingUnknownReason": "Unknown error"
+  }
+}

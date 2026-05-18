@@ -1,0 +1,91 @@
+{
+  "$KeyPrefix": "Everlong.Nester.Dialog",
+  "Close": "关闭",
+  "Alert": {
+    "Title": "提示",
+    "ButtonText": "确定"
+  },
+  "Confirm": {
+    "Title": "确认",
+    "ConfirmText": "是",
+    "CancelText": "取消"
+  },
+  "Choice": {
+    "Title": "选择",
+    "PrimaryText": "是",
+    "SecondaryText": "否",
+    "CancelText": "取消"
+  },
+  "OptionSelect": {
+    "Title": "请选择"
+  },
+  "Numpad": {
+    "Title": "输入数字",
+    "Message": "",
+    "ConfirmText": "确认",
+    "ClearToolTip": "清空",
+    "BackspaceToolTip": "退格",
+    "RangeHintFormat": "范围：{min} - {max}{step}",
+    "ResultHintInvalid": "= ?",
+    "ResultHintFormat": "= {value}{suffix}",
+    "InvalidExpressionError": "表达式无效",
+    "OutOfRangeWarningFormat": "结果超出范围：{range}"
+  },
+  "ColorPicker": {
+    "Title": "选择颜色",
+    "Message": "调整通道值以选择颜色",
+    "ConfirmText": "确认",
+    "ResetText": "重置"
+  },
+  "DateTimePicker": {
+    "Title": "选择日期和时间",
+    "Message": "输入日期和时间",
+    "ConfirmText": "确认",
+    "NowText": "现在",
+    "InvalidInput": "日期/时间输入无效",
+    "UnlimitedRange": "范围：不限",
+    "RangeHintFormat": "范围：{min} - {max}",
+    "YearLabel": "年",
+    "MonthLabel": "月",
+    "DayLabel": "日",
+    "HourLabel": "时",
+    "MinuteLabel": "分",
+    "SecondLabel": "秒"
+  },
+  "ImagePreview": {
+    "Title": "图片预览",
+    "PreviousText": "上一张",
+    "NextText": "下一张",
+    "LoadingStatus": "正在加载图片…",
+    "LoadFailedError": "图片加载失败",
+    "NoHttpClientError": "无法加载网络图片：未提供 HttpClient，请通过 ImagePreviewInput.HttpClient 传入。",
+    "BytesSourceDisplayFormat": "内存数据（{count} 字节）"
+  },
+  "SignaturePad": {
+    "Title": "签名板",
+    "Message": "请在下方区域签名以确认",
+    "ConfirmText": "确认",
+    "ClearText": "清除",
+    "StrokeCountFormat": "已签名笔画：{count}"
+  },
+  "Ipv4": {
+    "Title": "输入 IP 地址",
+    "Message": "请输入一个 IPv4 地址",
+    "ConfirmText": "确认",
+    "ClearText": "清除",
+    "PingText": "Ping 测试",
+    "BackspaceToolTip": "退格",
+    "PingSuccessFormat": "Ping 成功（{time} ms）",
+    "PingFailedFormat": "Ping 失败（{reason}）",
+    "PingUnavailableError": "Ping 不可用",
+    "PingTimedOutReason": "已超时",
+    "PingHostUnreachableReason": "主机不可达",
+    "PingNetworkUnreachableReason": "网络不可达",
+    "PingProtocolUnreachableReason": "协议不可达",
+    "PingPortUnreachableReason": "端口不可达",
+    "PingPacketTooBigReason": "数据包过大",
+    "PingTtlExpiredReason": "TTL 已过期",
+    "PingBadRouteReason": "路由错误",
+    "PingUnknownReason": "未知错误"
+  }
+}

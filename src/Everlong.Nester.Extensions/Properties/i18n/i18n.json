@@ -1,0 +1,17 @@
+{
+  "output": {
+    "namespace": "Everlong.Nester.Extensions.Properties",
+    "className": "Lang",
+    "lineEnding": "lf"
+  },
+  "types": {
+    "classVisibility": "public",
+    "memberVisibility": "internal",
+    "localesVisibility": "public"
+  },
+  "codegen": {
+    "xmlDoc": false,
+    "formattingMethod": true,
+    "globalizationNamespace": "Everlong.Globalization"
+  }
+}
