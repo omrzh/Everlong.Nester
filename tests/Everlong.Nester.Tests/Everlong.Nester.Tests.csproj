@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="xunit.v3" Version="4.0.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0">
@@ -20,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Everlong.Nester.Abstractions\Everlong.Nester.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\Everlong.Nester\Everlong.Nester.csproj" />
+    <ProjectReference Include="..\..\src\Everlong.Nester.Extensions\Everlong.Nester.Extensions.csproj" />
   </ItemGroup>
 
 </Project>
