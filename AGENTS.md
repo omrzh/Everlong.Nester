@@ -10,6 +10,7 @@ Nester is a compile-time-first UI infrastructure. Its axiom is `state' = f(impul
 4. Never run `dotnet format` solution-wide: it rewrites files you never touched and buries the diff.
 5. Projects under `src/` and `tests/` write their imports per file: no global usings without a hard reason, because a global using hides where a file's dependencies come from.
 6. Tests under `tests/` are filed under the domain they test: directory `tests/Everlong.Nester.Tests/<Domain>/` and namespace `Everlong.Nester.Tests.<Domain>`.
+7. `docs/design/*.md` states the domain's design intent and what the code cannot express — never a restatement of the code, and never a reference to a type, word or document of a domain the code does not depend on.
 
 ## Common Traps
 
