@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <RootNamespace>Everlong.Nester</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>$(DefineConstants);AVALONIA</DefineConstants>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <AvaloniaXamlIlVerifyIl>false</AvaloniaXamlIlVerifyIl>
+    <AvaloniaXamlReportImportance>high</AvaloniaXamlReportImportance>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <AvaloniaDesignerSupported>false</AvaloniaDesignerSupported>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Everlong.Nester.Avalonia.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Everlong.Nester\Everlong.Nester.csproj" />
+  </ItemGroup>
+
+</Project>
