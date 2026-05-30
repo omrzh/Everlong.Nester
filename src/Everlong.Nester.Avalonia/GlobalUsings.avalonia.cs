@@ -10,6 +10,7 @@
 // one body compile against two UI frameworks.  Every other project under src/
 // still imports per file.
 
+global using Everlong.Nester.Diagnostics;
 global using System;
 global using Color = Avalonia.Media.Color;
 global using ContentControl = Avalonia.Controls.ContentControl;
