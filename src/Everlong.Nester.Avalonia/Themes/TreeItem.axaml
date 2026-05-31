@@ -1,0 +1,117 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:v="using:Everlong.Nester.Controls">
+
+  <ControlTheme x:Key="{x:Type v:TreeItem}" TargetType="v:TreeItem">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="v:TreeItem">
+        <StackPanel>
+
+          <!-- Header row: Grid splits content area from expand button -->
+          <Grid MinHeight="36">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Name="PART_HeaderButton"
+                    Grid.Column="0"
+                    HorizontalAlignment="Stretch">
+              <Button.Template>
+                <ControlTemplate>
+                  <Border Name="HeaderBorder"
+                          Background="{TemplateBinding Background}"
+                          CornerRadius="4">
+                    <ContentPresenter Content="{TemplateBinding Content}"
+                                      HorizontalAlignment="Stretch"
+                                      HorizontalContentAlignment="Stretch"
+                                      VerticalAlignment="Center" />
+                  </Border>
+                </ControlTemplate>
+              </Button.Template>
+              <ContentPresenter Name="HeaderContent"
+                                Content="{TemplateBinding Header}"
+                                ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                VerticalAlignment="Center"
+                                Margin="8,0" />
+            </Button>
+
+            <!-- Expand/collapse button: visible only when item has children -->
+            <Button Name="PART_ExpandButton"
+                    Grid.Column="1"
+                    Width="32"
+                    IsVisible="False">
+              <Viewbox Width="16" Height="16">
+                <Canvas Width="24" Height="24">
+                  <Path Name="ChevronIcon"
+                        Fill="#6B7280"
+                        Data="{DynamicResource Nester.Icon.TreeItem.Chevron.Collapsed}" />
+                </Canvas>
+              </Viewbox>
+            </Button>
+
+          </Grid>
+
+          <!-- Children host: indented, visible only when IsExpanded -->
+          <Border Name="ChildrenHost"
+                  Margin="{DynamicResource Nester.TreeItem.IndentMargin}"
+                  IsVisible="False">
+            <ItemsPresenter />
+          </Border>
+
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Button base: transparent, no border, hand cursor -->
+    <Style Selector="^ /template/ Button#PART_HeaderButton">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Margin" Value="0,1" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <!-- Hover -->
+    <Style Selector="^ /template/ Button#PART_HeaderButton:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Nester.TreeItem.Hover}" />
+    </Style>
+
+    <!-- Expand button base: transparent, no border, hand cursor -->
+    <Style Selector="^ /template/ Button#PART_ExpandButton">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <!-- Expand button hover -->
+    <Style Selector="^ /template/ Button#PART_ExpandButton:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Nester.TreeItem.Hover}" />
+    </Style>
+
+    <!-- Show expand button when this item has children -->
+    <Style Selector="^:not(:empty) /template/ Button#PART_ExpandButton">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+
+    <!-- Chevron: expanded state -->
+    <Style Selector="^[IsExpanded=true] /template/ Path#ChevronIcon">
+      <Setter Property="Data" Value="{DynamicResource Nester.Icon.TreeItem.Chevron.Expanded}" />
+    </Style>
+
+    <!-- Show children when expanded -->
+    <Style Selector="^[IsExpanded=true] /template/ Border#ChildrenHost">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+
+    <!-- Disabled -->
+    <Style Selector="^:disabled">
+      <Setter Property="Opacity" Value="0.5" />
+    </Style>
+
+  </ControlTheme>
+
+</ResourceDictionary>
