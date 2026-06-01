@@ -10,13 +10,19 @@
 // one body compile against two UI frameworks.  Every other project under src/
 // still imports per file.
 
+global using Everlong.Nester.Controls;
 global using Everlong.Nester.Diagnostics;
+global using Everlong.Nester.Presentation;
 global using System;
 global using Color = Avalonia.Media.Color;
 global using ContentControl = Avalonia.Controls.ContentControl;
+global using HorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
+global using PlatformApp = Avalonia.Application;
 global using PlatformCanvas = Avalonia.Controls.Canvas;
 global using PlatformControl = Avalonia.Controls.Control;
+global using PlatformGrid = Avalonia.Controls.Grid;
 global using PlatformWindow = Avalonia.Controls.Window;
 global using Rect = Avalonia.Rect;
+global using VerticalAlignment = Avalonia.Layout.VerticalAlignment;
 global using Visual = Avalonia.Visual;
 global using WindowState = Avalonia.Controls.WindowState;
