@@ -12,6 +12,7 @@
 
 global using Everlong.Nester.Controls;
 global using Everlong.Nester.Diagnostics;
+global using Everlong.Nester.Helpers;
 global using Everlong.Nester.Presentation;
 global using System;
 global using Color = Avalonia.Media.Color;
