@@ -10,6 +10,7 @@
 // one body compile against two UI frameworks.  Every other project under src/
 // still imports per file.
 
+global using Everlong.DI;
 global using Everlong.Nester.Controls;
 global using Everlong.Nester.Diagnostics;
 global using Everlong.Nester.Helpers;
