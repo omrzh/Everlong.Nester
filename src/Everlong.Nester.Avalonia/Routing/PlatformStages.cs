@@ -2,6 +2,9 @@
 // <Compile Include> in Everlong.Nester.Wpf.csproj.  Edit it here only;
 // never create a WPF-side copy (the two builds would drift).
 
+using Everlong.Nester.Controls;
+using Everlong.Nester.Helpers;
+using Everlong.Nester.Presentation;
 using Everlong.Nester.Shell;
 using Microsoft.Extensions.DependencyInjection;
 

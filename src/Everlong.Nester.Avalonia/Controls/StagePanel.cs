@@ -2,6 +2,7 @@
 // <Compile Include> in Everlong.Nester.Wpf.csproj.  Edit it here only;
 // never create a WPF-side copy (the two builds would drift).
 using Everlong.Nester.Layer;
+using Everlong.Nester.Presentation;
 using Everlong.Nester.Shell;
 
 namespace Everlong.Nester.Controls;

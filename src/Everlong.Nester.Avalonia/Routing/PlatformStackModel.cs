@@ -1,3 +1,5 @@
+using Everlong.Nester.Controls;
+using Everlong.Nester.Presentation;
 // NOTE: Single-source file — the WPF project compiles this exact file via
 // <Compile Include> in Everlong.Nester.Wpf.csproj.  Edit it here only;
 // never create a WPF-side copy (the two builds would drift).

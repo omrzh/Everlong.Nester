@@ -1,3 +1,4 @@
+using Everlong.Nester.Diagnostics;
 namespace Everlong.Nester.Hosting;
 
 /// <summary>

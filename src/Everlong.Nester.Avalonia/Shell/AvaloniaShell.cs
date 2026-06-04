@@ -6,6 +6,8 @@ using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Everlong.Nester.Activation;
+using Everlong.Nester.Controls;
+using Everlong.Nester.Presentation;
 using Everlong.Nester.Hosting;
 using Everlong.Nester.Intent;
 using Everlong.Nester.Layer;

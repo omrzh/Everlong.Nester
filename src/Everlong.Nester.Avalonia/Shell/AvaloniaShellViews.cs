@@ -1,4 +1,6 @@
 using Avalonia.LogicalTree;
+using Everlong.Nester.Controls;
+using Everlong.Nester.Presentation;
 
 namespace Everlong.Nester.Shell;
 

@@ -1,6 +1,9 @@
 // NOTE: Single-source file — the WPF project compiles this exact file via
 // <Compile Include> in Everlong.Nester.Wpf.csproj.  Edit it here only;
 // never create a WPF-side copy (the two builds would drift).
+using Everlong.DI;
+using Everlong.Nester.Diagnostics;
+using Everlong.Nester.Presentation;
 using Everlong.Nester.Hosting;
 using Everlong.Nester.Intent;
 using Everlong.Nester.Layer;

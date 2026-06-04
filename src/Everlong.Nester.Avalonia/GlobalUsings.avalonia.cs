@@ -1,21 +1,13 @@
 // NOTE: Platform-paired file — the WPF side keeps its own GlobalUsings.wpf.cs.
-// The shared using block (top section) MUST stay identical in both files;
-// only the platform alias block below differs.  Edit both sides together.
 //
-// HARD RULE 5 exemption, deliberate: this project keeps its imports here rather
-// than per file.  The platform packages are one body of source compiled twice —
-// single-source files are shared into Everlong.Nester.Wpf by <Compile Include>
-// plus Link — so a file that spells its own imports cannot see the same
-// namespaces on both sides, and the platform aliases below exist to make that
-// one body compile against two UI frameworks.  Every other project under src/
-// still imports per file.
+// HARD RULE 5 exemption, narrow by design: only ALIASES may be declared here.
+// A single-source file is compiled into both platform packages, so a name it
+// spells has to resolve on both sides — the platform types behind these names
+// differ, the names do not.  Namespace imports are not aliases and do not
+// belong here: they go in the file that needs them, as everywhere else under
+// src/.  The alias set differs per platform, so the two files have no section
+// in common to keep in step.
 
-global using Everlong.DI;
-global using Everlong.Nester.Controls;
-global using Everlong.Nester.Diagnostics;
-global using Everlong.Nester.Helpers;
-global using Everlong.Nester.Presentation;
-global using System;
 global using Color = Avalonia.Media.Color;
 global using ContentControl = Avalonia.Controls.ContentControl;
 global using HorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
