@@ -20,14 +20,14 @@ public static class AppLifetimeBuilder
   {
     if (AppLifetime.Current != null)
       throw new InvalidOperationException("AppLifetime is already built. Cannot build multiple times.");
-    if (PlatformApp.Current == null)
+    if (PApp.Current == null)
       throw new InvalidOperationException(
         "No current application found. Ensure this is called after the application is initialized.");
 
     // The runtime shape decides whether this host presents a single MainView:
     // browser/Android lifetimes do; classic desktop does not.  OS facts never
     // answer this question — a desktop session can host either shape.
-    var isSingleView = SingleViewLifetime.IsSingleView(PlatformApp.Current?.ApplicationLifetime);
+    var isSingleView = SingleViewLifetime.IsSingleView(PApp.Current?.ApplicationLifetime);
     new AppLifetimeImpl(options, isSingleView).BindStaticFacades();
   }
 }

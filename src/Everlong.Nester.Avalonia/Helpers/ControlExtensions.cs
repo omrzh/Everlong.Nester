@@ -15,7 +15,7 @@ public static class ControlExtensions
   ///   loaded).  Cancellation detaches the handler (no leak) and cancels the
   ///   returned task.
   /// </summary>
-  public static Task EnsureLoadedAsync(this PlatformControl control, CancellationToken cancellationToken = default)
+  public static Task EnsureLoadedAsync(this PControl control, CancellationToken cancellationToken = default)
   {
     ArgumentNullException.ThrowIfNull(control);
     if (control.IsLoaded)

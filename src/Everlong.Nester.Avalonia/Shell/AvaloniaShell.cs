@@ -30,7 +30,7 @@ public abstract partial class AvaloniaShell : ShellBase
   }
 
   /// <remarks> may or may not be a window, depends on ApplicationLifetime </remarks>
-  private PlatformControl? TopView => (PlatformControl?)ShellHost ?? StagePanel;
+  private PControl? TopView => (PControl?)ShellHost ?? StagePanel;
 
   /// <summary>The virtual visual tree for this shell.</summary>
   internal StagePanel? StagePanel;
@@ -40,7 +40,7 @@ public abstract partial class AvaloniaShell : ShellBase
   ///   host view; <see langword="null"/> = direct mount (the stage itself
   ///   becomes the MainView).  Assigned by <see cref="PrepareHost"/>.
   /// </summary>
-  protected ContentControl? ShellHost { get; set; }
+  protected PContentControl? ShellHost { get; set; }
 
   /// <summary>
   ///   The shell's platform top-level — the host window on desktop; in
@@ -59,7 +59,7 @@ public abstract partial class AvaloniaShell : ShellBase
   /// </summary>
   public override T? GetPlatformService<T>() where T : class
   {
-    if (typeof(T) == typeof(IViewLocator<PlatformControl>))
+    if (typeof(T) == typeof(IViewLocator<PControl>))
       return (T?)GetOrCreateViewLocator();
     if (typeof(T) == typeof(IClipboard))
       return (T?)TopLevel?.Clipboard;
@@ -71,9 +71,9 @@ public abstract partial class AvaloniaShell : ShellBase
     return null;
   }
 
-  private IViewLocator<PlatformControl>? _viewLocator;
+  private IViewLocator<PControl>? _viewLocator;
 
-  private PlatformApp? _locatorAppSnapshot;
+  private PApp? _locatorAppSnapshot;
 
   /// <summary>
   ///   The shell's view locator — a thin translator over the application's
@@ -82,9 +82,9 @@ public abstract partial class AvaloniaShell : ShellBase
   ///   template collection).  Views themselves are always <c>new</c>'d by
   ///   the locator — the container never instantiates views.
   /// </summary>
-  private IViewLocator<PlatformControl>? GetOrCreateViewLocator()
+  private IViewLocator<PControl>? GetOrCreateViewLocator()
   {
-    PlatformApp? app = PlatformApp.Current;
+    PApp? app = PApp.Current;
     if (app is null)
       return null;
     if (!ReferenceEquals(_locatorAppSnapshot, app))
@@ -125,7 +125,7 @@ public abstract partial class AvaloniaShell : ShellBase
   /// </summary>
   protected override void PrepareHost()
   {
-    ShellHost = GetPlatformService<IViewLocator<PlatformControl>>()?.Build(Director!) as ContentControl;
+    ShellHost = GetPlatformService<IViewLocator<PControl>>()?.Build(Director!) as PContentControl;
     if (ShellHost is IAvaloniaShellHost)
       return;
 
@@ -141,7 +141,7 @@ public abstract partial class AvaloniaShell : ShellBase
   /// </summary>
   protected void EnsureDesktopHost()
   {
-    if (ShellHost is null && !SingleViewLifetime.IsSingleView(PlatformApp.Current?.ApplicationLifetime))
+    if (ShellHost is null && !SingleViewLifetime.IsSingleView(PApp.Current?.ApplicationLifetime))
     {
       throw new InvalidOperationException(
         "Desktop shell requires a host: override PrepareHost (e.g. HostSurface = new MainWindow { Shell = this };)" +
@@ -180,7 +180,7 @@ public abstract partial class AvaloniaShell : ShellBase
     // wait — a surface's TopLevel exists only after the platform host
     // exists) or is itself the TopLevel (desktop: a Window is its own
     // TopLevel — the hook connects immediately, no wait).
-    var lifetime = PlatformApp.Current?.ApplicationLifetime;
+    var lifetime = PApp.Current?.ApplicationLifetime;
     if (SingleViewLifetime.IsSingleView(lifetime))
     {
       if (ShellHost is { } surface)
@@ -197,7 +197,7 @@ public abstract partial class AvaloniaShell : ShellBase
     // Desktop: the shell's window — itself a TopLevel — connects the hook
     // immediately and becomes the application MainWindow (Avalonia: the
     // setter also shows — idempotent).
-    else if (ShellHost is PlatformWindow window)
+    else if (ShellHost is PWindow window)
     {
       OnTopLevelConnected(window);
 
@@ -234,7 +234,7 @@ public abstract partial class AvaloniaShell : ShellBase
       return HandleWasmIntent(context, next);
     }
 
-    if (SingleViewLifetime.IsSingleView(PlatformApp.Current?.ApplicationLifetime))
+    if (SingleViewLifetime.IsSingleView(PApp.Current?.ApplicationLifetime))
     {
       return HandleSingleViewIntentAsync(context, next);
     }
@@ -375,7 +375,7 @@ public abstract partial class AvaloniaShell : ShellBase
 
     // Single-view surface detach — only when the current view still belongs
     // to this shell (a replaced shell must never clear the new one).
-    var lifetime = PlatformApp.Current?.ApplicationLifetime;
+    var lifetime = PApp.Current?.ApplicationLifetime;
     SingleViewLifetime.ClearIfOwned(lifetime, StagePanel);
     SingleViewLifetime.ClearIfOwned(lifetime, ShellHost);
   }
@@ -462,13 +462,13 @@ public abstract partial class AvaloniaShell : ShellBase
     await this.DispatchIntent(StagePanel, new BackIntent());
   }
 
-  private static WindowState FromShellState(HostState state) =>
+  private static PWindowState FromShellState(HostState state) =>
     state switch
     {
-      HostState.Normal => WindowState.Normal,
-      HostState.Minimized => WindowState.Minimized,
-      HostState.Maximized => WindowState.Maximized,
-      HostState.FullScreen => WindowState.FullScreen,
+      HostState.Normal => PWindowState.Normal,
+      HostState.Minimized => PWindowState.Minimized,
+      HostState.Maximized => PWindowState.Maximized,
+      HostState.FullScreen => PWindowState.FullScreen,
       _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
     };
 
@@ -490,17 +490,17 @@ public abstract partial class AvaloniaShell : ShellBase
       status.TopMost = e.NewValue is true;
     else if (e.Property == Window.TitleProperty)
       status.Title = e.NewValue as string ?? string.Empty;
-    else if (e.Property == Visual.BoundsProperty)
-      status.Bounds = e.NewValue is Rect rect
+    else if (e.Property == PVisual.BoundsProperty)
+      status.Bounds = e.NewValue is PRect rect
                         ? new ShellBounds(rect.X, rect.Y, rect.Width, rect.Height)
                         : ShellBounds.Empty;
-    else if (e.Property == Visual.IsVisibleProperty)
+    else if (e.Property == PVisual.IsVisibleProperty)
       status.IsVisible = e.NewValue is true;
     else if (e.Property == Window.WindowStateProperty)
     {
-      if (e.OldValue is WindowState oldState)
+      if (e.OldValue is PWindowState oldState)
         status.LastHostState = oldState.AsShellState();
-      if (e.NewValue is WindowState newState)
+      if (e.NewValue is PWindowState newState)
         status.HostState = newState.AsShellState();
     }
   }

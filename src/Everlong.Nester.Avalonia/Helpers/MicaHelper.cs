@@ -16,7 +16,7 @@ public static partial class MicaHelper
   /// <param name="window">The window whose native handle receives the attribute.</param>
   /// <param name="useAlt"><see langword="true" /> uses the alternate backdrop type (4); otherwise Mica (2).</param>
   /// <returns><see langword="true" /> when the backdrop was applied; otherwise <see langword="false" />.</returns>
-  public static bool TryApplyMica(PlatformWindow window, bool useAlt = false)
+  public static bool TryApplyMica(PWindow window, bool useAlt = false)
   {
     if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
       return false;
@@ -33,7 +33,7 @@ public static partial class MicaHelper
   /// <summary>Sets the immersive dark-mode flag on <paramref name="window" />.</summary>
   /// <param name="window">The window whose native handle receives the attribute.</param>
   /// <param name="isDark"><see langword="true" /> for dark mode; otherwise light.</param>
-  public static void ApplyDarkMode(PlatformWindow window, bool isDark)
+  public static void ApplyDarkMode(PWindow window, bool isDark)
   {
     if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
       return;

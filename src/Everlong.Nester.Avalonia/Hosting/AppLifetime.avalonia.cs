@@ -8,12 +8,12 @@ internal sealed class AppLifetimeImpl : AppLifetimeBase
 {
   private readonly bool _isSingleView;
 
-  private static PlatformApp App => PlatformApp.Current ?? throw new InvalidOperationException("App not started??");
+  private static PApp App => PApp.Current ?? throw new InvalidOperationException("App not started??");
 
 
   public AppLifetimeImpl(AppLifetimeOptions options, bool isSingleView)
   {
-    ArgumentNullException.ThrowIfNull(PlatformApp.Current, nameof(PlatformApp.Current));
+    ArgumentNullException.ThrowIfNull(PApp.Current, nameof(PApp.Current));
     _isSingleView = isSingleView;
 
     // Host the platform main-thread dispatcher as a managed service (user-facing

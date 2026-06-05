@@ -6,17 +6,18 @@
 // differ, the names do not.  Namespace imports are not aliases and do not
 // belong here: they go in the file that needs them, as everywhere else under
 // src/.  The alias set differs per platform, so the two files have no section
-// in common to keep in step.
+// in common to keep in step.  The `P` prefix follows the `P/Invoke` precedent:
+// it marks a name that stands for a platform type rather than one of ours.
 
-global using Color = Avalonia.Media.Color;
-global using ContentControl = Avalonia.Controls.ContentControl;
-global using HorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
-global using PlatformApp = Avalonia.Application;
-global using PlatformCanvas = Avalonia.Controls.Canvas;
-global using PlatformControl = Avalonia.Controls.Control;
-global using PlatformGrid = Avalonia.Controls.Grid;
-global using PlatformWindow = Avalonia.Controls.Window;
-global using Rect = Avalonia.Rect;
-global using VerticalAlignment = Avalonia.Layout.VerticalAlignment;
-global using Visual = Avalonia.Visual;
-global using WindowState = Avalonia.Controls.WindowState;
+global using PColor = Avalonia.Media.Color;
+global using PContentControl = Avalonia.Controls.ContentControl;
+global using PHorizontalAlignment = Avalonia.Layout.HorizontalAlignment;
+global using PApp = Avalonia.Application;
+global using PCanvas = Avalonia.Controls.Canvas;
+global using PControl = Avalonia.Controls.Control;
+global using PGrid = Avalonia.Controls.Grid;
+global using PWindow = Avalonia.Controls.Window;
+global using PRect = Avalonia.Rect;
+global using PVerticalAlignment = Avalonia.Layout.VerticalAlignment;
+global using PVisual = Avalonia.Visual;
+global using PWindowState = Avalonia.Controls.WindowState;

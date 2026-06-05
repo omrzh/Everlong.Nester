@@ -12,10 +12,10 @@ public partial class AvaloniaShell
   ///   sequence of the navigation and dialog pipelines.  Returns
   ///   <see langword="null" /> when the locator has no view.
   /// </summary>
-  internal static PlatformControl? BuildView(object viewModel, IViewLocator<PlatformControl> viewLocator,
-                                             out ILayoutBody<PlatformControl>? body)
+  internal static PControl? BuildView(object viewModel, IViewLocator<PControl> viewLocator,
+                                             out ILayoutBody<PControl>? body)
   {
-    PlatformControl? view = viewLocator.Build(viewModel);
+    PControl? view = viewLocator.Build(viewModel);
     if (view is null)
     {
       body = null;
@@ -27,7 +27,7 @@ public partial class AvaloniaShell
     return view;
   }
 
-  internal static ILayoutBody? TryResolveLayoutBody(PlatformControl layout)
+  internal static ILayoutBody? TryResolveLayoutBody(PControl layout)
   {
     if (layout is ILayoutControl layoutControl)
       return layoutControl.GetLayoutBody();
@@ -39,7 +39,7 @@ public partial class AvaloniaShell
   private static bool IsNamedBody(LayoutBody layoutBody)
     => string.Equals(layoutBody.Name, "Body", StringComparison.Ordinal);
 
-  private static bool TryFindLayoutBody(PlatformControl layout, out LayoutBody? body)
+  private static bool TryFindLayoutBody(PControl layout, out LayoutBody? body)
   {
     List<LayoutBody> all = [];
 

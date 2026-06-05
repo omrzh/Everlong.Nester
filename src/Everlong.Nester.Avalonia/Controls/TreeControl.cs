@@ -22,7 +22,7 @@ partial class TreeControl : ItemsControl
   }
 
   /// <inheritdoc />
-  protected override PlatformControl CreateContainerForItemOverride(object? item, int index, object? recycleKey)
+  protected override PControl CreateContainerForItemOverride(object? item, int index, object? recycleKey)
     => new TreeItem();
 
   /// <inheritdoc />

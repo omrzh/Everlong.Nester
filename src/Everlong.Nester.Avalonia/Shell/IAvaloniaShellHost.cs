@@ -17,5 +17,5 @@ public interface IAvaloniaShellHost
   /// </summary>
   /// <param name="shell">The shell being hosted.</param>
   /// <param name="stage">The shell's stage, to be mounted into the host's visual container.</param>
-  void HostShell(IAvaloniaShell shell, PlatformControl stage);
+  void HostShell(IAvaloniaShell shell, PControl stage);
 }

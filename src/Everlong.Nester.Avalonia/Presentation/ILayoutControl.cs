@@ -17,4 +17,4 @@ public interface ILayoutControl
 }
 
 /// <summary>The platform layout body — <see cref="ILayoutBody{TView}" /> bound to the platform control type.</summary>
-public interface ILayoutBody : ILayoutBody<PlatformControl>;
+public interface ILayoutBody : ILayoutBody<PControl>;

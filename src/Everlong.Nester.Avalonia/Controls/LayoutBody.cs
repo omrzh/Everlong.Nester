@@ -13,9 +13,9 @@ namespace Everlong.Nester.Controls;
 public class LayoutBody : Panel, ILayoutBody
 {
 
-  private readonly LayoutBodyController<IViewLocation<PlatformControl>> _controller = new();
+  private readonly LayoutBodyController<IViewLocation<PControl>> _controller = new();
 
-  bool ILayoutBody<PlatformControl>.IsAttachedToVisualTree => _isAttached;
+  bool ILayoutBody<PControl>.IsAttachedToVisualTree => _isAttached;
   private volatile bool _isAttached;
 
   /// <summary>
@@ -25,8 +25,8 @@ public class LayoutBody : Panel, ILayoutBody
   {
     VerifyAccess();
     ClipToBounds = true;
-    HorizontalAlignment = HorizontalAlignment.Stretch;
-    VerticalAlignment = VerticalAlignment.Stretch;
+    HorizontalAlignment = PHorizontalAlignment.Stretch;
+    VerticalAlignment = PVerticalAlignment.Stretch;
   }
 
   /// <inheritdoc />
@@ -50,53 +50,53 @@ public class LayoutBody : Panel, ILayoutBody
   // is owned by the platform reveal stage (PlatformRevealStage — per-body
   // mount/activate/settle) and by the user's ISceneTransition director.
 
-  private void ApplyChangeSet(LayoutBodyChangeSet<IViewLocation<PlatformControl>> cs)
+  private void ApplyChangeSet(LayoutBodyChangeSet<IViewLocation<PControl>> cs)
   {
     if (cs.IsRefresh)
       return;
 
-    foreach (IViewLocation<PlatformControl> node in cs.ToAdd)
+    foreach (IViewLocation<PControl> node in cs.ToAdd)
     {
       if (node.View is { } child)
         Children.Add(child);
     }
 
-    foreach (IViewLocation<PlatformControl> node in cs.ToRemove)
+    foreach (IViewLocation<PControl> node in cs.ToRemove)
     {
       if (node.View is { } child)
         Children.Remove(child);
     }
   }
 
-  IReadOnlyList<IViewLocation<PlatformControl>> ILayoutBody<PlatformControl>.Children
+  IReadOnlyList<IViewLocation<PControl>> ILayoutBody<PControl>.Children
     => _controller.Children;
 
-  IViewLocation<PlatformControl>? ILayoutBody<PlatformControl>.ActiveChild
+  IViewLocation<PControl>? ILayoutBody<PControl>.ActiveChild
     => _controller.Active;
 
-  void ILayoutBody<PlatformControl>.SetActiveChild(IViewLocation<PlatformControl> node)
+  void ILayoutBody<PControl>.SetActiveChild(IViewLocation<PControl> node)
   {
     _controller.Switch(node);
   }
 
-  void ILayoutBody<PlatformControl>.Add(IViewLocation<PlatformControl> node)
+  void ILayoutBody<PControl>.Add(IViewLocation<PControl> node)
   {
     ApplyChangeSet(_controller.EnsureAdded(node));
   }
 
-  void ILayoutBody<PlatformControl>.Remove(IViewLocation<PlatformControl> node)
+  void ILayoutBody<PControl>.Remove(IViewLocation<PControl> node)
   {
     ApplyChangeSet(_controller.Release(node));
   }
 
-  void ILayoutBody<PlatformControl>.SetVisible(bool isVisible) => IsVisible = isVisible;
+  void ILayoutBody<PControl>.SetVisible(bool isVisible) => IsVisible = isVisible;
 
-  void ILayoutBody<PlatformControl>.SettleActive()
+  void ILayoutBody<PControl>.SettleActive()
   {
-    IViewLocation<PlatformControl>? active = _controller.Active;
-    foreach (IViewLocation<PlatformControl> node in _controller.Children)
+    IViewLocation<PControl>? active = _controller.Active;
+    foreach (IViewLocation<PControl> node in _controller.Children)
     {
-      if (node.View is PlatformControl view)
+      if (node.View is PControl view)
         view.IsVisible = ReferenceEquals(node, active);
     }
   }

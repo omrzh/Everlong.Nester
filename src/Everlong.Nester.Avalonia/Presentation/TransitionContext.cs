@@ -15,27 +15,27 @@ namespace Everlong.Nester.Presentation;
 /// </param>
 /// <param name="Kind">The kind of this transition.</param>
 public sealed partial record TransitionContext(
-  PlatformCanvas FlyingCanvas,
+  PCanvas FlyingCanvas,
   TransitionKind Kind)
 {
   /// <summary>
   ///   The arriving views, outermost first — the fresh part of the change.
   ///   Laid out and invisible when the director runs.  Empty on dismiss.
   /// </summary>
-  public IReadOnlyList<PlatformControl> ArrivingChain { get; init; } = [];
+  public IReadOnlyList<PControl> ArrivingChain { get; init; } = [];
 
   /// <summary>
   ///   The departing views, outermost first — the stale part of the change.
   ///   Visible when the director runs.  Empty on refresh and on first
   ///   presentation.
   /// </summary>
-  public IReadOnlyList<PlatformControl> DepartingChain { get; init; } = [];
+  public IReadOnlyList<PControl> DepartingChain { get; init; } = [];
 
   /// <summary>The outermost arriving view, or <see langword="null"/> when none arrives.</summary>
-  public PlatformControl? ArrivingHead => ArrivingChain.Count > 0 ? ArrivingChain[0] : null;
+  public PControl? ArrivingHead => ArrivingChain.Count > 0 ? ArrivingChain[0] : null;
 
   /// <summary>The outermost departing view, or <see langword="null"/> when none departs.</summary>
-  public PlatformControl? DepartingHead => DepartingChain.Count > 0 ? DepartingChain[0] : null;
+  public PControl? DepartingHead => DepartingChain.Count > 0 ? DepartingChain[0] : null;
 
   /// <summary>
   ///   Hides the arriving chain — <c>Opacity</c> and hit-test only; layout
@@ -43,7 +43,7 @@ public sealed partial record TransitionContext(
   /// </summary>
   public void HideArriving()
   {
-    foreach (PlatformControl c in ArrivingChain)
+    foreach (PControl c in ArrivingChain)
     {
       c.Opacity = 0;
       c.IsHitTestVisible = false;
@@ -56,7 +56,7 @@ public sealed partial record TransitionContext(
   /// </summary>
   public void ShowArriving()
   {
-    foreach (PlatformControl c in ArrivingChain)
+    foreach (PControl c in ArrivingChain)
     {
       c.Opacity = 1;
       c.IsHitTestVisible = true;
@@ -69,7 +69,7 @@ public sealed partial record TransitionContext(
   /// </summary>
   public void HideDeparting()
   {
-    foreach (PlatformControl c in DepartingChain)
+    foreach (PControl c in DepartingChain)
     {
       c.Opacity = 0;
       c.IsHitTestVisible = false;
@@ -82,7 +82,7 @@ public sealed partial record TransitionContext(
   ///   <paramref name="director"/> is not in <see cref="ArrivingChain"/> or
   ///   is its head.
   /// </summary>
-  public void RevealBefore(PlatformControl director)
+  public void RevealBefore(PControl director)
   {
     int end = IndexOf(ArrivingChain, director);
     for (int i = 0; i < end; i++)
@@ -97,7 +97,7 @@ public sealed partial record TransitionContext(
   ///   change's own chain that implements <see cref="ISceneTransition"/>,
   ///   or <see langword="null"/> when there is none.
   /// </summary>
-  public ISceneTransition? NextDirectorAfter(PlatformControl director)
+  public ISceneTransition? NextDirectorAfter(PControl director)
   {
     int start = IndexOf(CurrentChain, director) + 1;
     for (int i = start; i < CurrentChain.Count; i++)
@@ -112,7 +112,7 @@ public sealed partial record TransitionContext(
   ///   starts at the director's level.  Returns the same context when
   ///   <paramref name="director"/> is not in the change's own chain.
   /// </summary>
-  public TransitionContext ScopedFrom(PlatformControl director)
+  public TransitionContext ScopedFrom(PControl director)
   {
     int self = IndexOf(CurrentChain, director);
     if (self < 0)
@@ -126,13 +126,13 @@ public sealed partial record TransitionContext(
     };
   }
 
-  private IReadOnlyList<PlatformControl> CurrentChain
+  private IReadOnlyList<PControl> CurrentChain
     => Kind is TransitionKind.Exit or TransitionKind.Dismiss ? DepartingChain : ArrivingChain;
 
-  private IReadOnlyList<PlatformControl> OtherChain
+  private IReadOnlyList<PControl> OtherChain
     => Kind is TransitionKind.Exit or TransitionKind.Dismiss ? ArrivingChain : DepartingChain;
 
-  private static int IndexOf(IReadOnlyList<PlatformControl> chain, PlatformControl view)
+  private static int IndexOf(IReadOnlyList<PControl> chain, PControl view)
   {
     for (int i = 0; i < chain.Count; i++)
       if (ReferenceEquals(chain[i], view))
@@ -140,11 +140,11 @@ public sealed partial record TransitionContext(
     return -1;
   }
 
-  private static IReadOnlyList<PlatformControl> Slice(IReadOnlyList<PlatformControl> chain, int from)
+  private static IReadOnlyList<PControl> Slice(IReadOnlyList<PControl> chain, int from)
   {
     if (from >= chain.Count)
       return [];
-    var list = new List<PlatformControl>(chain.Count - from);
+    var list = new List<PControl>(chain.Count - from);
     for (int i = from; i < chain.Count; i++)
       list.Add(chain[i]);
     return list;

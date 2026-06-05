@@ -65,7 +65,7 @@ public interface IAvaloniaShell : IShell
   WindowDecorations WindowDecorations { get; }
 
   /// <summary>Gets the shell's window — null for single-view (no window).</summary>
-  PlatformWindow? Window { get; }
+  PWindow? Window { get; }
 
   /// <summary>Gets the OS activation lifetime (single-view platforms) — null on classic desktop.</summary>
   IActivatableLifetime? ActivatableLifetime { get; }

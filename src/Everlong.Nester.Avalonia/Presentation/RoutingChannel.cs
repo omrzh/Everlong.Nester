@@ -22,7 +22,7 @@ public abstract class RoutingChannel
   ///   only; not inherited.
   /// </remarks>
   public static readonly AttachedProperty<ILocation?> LocationProperty =
-    AvaloniaProperty.RegisterAttached<RoutingChannel, PlatformControl, ILocation?>(
+    AvaloniaProperty.RegisterAttached<RoutingChannel, PControl, ILocation?>(
       "Location");
 
   /// <summary>
@@ -33,22 +33,22 @@ public abstract class RoutingChannel
   ///   only; not inherited.
   /// </remarks>
   public static readonly AttachedProperty<IRouter?> RouterProperty =
-    AvaloniaProperty.RegisterAttached<RoutingChannel, PlatformControl, IRouter?>(
+    AvaloniaProperty.RegisterAttached<RoutingChannel, PControl, IRouter?>(
       "Router");
 
   /// <summary>
-  ///   Gets the value of the <see cref="LocationProperty"/> attached property from a specified <see cref="PlatformControl"/>.
+  ///   Gets the value of the <see cref="LocationProperty"/> attached property from a specified <see cref="PControl"/>.
   /// </summary>
   /// <param name="element">The element from which to read the property value.</param>
   /// <returns>The currently presented <see cref="ILocation"/>, or <c>null</c> if not set.</returns>
-  public static ILocation? GetLocation(PlatformControl element)
+  public static ILocation? GetLocation(PControl element)
     => element.GetValue(LocationProperty);
 
   /// <summary>
-  ///   Gets the value of the <see cref="RouterProperty"/> attached property from a specified <see cref="PlatformControl"/>.
+  ///   Gets the value of the <see cref="RouterProperty"/> attached property from a specified <see cref="PControl"/>.
   /// </summary>
   /// <param name="element">The element from which to read the property value.</param>
   /// <returns>The owning <see cref="IRouter"/> instance, or <c>null</c> if not set.</returns>
-  public static IRouter? GetRouter(PlatformControl element)
+  public static IRouter? GetRouter(PControl element)
     => element.GetValue(RouterProperty);
 }

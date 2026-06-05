@@ -12,7 +12,7 @@ namespace Everlong.Nester.Controls;
 ///   their content slots, and carries the owning shell's identity.  Its
 ///   public face is <see cref="IShellStage" />.
 /// </summary>
-internal class StagePanel : PlatformGrid, IShellStage, ILayerStage
+internal class StagePanel : PGrid, IShellStage, ILayerStage
 {
   /// <inheritdoc />
   public IShell Shell { get; internal set; } = null!;

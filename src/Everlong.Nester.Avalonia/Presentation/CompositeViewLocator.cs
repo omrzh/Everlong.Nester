@@ -43,7 +43,7 @@ internal sealed class CompositeViewLocator : IViewLocator
   /// </summary>
   /// <param name="param">The data context to resolve.</param>
   /// <returns>The resolved control, or <see langword="null" /> when no locator matches.</returns>
-  public PlatformControl? Build(object? param)
+  public PControl? Build(object? param)
   {
     for (var i = 0; i < _locators.Count; i++)
       if (_locators[i].Match(param))

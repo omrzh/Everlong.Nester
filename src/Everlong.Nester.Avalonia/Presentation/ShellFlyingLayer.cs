@@ -28,7 +28,7 @@ internal sealed class ShellFlyingLayer : ILayerTenant
   }
 
   /// <summary>The flying canvas — the plane figure filling the flying layer's slot.</summary>
-  public PlatformCanvas Canvas { get; } = new();
+  public PCanvas Canvas { get; } = new();
 
   ValueTask ILayerTenant.OnEvictedAsync(ILayerLease lease)
   {

@@ -22,7 +22,7 @@ partial class AvaloniaShell : IAvaloniaShell
   public IPlatformSettings? PlatformSettings => TopLevel?.GetPlatformSettings();
 
   /// <inheritdoc />
-  public Screens? Screens => (TopLevel as PlatformWindow)?.Screens;
+  public Screens? Screens => (TopLevel as PWindow)?.Screens;
 
   /// <inheritdoc />
   public IReadOnlyList<WindowTransparencyLevel> TransparencyLevelHint
@@ -44,11 +44,11 @@ partial class AvaloniaShell : IAvaloniaShell
     => Window?.WindowDecorations ?? WindowDecorations.None;
 
   /// <inheritdoc />
-  public PlatformWindow? Window => TopLevel as PlatformWindow;
+  public PWindow? Window => TopLevel as PWindow;
 
   /// <inheritdoc />
   public IActivatableLifetime? ActivatableLifetime =>
-    PlatformApp.Current?.TryGetFeature(typeof(IActivatableLifetime)) as IActivatableLifetime;
+    PApp.Current?.TryGetFeature(typeof(IActivatableLifetime)) as IActivatableLifetime;
 
   /// <inheritdoc />
   public TopLevel? GetTopLevel() => TopLevel;

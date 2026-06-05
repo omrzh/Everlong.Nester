@@ -22,11 +22,11 @@ internal sealed class PlatformStackModel : RouterStack
 ///   visual slot and the mount child of its parent's layout body.
 /// </summary>
 internal sealed class PlatformLocation(Type type, IArgs? args, object instance)
-  : Location(type, args, instance), IViewLocation<PlatformControl>
+  : Location(type, args, instance), IViewLocation<PControl>
 {
   /// <summary>The assembled platform control — the strongly-typed face of the base visual slot, or <see langword="null"/> before assembly.</summary>
-  public PlatformControl? View { get => Presenter as PlatformControl; set => Presenter = value; }
+  public PControl? View { get => Presenter as PControl; set => Presenter = value; }
 
   /// <summary>The mount point inside this node's view — where the inner node's view mounts.</summary>
-  public ILayoutBody<PlatformControl>? Body { get; set; }
+  public ILayoutBody<PControl>? Body { get; set; }
 }

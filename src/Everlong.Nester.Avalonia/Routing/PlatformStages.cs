@@ -30,7 +30,7 @@ internal sealed class AssembleViewsStage
     if (shell is null)
       return;
 
-    IViewLocator<PlatformControl>? viewLocator = shell.GetPlatformService<IViewLocator<PlatformControl>>();
+    IViewLocator<PControl>? viewLocator = shell.GetPlatformService<IViewLocator<PControl>>();
     if (viewLocator is null)
       throw new InvalidOperationException(
         "The shell provides no view locator — GetPlatformService<IViewLocator<T>>() returned null.");
@@ -40,14 +40,14 @@ internal sealed class AssembleViewsStage
       if (node.Presenter is not null)
         continue;
       var location = (PlatformLocation)node;
-      location.View = BuildView(location.Instance, viewLocator, out ILayoutBody<PlatformControl>? body);
+      location.View = BuildView(location.Instance, viewLocator, out ILayoutBody<PControl>? body);
       location.Body = body;
     }
   }
 
-  private static PlatformControl? BuildView(object viewModel,
-                                            IViewLocator<PlatformControl> viewLocator,
-                                            out ILayoutBody<PlatformControl>? body)
+  private static PControl? BuildView(object viewModel,
+                                            IViewLocator<PControl> viewLocator,
+                                            out ILayoutBody<PControl>? body)
   {
 #if AVALONIA
     return AvaloniaShell.BuildView(viewModel, viewLocator, out body);
@@ -67,7 +67,7 @@ internal sealed class AssembleViewsStage
 internal sealed class PlatformRevealStage
 {
   private readonly NavigationHost _host;
-  private readonly Lazy<PlatformCanvas?> _flyingCanvas;
+  private readonly Lazy<PCanvas?> _flyingCanvas;
 
   internal PlatformRevealStage(NavigationHost host)
   {
@@ -79,8 +79,8 @@ internal sealed class PlatformRevealStage
   {
     // The bodies the mounting touched — their visibility settles onto
     // the active child at the very end, whatever the choreography did.
-    var settledBodies = new HashSet<ILayoutBody<PlatformControl>>();
-    var mounted = new Dictionary<ILayoutBody<PlatformControl>, IViewLocation<PlatformControl>>();
+    var settledBodies = new HashSet<ILayoutBody<PControl>>();
+    var mounted = new Dictionary<ILayoutBody<PControl>, IViewLocation<PControl>>();
     try
     {
       await RevealAsync(convergence, settledBodies, mounted);
@@ -91,14 +91,14 @@ internal sealed class PlatformRevealStage
       // touched body is visible — read from the body's CURRENT active, so
       // a reveal that lands after a superseding one converges to the
       // superseding convergence.
-      foreach (ILayoutBody<PlatformControl> body in settledBodies)
+      foreach (ILayoutBody<PControl> body in settledBodies)
         body.SettleActive();
     }
   }
 
   private async Task RevealAsync(IConvergenceScene convergence,
-                                 HashSet<ILayoutBody<PlatformControl>> settledBodies,
-                                 Dictionary<ILayoutBody<PlatformControl>, IViewLocation<PlatformControl>> mounted)
+                                 HashSet<ILayoutBody<PControl>> settledBodies,
+                                 Dictionary<ILayoutBody<PControl>, IViewLocation<PControl>> mounted)
   {
     // ── The transfer's moving sides — the choreography's subjects ──
     // The arriving side spans from the first difference down, so a revision is
@@ -119,15 +119,15 @@ internal sealed class PlatformRevealStage
         departing.Add(departingNode);
     }
 
-    List<PlatformControl> arrivingViews = [];
+    List<PControl> arrivingViews = [];
     List<Location> enteringNodes = [];
-    List<PlatformControl> enteringViews = [];
+    List<PControl> enteringViews = [];
     foreach (ILocation node in convergence.Arrivings)
     {
       if (node is not Location arrivingNode)
         continue;
 
-      PlatformControl? view = arrivingNode.Presenter as PlatformControl;
+      PControl? view = arrivingNode.Presenter as PControl;
       if (view is not null)
         arrivingViews.Add(view);
 
@@ -138,25 +138,25 @@ internal sealed class PlatformRevealStage
         enteringViews.Add(view);
     }
 
-    List<PlatformControl> departingViews = [];
+    List<PControl> departingViews = [];
     foreach (ILocation node in convergence.Departings)
     {
       if (node is Location departingNode && !arriving.Contains(departingNode)
-          && departingNode.Presenter is PlatformControl view)
+          && departingNode.Presenter is PControl view)
         departingViews.Add(view);
     }
 
-    PlatformControl? arrivingView = enteringViews.Count > 0 ? enteringViews[^1] : null;
+    PControl? arrivingView = enteringViews.Count > 0 ? enteringViews[^1] : null;
 
     // ── The transition's kind and its director ──
     // One shape decides both: a side with nothing entering is the current view
     // re-presented in place, and an entering side is a view arriving — the
     // director is read off the same side the kind walks.
     TransitionKind kind = SceneKind(convergence, enteringNodes.Count > 0);
-    IReadOnlyList<PlatformControl> directorChain = kind is TransitionKind.Exit or TransitionKind.Dismiss
+    IReadOnlyList<PControl> directorChain = kind is TransitionKind.Exit or TransitionKind.Dismiss
                                                      ? departingViews
                                                      : arrivingViews;
-    PlatformControl? directorView = directorChain.FirstOrDefault(v => v is ISceneTransition);
+    PControl? directorView = directorChain.FirstOrDefault(v => v is ISceneTransition);
 
     // ── Mount the entering side (outermost first, the outermost into the host) ──
     if (enteringNodes.Count > 0)
@@ -164,7 +164,7 @@ internal sealed class PlatformRevealStage
       for (int i = 0; i < enteringNodes.Count; i++)
       {
         Location chainNode = enteringNodes[i];
-        if (chainNode.Presenter is not PlatformControl)
+        if (chainNode.Presenter is not PControl)
           continue;
 
         // Every node of a platform chain is a PlatformLocation — the model
@@ -172,7 +172,7 @@ internal sealed class PlatformRevealStage
         // node's own chain parent — the shared prefix's site, or the host at
         // the root — never a positional alignment with the resolved chain.
         var location = (PlatformLocation)chainNode;
-        ILayoutBody<PlatformControl>? parentBody = chainNode.Parent is { } parent
+        ILayoutBody<PControl>? parentBody = chainNode.Parent is { } parent
                                                      ? ((PlatformLocation)parent).Body
                                                      : _host;
         if (parentBody is null)
@@ -189,14 +189,14 @@ internal sealed class PlatformRevealStage
     }
 
     // ── the entering side is laid out but invisible ──
-    foreach (PlatformControl view in enteringViews)
+    foreach (PControl view in enteringViews)
     {
       SetVisible(view, true);
       view.Opacity = 0;
       view.IsHitTestVisible = false;
     }
 
-    if (_host is ILayoutBody<PlatformControl> { IsAttachedToVisualTree: true } &&
+    if (_host is ILayoutBody<PControl> { IsAttachedToVisualTree: true } &&
         arrivingView is { IsLoaded: false })
       await UIDispatcher.WaitForLoadedAsync();
 
@@ -234,14 +234,14 @@ internal sealed class PlatformRevealStage
     // the superseding convergence. ──
     if (!IsSuperseded(mounted))
     {
-      foreach (PlatformControl view in arrivingViews)
+      foreach (PControl view in arrivingViews)
       {
         SetVisible(view, true);
         view.Opacity = 1;
         view.IsHitTestVisible = true;
       }
 
-      foreach (PlatformControl view in departingViews)
+      foreach (PControl view in departingViews)
       {
         SetVisible(view, false);
         view.Opacity = 1;
@@ -266,12 +266,12 @@ internal sealed class PlatformRevealStage
   {
     foreach (Location node in released)
     {
-      if (node.Presenter is not PlatformControl)
+      if (node.Presenter is not PControl)
         continue;
 
       var location = (PlatformLocation)node;
-      ILayoutBody<PlatformControl>? parentBody = node.Parent is null
-                                                   ? _host as ILayoutBody<PlatformControl>
+      ILayoutBody<PControl>? parentBody = node.Parent is null
+                                                   ? _host as ILayoutBody<PControl>
                                                    : ((PlatformLocation)node.Parent).Body;
       if (parentBody is null)
         continue;
@@ -299,7 +299,7 @@ internal sealed class PlatformRevealStage
 
   /// <summary>Whether a newer reveal already moved a mounted body's active child past this change.</summary>
   private static bool IsSuperseded(
-    IReadOnlyDictionary<ILayoutBody<PlatformControl>, IViewLocation<PlatformControl>> mounted)
+    IReadOnlyDictionary<ILayoutBody<PControl>, IViewLocation<PControl>> mounted)
   {
     foreach (var pair in mounted)
       if (!ReferenceEquals(pair.Key.ActiveChild, pair.Value))
@@ -307,7 +307,7 @@ internal sealed class PlatformRevealStage
     return false;
   }
 
-  private static void SetVisible(PlatformControl view, bool visible)
+  private static void SetVisible(PControl view, bool visible)
   {
 #if AVALONIA
     view.IsVisible = visible;

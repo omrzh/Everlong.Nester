@@ -14,27 +14,27 @@ namespace Everlong.Nester.Shell;
 public static class ShellOperatorExtensions
 {
   /// <summary>Converts a shell state to the Avalonia window state.</summary>
-  public static WindowState AsWindowState(this HostState hostState)
+  public static PWindowState AsWindowState(this HostState hostState)
   {
     return hostState switch
     {
-      HostState.Normal => WindowState.Normal,
-      HostState.Minimized => WindowState.Minimized,
-      HostState.Maximized => WindowState.Maximized,
-      HostState.FullScreen => WindowState.FullScreen,
+      HostState.Normal => PWindowState.Normal,
+      HostState.Minimized => PWindowState.Minimized,
+      HostState.Maximized => PWindowState.Maximized,
+      HostState.FullScreen => PWindowState.FullScreen,
       _ => throw new ArgumentOutOfRangeException(nameof(hostState), hostState, null)
     };
   }
 
   /// <summary>Converts an Avalonia window state to the shell state.</summary>
-  public static HostState AsShellState(this WindowState windowState)
+  public static HostState AsShellState(this PWindowState windowState)
   {
     return windowState switch
     {
-      WindowState.Normal => HostState.Normal,
-      WindowState.Minimized => HostState.Minimized,
-      WindowState.Maximized => HostState.Maximized,
-      WindowState.FullScreen => HostState.FullScreen,
+      PWindowState.Normal => HostState.Normal,
+      PWindowState.Minimized => HostState.Minimized,
+      PWindowState.Maximized => HostState.Maximized,
+      PWindowState.FullScreen => HostState.FullScreen,
       _ => throw new ArgumentOutOfRangeException(nameof(windowState), windowState, null)
     };
   }
@@ -46,7 +46,7 @@ public static class ShellOperatorExtensions
   ///   stage subtree (host code above the stage holds its shell from the
   ///   host contract).
   /// </summary>
-  public static IShell? GetShell(this PlatformControl control)
+  public static IShell? GetShell(this PControl control)
   {
     StyledElement? node = control;
     while (node is not null)
@@ -67,14 +67,14 @@ public static class ShellOperatorExtensions
   ///   shell resolved by <see cref="GetShell"/>; passes through when no
   ///   shell is reachable.
   /// </summary>
-  public static ValueTask<IntentResult> DispatchIntent(this PlatformControl control, IIntent intent)
+  public static ValueTask<IntentResult> DispatchIntent(this PControl control, IIntent intent)
     => control.GetShell()?.DispatchIntent(control, intent)
        ?? new ValueTask<IntentResult>(IntentResult.Pass);
 
   /// <summary>
   ///   Fire-and-forget variant of <see cref="DispatchIntent"/>.
   /// </summary>
-  public static bool PostIntent(this PlatformControl control, IIntent intent)
+  public static bool PostIntent(this PControl control, IIntent intent)
   {
     IShell? ctx = control.GetShell();
     if (ctx is null)
