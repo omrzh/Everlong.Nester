@@ -15,8 +15,9 @@ Nester is a compile-time-first UI infrastructure. Its axiom is `state' = f(impul
 ## Common Traps
 
 1. **`dotnet test` accepts `-v` and nothing else.** The build noise flags (`--nologo`, `-clp:*`, `-tl:*`) are MSBuild flags; under the MTP runner that `global.json` selects they are unknown options, and the run reports zero tests and exits 5 without ever naming the flag responsible. Keep them on `dotnet build`. The working invocation is `dotnet test --solution Everlong.Nester.slnx`, and an empty `TestResults/` left in the working directory is the sign that a run really engaged the runner.
+2. **`IDE0031` (null propagation) never appears in build output — only in `dotnet format`.** Unlike `IDE0005`, raising it to `warning` does not make `EnforceCodeStyleInBuild` surface it: a full `dotnet build` stays silent while `dotnet format <proj> --verify-no-changes` reports `warning IDE0031` and exits 2. Its severity lives on its own option line (`dotnet_style_null_propagation = true:warning`, `.editorconfig:58`), because an option-backed rule carries its severity there while an ID-only rule (`IDE0005`, `CS0105`, `CS1574`) goes in the `dotnet_diagnostic.*` block. At the default `suggestion` the format gate passes with the violation still in the file — that is how six sites in the Avalonia controls drifted out of shape.
 
 ## Commit Gate
 
-1. Ensure changed files are formatted with `dotnet format` and free of build warnings/diagnostics, specifically `IDE0005`, `CS1574`, and `CS0105`.
+1. Ensure changed files are formatted with `dotnet format` and free of build warnings/diagnostics, specifically `IDE0005`, `CS1574`, `CS0105`, and `IDE0031`.
 2. Format the commit message according to the `commit-messages` skill.

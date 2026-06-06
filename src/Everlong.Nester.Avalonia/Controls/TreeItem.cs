@@ -92,18 +92,14 @@ public partial class TreeItem : HeaderedItemsControl
   {
     base.OnApplyTemplate(e);
 
-    if (_headerButton is not null)
-      _headerButton.Click -= OnHeaderButtonClicked;
-    if (_expandButton is not null)
-      _expandButton.Click -= OnExpandButtonClicked;
+    _headerButton?.Click -= OnHeaderButtonClicked;
+    _expandButton?.Click -= OnExpandButtonClicked;
 
     _headerButton = e.NameScope.Find<Button>("PART_HeaderButton");
-    if (_headerButton is not null)
-      _headerButton.Click += OnHeaderButtonClicked;
+    _headerButton?.Click += OnHeaderButtonClicked;
 
     _expandButton = e.NameScope.Find<Button>("PART_ExpandButton");
-    if (_expandButton is not null)
-      _expandButton.Click += OnExpandButtonClicked;
+    _expandButton?.Click += OnExpandButtonClicked;
   }
 
   private void OnHeaderButtonClicked(object? sender, RoutedEventArgs e)

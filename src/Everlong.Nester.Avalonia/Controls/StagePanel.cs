@@ -135,14 +135,12 @@ internal class StagePanel : PGrid, IShellStage, ILayerStage
     private void AttachContent()
     {
       _content = _layer.Content as IFocusPolicySurface;
-      if (_content is not null)
-        _content.FocusPolicyChanged += _stage.RecomputeTabModes;
+      _content?.FocusPolicyChanged += _stage.RecomputeTabModes;
     }
 
     private void DetachContent()
     {
-      if (_content is not null)
-        _content.FocusPolicyChanged -= _stage.RecomputeTabModes;
+      _content?.FocusPolicyChanged -= _stage.RecomputeTabModes;
       _content = null;
     }
   }
