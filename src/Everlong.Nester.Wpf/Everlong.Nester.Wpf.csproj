@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <RootNamespace>Everlong.Nester</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>$(DefineConstants);WPF</DefineConstants>
+    <UseWPF>true</UseWPF>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Everlong.Nester.Extensions.Wpf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Everlong.Nester\Everlong.Nester.csproj" />
+  </ItemGroup>
+
+  <!-- Single-source file shared with the Avalonia platform project (kept in Avalonia) -->
+  <ItemGroup>
+    <!-- Presentation -->
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\SharedAttributes.cs" Link="Presentation\SharedAttributes.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\ShellFlyingLayer.cs" Link="Presentation\ShellFlyingLayer.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\ISceneTransition.cs" Link="Presentation\ISceneTransition.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\TransitionKind.cs" Link="Presentation\TransitionKind.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\TransitionContext.cs" Link="Presentation\TransitionContext.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\ILayoutControl.cs" Link="Presentation\ILayoutControl.cs" />
+  </ItemGroup>
+
+</Project>
