@@ -23,6 +23,11 @@
 
   <!-- Single-source file shared with the Avalonia platform project (kept in Avalonia) -->
   <ItemGroup>
+    <!-- Controls -->
+    <Compile Include="..\Everlong.Nester.Avalonia\Controls\StagePanel.cs" Link="Controls\StagePanel.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Controls\ContentLayerLease.cs" Link="Controls\ContentLayerLease.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Controls\TreeControl.shared.cs" Link="Controls\TreeControl.shared.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Controls\TreeItem.shared.cs" Link="Controls\TreeItem.shared.cs" />
     <!-- Presentation -->
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\SharedAttributes.cs" Link="Presentation\SharedAttributes.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\ShellFlyingLayer.cs" Link="Presentation\ShellFlyingLayer.cs" />

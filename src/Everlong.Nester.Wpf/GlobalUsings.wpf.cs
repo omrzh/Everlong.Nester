@@ -10,9 +10,15 @@
 // it marks a name that stands for a platform type rather than one of ours.
 
 global using PColor = System.Windows.Media.Color;
+global using PContentControl = System.Windows.Controls.ContentControl;
 global using PCornerRadius = System.Windows.CornerRadius;
+global using PHorizontalAlignment = System.Windows.HorizontalAlignment;
+global using PApp = System.Windows.Application;
 global using PCanvas = System.Windows.Controls.Canvas;
 global using PControl = System.Windows.FrameworkElement;
+global using PGrid = System.Windows.Controls.Grid;
 global using PRect = System.Windows.Rect;
 global using PThickness = System.Windows.Thickness;
+global using PVerticalAlignment = System.Windows.VerticalAlignment;
+global using PVisual = System.Windows.UIElement;
 global using PWindowState = System.Windows.WindowState;
