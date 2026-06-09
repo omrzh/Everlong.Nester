@@ -17,6 +17,7 @@ global using PApp = System.Windows.Application;
 global using PCanvas = System.Windows.Controls.Canvas;
 global using PControl = System.Windows.FrameworkElement;
 global using PGrid = System.Windows.Controls.Grid;
+global using PWindow = System.Windows.Window;
 global using PRect = System.Windows.Rect;
 global using PThickness = System.Windows.Thickness;
 global using PVerticalAlignment = System.Windows.VerticalAlignment;
