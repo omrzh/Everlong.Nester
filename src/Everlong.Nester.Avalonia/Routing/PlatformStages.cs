@@ -30,9 +30,8 @@ internal sealed class AssembleViewsStage
     if (shell is null)
       return;
 
-    IViewLocator<PControl>? viewLocator = shell.GetPlatformService<IViewLocator<PControl>>();
-    if (viewLocator is null)
-      throw new InvalidOperationException(
+    IViewLocator<PControl> viewLocator = shell.GetPlatformService<IViewLocator<PControl>>()
+      ?? throw new InvalidOperationException(
         "The shell provides no view locator — GetPlatformService<IViewLocator<T>>() returned null.");
 
     foreach (Location node in chain)
