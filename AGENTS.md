@@ -20,5 +20,5 @@ Nester is a compile-time-first UI infrastructure. Its axiom is `state' = f(impul
 
 ## Commit Gate
 
-1. Ensure changed files are formatted with `dotnet format` and free of build warnings/diagnostics, specifically `IDE0005`, `CS1574`, `CS0105`, and `IDE0031`.
-2. Format the commit message according to the `commit-messages` skill.
+1. Format the commit message according to the `commit-messages` skill.
+2. Run `./.agents/commit-gate.sh` (usage: `--help`). The gate's policy — which diagnostics fail — lives in `.editorconfig`; the script only runs the toolchain.
