@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# The commit gate — the `AGENTS.md` → "Commit Gate" section, executable.
+# The commit gate — the repository's commit discipline, executable.
 #
 # Policy lives in .editorconfig, which is where the toolchain reads it: which
 # rules exist, and how loud they are.  This script is the procedure that makes
@@ -9,17 +9,18 @@
 # and an override is exactly how a gate ends up green on a rule that nobody
 # switched on.
 #
-#   build    `--no-incremental` and NO `-clp:ErrorsOnly` (#3): the quiet build
-#            filters warnings.  Refuses any warning or error — this is where
-#            the compiler and analyzer IDs (CS*, MVVMTK*) surface.  It does NOT
-#            see the option-backed style rules, at any severity.
-#   format   one project at a time, never solution-wide (HARD RULE 4), at the
-#            default severity: the option-backed IDE rules (coalesce, null
-#            propagation) are visible only here.  Paths must arrive relative to
-#            the REPOSITORY ROOT — an MSYS absolute path (/d/...) or a
-#            project-relative `--include` makes it analyse nothing and exit 0.
-#   test     the MTP runner accepts `-v` and nothing else (#1), and a run that
-#            reports zero tests is a failure, not a pass.
+#   build    `--no-incremental`, and no `-clp:ErrorsOnly`: that switch filters
+#            warnings, and the point here is to see them.  Refuses any warning
+#            or error — this is where the compiler and analyzer IDs surface.
+#            It does NOT see the option-backed style rules, at any severity.
+#   format   one project at a time, never solution-wide (a solution-wide run
+#            rewrites files nobody touched), at the default severity: the
+#            option-backed IDE rules are visible only here.  Paths must arrive
+#            relative to the REPOSITORY ROOT — an MSYS absolute path (/d/...) or
+#            a project-relative `--include` makes it analyse nothing, exit 0.
+#   test     the runner this repository selects takes `-v` and nothing else;
+#            build noise flags make it report zero tests and exit 5.  A run
+#            that reports zero tests is a failure here, not a pass.
 #   message  subject and body shape per the `commit-messages` skill.
 #
 # Read-only: it never formats in place, never stages, never commits.  Logs land
@@ -252,7 +253,7 @@ if [ "$DO_TEST" = 1 ]; then
     note "log: ${LOG#"$REPO_ROOT"/}"
     record test fail "exit $CODE"; FAILED=1
   elif [ -z "${TOTAL:-}" ] || [ "$TOTAL" = 0 ]; then
-    bad "the runner reported no tests — see AGENTS.md Common Traps #1"
+    bad "the runner reported no tests — the run never engaged the tests"
     note "log: ${LOG#"$REPO_ROOT"/}"
     record test fail "no tests ran"; FAILED=1
   else

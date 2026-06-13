@@ -1,6 +1,7 @@
 // NOTE: Platform-paired file — the Avalonia side keeps its own GlobalUsings.avalonia.cs.
 //
-// HARD RULE 5 exemption, narrow by design: only ALIASES may be declared here.
+// Exemption from the per-file-import rule, narrow by design: only ALIASES may
+// be declared here.
 // A single-source file is compiled into both platform packages, so a name it
 // spells has to resolve on both sides — the platform types behind these names
 // differ, the names do not.  Namespace imports are not aliases and do not

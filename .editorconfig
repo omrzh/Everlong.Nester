@@ -53,6 +53,11 @@ dotnet_naming_style.pascal_case.required_prefix =
 dotnet_naming_style.pascal_case.required_suffix =
 dotnet_naming_style.pascal_case.word_separator =
 dotnet_naming_style.pascal_case.capitalization = pascal_case
+# Rule severity can be declared either on the rule's own option line (as in
+# this block) or through `dotnet_diagnostic.<ID>.severity`, which wins when the
+# two disagree.  Both forms are read by `dotnet format` and by the IDE — the
+# build reports neither at any severity — so a rule parked at `suggestion`
+# here passes the gate without ever being enforced.
 dotnet_style_coalesce_expression = true:warning
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
 dotnet_style_null_propagation = true:warning
