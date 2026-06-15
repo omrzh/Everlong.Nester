@@ -18,7 +18,7 @@ public class BindingProxy : Freezable
   /// </summary>
   public object Data
   {
-    get => (object)GetValue(DataProperty);
+    get => GetValue(DataProperty);
     set => SetValue(DataProperty, value);
   }
 

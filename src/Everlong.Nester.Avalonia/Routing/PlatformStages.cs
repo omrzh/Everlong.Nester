@@ -270,7 +270,7 @@ internal sealed class PlatformRevealStage
 
       var location = (PlatformLocation)node;
       ILayoutBody<PControl>? parentBody = node.Parent is null
-                                                   ? _host as ILayoutBody<PControl>
+                                                   ? _host
                                                    : ((PlatformLocation)node.Parent).Body;
       if (parentBody is null)
         continue;

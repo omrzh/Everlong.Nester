@@ -172,8 +172,9 @@ csharp_align_multiline_property_pattern = true
 csharp_prefer_system_threading_lock = true:suggestion
 csharp_style_prefer_unbound_generic_type_in_nameof = true:suggestion
 
-# unused using and etc.
+# ID-only rules: these have no option of their own.
 dotnet_diagnostic.IDE0005.severity = warning
+dotnet_diagnostic.IDE0004.severity = warning
 dotnet_diagnostic.CS0105.severity = warning
 dotnet_diagnostic.CS1574.severity = warning
 

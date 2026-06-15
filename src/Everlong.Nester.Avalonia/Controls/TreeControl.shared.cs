@@ -38,7 +38,13 @@ public partial class TreeControl
   /// </summary>
   public ICommand? ItemCommand
   {
+    // The platform halves declare this property differently: Avalonia's
+    // GetValue<T> is generic and already returns ICommand?, WPF's takes a
+    // DependencyProperty and returns object.  The cast is therefore required
+    // in one compilation and redundant in the other, so it stays.
+#pragma warning disable IDE0004
     get => (ICommand?)GetValue(ItemCommandProperty);
+#pragma warning restore IDE0004
     set => SetValue(ItemCommandProperty, value);
   }
 }
