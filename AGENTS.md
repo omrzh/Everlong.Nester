@@ -13,5 +13,5 @@ Nester is a compile-time-first UI infrastructure. Its axiom is `state' = f(impul
 
 ## Commit Gate
 
-1. Format the commit message according to the `commit-messages` skill.
-2. Run `./.agents/commit-gate.sh` (usage: `--help`). The gate's policy — which diagnostics fail — lives in `.editorconfig`; the script only runs the toolchain.
+1. Run `./.agents/commit-gate.sh` (usage: `--help`). The gate's policy — which diagnostics fail — lives in `.editorconfig`; the script only runs the toolchain.
+2. Format the commit message according to the `commit-messages` skill, and let the gate check it (`--message <file>`).
