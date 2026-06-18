@@ -23,6 +23,9 @@ This repository's local agent workspace. Three kinds of thing live here:
   `artifacts/` only.
 - Every script takes its paths as arguments or derives them from its own
   location — none of them assumes this machine's layout.
+- A script the docs tell you to run as `./name` is stored executable: the index
+  mode is what git hands out, not the working copy's
+  (`git update-index --chmod=+x <path>`).
 - Exit codes: `0` fine, `1` a problem was found, `2` bad usage.
 - `artifacts/` holds outputs and throwaway state; this folder holds programs
   that can be run again tomorrow.
