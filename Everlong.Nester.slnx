@@ -6,8 +6,10 @@
     <Project Path="src/Everlong.Nester.Avalonia/Everlong.Nester.Avalonia.csproj" />
     <Project Path="src/Everlong.Nester.Wpf/Everlong.Nester.Wpf.csproj" />
     <Project Path="src/Everlong.Nester.Extensions/Everlong.Nester.Extensions.csproj" />
+    <Project Path="src/Everlong.Nester.Generators/Everlong.Nester.Generators.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Everlong.Nester.Generators.Tests/Everlong.Nester.Generators.Tests.csproj" />
     <Project Path="tests/Everlong.Nester.Tests/Everlong.Nester.Tests.csproj" />
   </Folder>
 </Solution>

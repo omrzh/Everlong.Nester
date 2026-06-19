@@ -1,0 +1,24 @@
+using Microsoft.CodeAnalysis;
+namespace Everlong.Nester.Generators.Extensions;
+
+/// <summary>
+/// Extension methods for the <see cref="SymbolKindExtensions"/> type.
+/// </summary>
+internal static class SymbolKindExtensions
+{
+  /// <summary>
+  /// Converts a <see cref="SymbolKind"/> value to either "field" or "property" based on the kind.
+  /// </summary>
+  /// <param name="kind">The input <see cref="SymbolKind"/> value.</param>
+  /// <returns>Either "field" or "property" based on <paramref name="kind"/>.</returns>
+  /// <exception cref="ArgumentException">Thrown if <paramref name="kind"/> is neither <see cref="SymbolKind.Field"/> nor <see cref="SymbolKind.Property"/>.</exception>
+  public static string ToFieldOrPropertyKeyword(this SymbolKind kind)
+  {
+    return kind switch
+    {
+      SymbolKind.Field => "field",
+      SymbolKind.Property => "property",
+      _ => throw new ArgumentException($"Unsupported symbol kind '{kind}' for field or property keyword conversion."),
+    };
+  }
+}
