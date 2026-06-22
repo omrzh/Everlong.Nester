@@ -7,9 +7,11 @@
     <Project Path="src/Everlong.Nester.Wpf/Everlong.Nester.Wpf.csproj" />
     <Project Path="src/Everlong.Nester.Extensions/Everlong.Nester.Extensions.csproj" />
     <Project Path="src/Everlong.Nester.Generators/Everlong.Nester.Generators.csproj" />
+    <Project Path="src/Everlong.Nester.CodeFixers/Everlong.Nester.CodeFixers.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Everlong.Nester.Generators.Tests/Everlong.Nester.Generators.Tests.csproj" />
+    <Project Path="tests/Everlong.Nester.CodeFixers.Tests/Everlong.Nester.CodeFixers.Tests.csproj" />
     <Project Path="tests/Everlong.Nester.Tests/Everlong.Nester.Tests.csproj" />
   </Folder>
 </Solution>
