@@ -1,5 +1,7 @@
-// for list patterns grammar
+// pollyfills exemption from all rules
+#pragma warning disable
 
+// for list patterns grammar
 namespace System
 {
   internal struct Index
