@@ -13,5 +13,6 @@ Nester is a compile-time-first UI infrastructure. Its axiom is `state' = f(impul
 
 ## Commit Gate
 
-1. Run `./.agents/commit-gate.sh` (usage: `--help`). The gate's policy — which diagnostics fail — lives in `.editorconfig`; the script only runs the toolchain.
-2. Format the commit message according to the `commit-messages` skill, and let the gate check it (`--message <file>`).
+1. Run `./.agents/commit-gate.sh` (usage: `--help`) before a commit, and only before a commit: it checks the pending change, so with nothing pending it refuses, and it is not a build runner — `dotnet build` and `dotnet test` are. `--all` checks every project, for a push or a release.
+2. The gate's policy — which diagnostics fail — lives in `.editorconfig`; the script only runs the toolchain.
+3. Format the commit message according to the `commit-messages` skill, and let the gate check it (`--message <file>`).

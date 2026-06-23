@@ -9,19 +9,37 @@
 # and an override is exactly how a gate ends up green on a rule that nobody
 # switched on.
 #
+# The gate checks the commit you are about to make — not the repository, and
+# not as a build runner.  With nothing pending it refuses (exit 2): a build or a
+# test run is `dotnet build` / `dotnet test`, which are cheaper and say what
+# they are.  `--all` is the one exception: it checks every project, whether or
+# not anything is pending.
+#
+# What it runs, and what that costs on this machine (warm tree, 10 projects):
+#
 #   build    `--no-incremental`, and no `-clp:ErrorsOnly`: that switch filters
 #            warnings, and the point here is to see them.  Refuses any warning
 #            or error — this is where the compiler and analyzer IDs surface.
 #            It does NOT see the option-backed style rules, at any severity.
+#            7s, and the flag costs nothing: an incremental run measures 11s.
 #   format   one project at a time, never solution-wide (a solution-wide run
 #            rewrites files nobody touched), at the default severity: the
 #            option-backed IDE rules are visible only here.  Paths must arrive
 #            relative to the REPOSITORY ROOT — an MSYS absolute path (/d/...) or
 #            a project-relative `--include` makes it analyse nothing, exit 0.
+#            9s a project, so this is the step worth scoping: by default only
+#            the projects the change reaches are checked, plus any project that
+#            LINKS one of the changed files — a linked file is compiled twice,
+#            by two compilations, and the findings can differ between them.
+#            `--all` checks every project, four at a time (94s -> 27s).
 #   test     the runner this repository selects takes `-v` and nothing else;
 #            build noise flags make it report zero tests and exit 5.  A run
-#            that reports zero tests is a failure here, not a pass.
+#            that reports zero tests is a failure here, not a pass.  The whole
+#            solution, always: 8s.
 #   message  subject and body shape per the `commit-messages` skill.
+#
+# A pending change that touches no compilable path skips build, format and test:
+# there is nothing for them to see.
 #
 # Read-only: it never formats in place, never stages, never commits.  Logs land
 # in artifacts/commit-gate/.  `--self-test` plants one violation per half and
@@ -30,7 +48,8 @@
 # Usage: .agents/commit-gate.sh [options]
 #
 #   --message <file>   also check a commit message file (`-` reads stdin)
-#   --scoped           check formatting only for the paths this branch changed
+#   --all              check every project, not only the ones the change reaches
+#   --scoped           the default; accepted for compatibility
 #   --no-build         skip the build step
 #   --no-format        skip the format step
 #   --no-test          skip the test step
@@ -51,11 +70,12 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SOLUTION="Everlong.Nester.slnx"
 LOG_DIR="$REPO_ROOT/artifacts/commit-gate"
 
-DO_BUILD=1 DO_FORMAT=1 DO_TEST=1 QUIET=0 SCOPED=0 SELF_TEST=0 MESSAGE=""
+DO_BUILD=1 DO_FORMAT=1 DO_TEST=1 QUIET=0 SCOPED=0 SELF_TEST=0 ALL=0 MESSAGE=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --message)   MESSAGE="${2:-}"; shift 2 ;;
+    --all)       ALL=1; shift ;;
     --scoped)    SCOPED=1; shift ;;
     --no-build)  DO_BUILD=0; shift ;;
     --no-format) DO_FORMAT=0; shift ;;
@@ -83,6 +103,25 @@ record() { STEP_NAMES+=("$1"); STEP_VERDICTS+=("$2"); STEP_NOTES+=("$3"); }
 # The file:line of every diagnostic in a log, deduplicated and stripped of the
 # project suffix MSBuild appends.
 diagnostics() { grep -E ": (warning|error) " "$1" | sed 's/ \[.*//' | sort -u; }
+
+# Whether a project compiles a pending file through `Compile Include`/`Link`.  A
+# linked file lands in two compilations, and `dotnet format` judges them
+# separately — the home project's run does not cover the borrowing one's.
+links_a_pending_file() {
+  local proj="$1" proj_dir include resolved pending
+  [ -n "$(printf '%s' "$CODE_PENDING" | tr -d '[:space:]')" ] || return 1
+  proj_dir="$(cd "$(dirname "$proj")" && pwd)"
+  while IFS= read -r include; do
+    [ -n "$include" ] || continue
+    case "$include" in *'*'*|*'?'*) continue ;; esac
+    resolved="$(cd "$proj_dir" && realpath -m "$include")"
+    while IFS= read -r pending; do
+      [ -n "$pending" ] || continue
+      [ "$resolved" = "$REPO_ROOT/$pending" ] && return 0
+    done <<<"$CODE_PENDING"
+  done < <(grep -o 'Compile Include="[^"]*"' "$proj" 2>/dev/null | sed 's/Compile Include="//; s/"$//')
+  return 1
+}
 
 mkdir -p "$LOG_DIR"
 
@@ -152,9 +191,28 @@ if [ ! -f "$SOLUTION" ]; then
   bad "$SOLUTION not found under $REPO_ROOT"; exit 2
 fi
 note "${#PROJECTS[@]} projects; policy in .editorconfig, procedure here"
-note "$(git status --porcelain | wc -l | tr -d ' ') pending path(s)"
+PENDING="$(git status --porcelain)"
+PENDING_PATHS="$(printf '%s\n' "$PENDING" | awk 'NF {print $NF}')"
+CODE_PENDING="$(printf '%s\n' "$PENDING_PATHS" \
+  | grep -E '\.(cs|csproj|slnx|xaml|axaml|props|targets)$|(^|/)\.editorconfig$|(^|/)global\.json$' || true)"
+if [ -z "$(printf '%s' "$PENDING_PATHS" | tr -d '[:space:]')" ] && [ "$ALL" = 0 ]; then
+  bad "nothing to commit"
+  note "the gate checks a commit, not the repository — to build or test: dotnet build / dotnet test"
+  note "(--all checks every project, and needs nothing pending)"
+  exit 2
+fi
+if [ "$ALL" = 1 ]; then
+  note "scope: every project (--all)"
+else
+  note "scope: the projects this change reaches; $(printf '%s\n' "$CODE_PENDING" | grep -c . || true) code path(s) pending"
+fi
 if git diff --cached --name-only --diff-filter=ACM | grep -qx '.agents/handoff.md'; then
   note "WARNING: .agents/handoff.md is staged — it is a temporary file and must never be committed"
+fi
+if [ "$ALL" = 0 ] && [ -z "$(printf '%s' "$CODE_PENDING" | tr -d '[:space:]')" ]; then
+  note "only non-code paths pending — build, format and test have nothing to see"
+  DO_BUILD=0; DO_FORMAT=0; DO_TEST=0
+  record scope pass "only non-code paths pending"
 fi
 
 # -------------------------------------------------------------------- build --
@@ -184,58 +242,79 @@ fi
 # ------------------------------------------------------------------- format --
 if [ "$DO_FORMAT" = 1 ]; then
   head_line "format (per project, default severity, policy from .editorconfig)"
-  FORMAT_HITS=0
-  FORMAT_SKIPPED=0
-  FORMAT_FINDINGS=()
+  FORMAT_JOBS=4
+  FORMAT_TARGETS=()   # "<project>|<--include values, or empty for the whole project>"
   for PROJ in "${PROJECTS[@]}"; do
     [ -f "$PROJ" ] || { note "$PROJ missing, skipped"; continue; }
+    if [ "$ALL" = 1 ]; then
+      FORMAT_TARGETS+=("$PROJ|")
+      continue
+    fi
     PROJ_DIR="$(dirname "$PROJ")"
-    NAME="$(basename "$PROJ" .csproj)"
-    LOG="$LOG_DIR/format-$NAME.log"
-    FORMAT_ARGS=()
-    if [ "$SCOPED" = 1 ]; then
-      # Only the paths this branch touched.  `--include` wants them relative to
-      # the repository root (a project-relative path silently checks nothing),
-      # so the git paths pass through as they are.
-      mapfile -t INCLUDE < <(git status --porcelain | awk '{print $NF}' \
-        | grep -E '\.(cs|xaml|axaml)$' \
-        | while read -r f; do
-            case "$f" in "$PROJ_DIR"/*) printf '%s\n' "$f" ;; esac
-          done)
-      if [ "${#INCLUDE[@]}" -eq 0 ]; then
-        FORMAT_SKIPPED=$((FORMAT_SKIPPED + 1)); continue
-      fi
-      FORMAT_ARGS=(--include "${INCLUDE[@]}")
+    # The pending paths inside this project.  `--include` wants them relative to
+    # the repository root (a project-relative path silently checks nothing), so
+    # the git paths pass through as they are.
+    mapfile -t INCLUDE < <(printf '%s\n' "$CODE_PENDING" \
+      | grep -E '\.(cs|xaml|axaml)$' \
+      | while read -r f; do
+          case "$f" in "$PROJ_DIR"/*) printf '%s\n' "$f" ;; esac
+        done)
+    if [ "${#INCLUDE[@]}" -eq 0 ]; then
+      # The file may live elsewhere and be linked in here; that is a second
+      # compilation of it, so the whole project is checked.
+      links_a_pending_file "$PROJ" && FORMAT_TARGETS+=("$PROJ|")
+      continue
     fi
-    dotnet format "$PROJ" --verify-no-changes "${FORMAT_ARGS[@]}" >"$LOG" 2>&1
-    CODE=$?
-    if [ "$CODE" -ne 0 ]; then
-      bad "$PROJ (exit $CODE)"
-      FORMAT_HITS=$((FORMAT_HITS + 1))
-      # `dotnet format` also walks a project's references, so the same finding
-      # arrives once per project that pulls it in — collect and print once.
-      FOUND=0
-      while IFS= read -r LINE; do
-        [ -n "$LINE" ] && { FORMAT_FINDINGS+=("$LINE"); FOUND=1; }
-      done < <(diagnostics "$LOG")
-      if [ "$FOUND" = 0 ]; then
-        FORMAT_FINDINGS+=("$PROJ: no diagnostic line (whitespace only) — ${LOG#"$REPO_ROOT"/}")
-      fi
-    else
-      [ "$QUIET" = 0 ] && ok "$PROJ"
-    fi
+    FORMAT_TARGETS+=("$PROJ|${INCLUDE[*]}")
   done
-  if [ "$FORMAT_HITS" -gt 0 ]; then
-    printf '%s\n' "${FORMAT_FINDINGS[@]}" | sort -u | head -n 30 | sed 's/^/         /'
-    note "logs: ${LOG_DIR#"$REPO_ROOT"/}/format-*.log"
-    record format fail "$FORMAT_HITS project(s)"; FAILED=1
+
+  if [ "${#FORMAT_TARGETS[@]}" -eq 0 ]; then
+    ok "format clean" "no project reached by the change"
+    record format pass "nothing reached"
   else
-    if [ "$SCOPED" = 1 ] && [ "$FORMAT_SKIPPED" -gt 0 ]; then
-      ok "format clean" "$FORMAT_SKIPPED project(s) untouched"
+    # `dotnet format` costs a workspace load per project, so the projects run
+    # side by side — each writes its own log and its own exit code.
+    for ENTRY in "${FORMAT_TARGETS[@]}"; do
+      PROJ="${ENTRY%%|*}"; INCLUDES="${ENTRY#*|}"
+      LOG="$LOG_DIR/format-$(basename "$PROJ" .csproj).log"
+      rm -f "$LOG.code"
+      ( # shellcheck disable=SC2086
+        dotnet format "$PROJ" --verify-no-changes ${INCLUDES:+--include $INCLUDES} >"$LOG" 2>&1
+        printf '%s' "$?" >"$LOG.code" ) &
+      while [ "$(jobs -rp | wc -l)" -ge "$FORMAT_JOBS" ]; do wait -n; done
+    done
+    wait
+
+    FORMAT_HITS=0
+    FORMAT_FINDINGS=()
+    for ENTRY in "${FORMAT_TARGETS[@]}"; do
+      PROJ="${ENTRY%%|*}"
+      LOG="$LOG_DIR/format-$(basename "$PROJ" .csproj).log"
+      CODE="$(cat "$LOG.code" 2>/dev/null || echo 1)"
+      if [ "$CODE" -ne 0 ]; then
+        bad "$PROJ (exit $CODE)"
+        FORMAT_HITS=$((FORMAT_HITS + 1))
+        # `dotnet format` also walks a project's references, so the same finding
+        # arrives once per project that pulls it in — collect and print once.
+        FOUND=0
+        while IFS= read -r LINE; do
+          [ -n "$LINE" ] && { FORMAT_FINDINGS+=("$LINE"); FOUND=1; }
+        done < <(diagnostics "$LOG")
+        if [ "$FOUND" = 0 ]; then
+          FORMAT_FINDINGS+=("$PROJ: no diagnostic line (whitespace only) — ${LOG#"$REPO_ROOT"/}")
+        fi
+      else
+        [ "$QUIET" = 0 ] && ok "$PROJ"
+      fi
+    done
+    if [ "$FORMAT_HITS" -gt 0 ]; then
+      printf '%s\n' "${FORMAT_FINDINGS[@]}" | sort -u | head -n 30 | sed 's/^/         /'
+      note "logs: ${LOG_DIR#"$REPO_ROOT"/}/format-*.log"
+      record format fail "$FORMAT_HITS project(s)"; FAILED=1
     else
-      ok "format clean"
+      ok "format clean" "${#FORMAT_TARGETS[@]} project(s) checked"
+      record format pass "${#FORMAT_TARGETS[@]} project(s)"
     fi
-    record format pass ""
   fi
 fi
 
