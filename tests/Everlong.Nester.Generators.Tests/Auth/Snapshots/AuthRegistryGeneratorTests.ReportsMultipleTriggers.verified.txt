@@ -1,0 +1,2 @@
+﻿Error NSTR2004: Multiple [AuthRegistry] attributes found. Only one AuthRegistry is allowed per assembly.
+Error NSTR2004: Multiple [AuthRegistry] attributes found. Only one AuthRegistry is allowed per assembly.

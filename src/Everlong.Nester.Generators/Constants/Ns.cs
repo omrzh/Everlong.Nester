@@ -11,7 +11,9 @@ internal static class Ns
   internal const string NesterRouting = $"Everlong.Nester.Routing";
   internal const string NesterDi = $"Everlong.DI";
   internal const string NesterPresentation = $"Everlong.Nester.Presentation";
+  internal const string NesterAuth = $"Everlong.Nester.Auth";
   internal const string UsingNester = $"using Everlong.Nester;";
+  internal const string UsingNesterAuth = $"using {NesterAuth};";
   internal const string WpfControl = "System.Windows";
   internal const string AvaloniaControls = "Avalonia.Controls";
   internal const string AvaloniaTemplates = "Avalonia.Controls.Templates";

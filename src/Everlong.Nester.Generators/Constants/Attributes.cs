@@ -18,6 +18,13 @@ internal static class Attributes
   internal const string InjectFull = $"{Ns.NesterDi}.InjectAttribute";
   internal const string EditorBrowsable = "global::System.ComponentModel.EditorBrowsable";
 
+  internal const string AuthRegistry = "AuthRegistryAttribute";
+  internal const string AuthRegistryFull = $"{Ns.NesterAuth}.{AuthRegistry}";
+  internal const string Authorize = "AuthorizeAttribute";
+  internal const string AuthorizeFull = $"{Ns.NesterAuth}.{Authorize}";
+  internal const string Concat = "ConcatAttribute";
+  internal const string ConcatFull = $"{Ns.NesterAuth}.{Concat}`1";
+
   internal const string ViewLocator = "ViewLocatorAttribute";
   internal const string ViewLocatorFull = $"{Ns.NesterPresentation}.{ViewLocator}";
 

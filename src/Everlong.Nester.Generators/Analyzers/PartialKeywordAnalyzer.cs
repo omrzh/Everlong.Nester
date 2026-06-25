@@ -93,6 +93,11 @@ public sealed class PartialKeywordAnalyzer : DiagnosticAnalyzer
         if (attrName == "RoutableAttribute")
           return true;
       }
+      else if (attrNs == Ns.NesterAuth)
+      {
+        if (attrName == "AuthRegistryAttribute")
+          return true;
+      }
       else if (attrNs == Ns.NesterPresentation)
       {
         if (attrName is "ViewLocatorAttribute" or "WpfViewLocatorAttribute")

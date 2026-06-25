@@ -23,8 +23,10 @@ internal static class Descriptors
 
   // 2xxx: declaration configuration — a declaration allowed once per assembly.
   //   NSTR2002/2003 MultipleViewLocators / MultipleViewDictionaries — one view locator per assembly.
+  //   NSTR2004 MultipleAuthRegistries — one auth registry per assembly.
   internal const string MultipleViewLocatorsId = "NSTR2002";
   internal const string MultipleViewDictionariesId = "NSTR2003";
+  internal const string MultipleAuthRegistriesId = "NSTR2004";
 
   // 9xxx: internal generator faults — they do not reach user code.
   internal const string TransformErrorId = "NSTR9998";
@@ -110,6 +112,15 @@ internal static class Descriptors
     MultipleViewDictionariesId,
     "Multiple WpfViewLocator attributes",
     "Multiple [WpfViewLocator] attributes found. Only one WpfViewLocator is allowed per assembly.",
+    Category.Configuration,
+    DiagnosticSeverity.Error,
+    isEnabledByDefault: true);
+
+  // NSTR2004 · MultipleAuthRegistries · Error — one [AuthRegistry] per assembly.
+  internal static readonly DiagnosticDescriptor MultipleAuthRegistries = new(
+    MultipleAuthRegistriesId,
+    "Multiple AuthRegistry attributes",
+    "Multiple [AuthRegistry] attributes found. Only one AuthRegistry is allowed per assembly.",
     Category.Configuration,
     DiagnosticSeverity.Error,
     isEnabledByDefault: true);

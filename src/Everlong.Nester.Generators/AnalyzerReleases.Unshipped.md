@@ -12,5 +12,6 @@ NSTR1003 | View | Warning | View requires a parameterless constructor
 NSTR1004 | View | Warning | View cannot be instantiated by the view locator
 NSTR2002 | Configuration | Error | Multiple ViewLocator attributes
 NSTR2003 | Configuration | Error | Multiple WpfViewLocator attributes
+NSTR2004 | Configuration | Error | Multiple AuthRegistry attributes
 NSTR9998 | Transform | Error | Generator internal error at transform phase
 NSTR9999 | Generator | Error | Source Generator Exception
