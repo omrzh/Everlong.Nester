@@ -39,7 +39,10 @@
 #   message  subject and body shape per the `commit-messages` skill.
 #
 # A pending change that touches no compilable path skips build, format and test:
-# there is nothing for them to see.
+# there is nothing for them to see.  Pending paths are listed with `-uall`, so a
+# file inside a directory the commit is about to add counts like any other;
+# without it git reports the directory alone, which carries no compilable
+# suffix, and a commit that adds a directory would look like it touches nothing.
 #
 # Read-only: it never formats in place, never stages, never commits.  Logs land
 # in artifacts/commit-gate/.  `--self-test` plants one violation per half and
@@ -104,6 +107,12 @@ record() { STEP_NAMES+=("$1"); STEP_VERDICTS+=("$2"); STEP_NOTES+=("$3"); }
 # project suffix MSBuild appends.
 diagnostics() { grep -E ": (warning|error) " "$1" | sed 's/ \[.*//' | sort -u; }
 
+# Every path the working tree holds pending — staged, unstaged and untracked.
+# `-uall` is load-bearing: without it `git status --porcelain` reports an
+# entirely untracked directory as one `?? dir/` line, and the suffix filter
+# below would then see no compilable path in a commit that adds a directory.
+pending_paths() { git status --porcelain -uall | awk 'NF {print $NF}'; }
+
 # Whether a project compiles a pending file through `Compile Include`/`Link`.  A
 # linked file lands in two compilations, and `dotnet format` judges them
 # separately — the home project's run does not cover the borrowing one's.
@@ -132,8 +141,9 @@ if [ "$SELF_TEST" = 1 ]; then
   head_line "self-test (both halves must refuse a planted violation)"
   # Relative paths on purpose: an MSYS absolute path is a no-op for dotnet format.
   PROBE="src/Everlong.Nester/ZzGateProbe.cs"
+  PROBE_DIR="src/Everlong.Nester/ZzGateScope"
   PROBE_PROJ="src/Everlong.Nester/Everlong.Nester.csproj"
-  cleanup() { rm -f "$PROBE"; }
+  cleanup() { rm -f "$PROBE"; rm -rf "$PROBE_DIR"; }
   trap cleanup EXIT INT TERM
   cat >"$PROBE" <<'EOF'
 using System.Text;
@@ -177,6 +187,20 @@ EOF
     SELF_FAILED=1
   fi
 
+  # A file inside a directory that is untracked in its entirety has to be a
+  # pending path: that listing is what decides whether the gate has anything to
+  # compile, and a collapsed directory passes the suffix filter by.
+  mkdir -p "$PROBE_DIR"
+  printf 'namespace Everlong.Nester;\n\ninternal static class ZzGateScopeProbe { }\n' \
+    >"$PROBE_DIR/ZzGateScopeProbe.cs"
+  if pending_paths | grep -qx 'src/Everlong.Nester/ZzGateScope/ZzGateScopeProbe.cs'; then
+    ok "scope listing reaches inside an untracked directory"
+  else
+    bad "scope listing collapsed an untracked directory — is it still using -uall?"
+    SELF_FAILED=1
+  fi
+  rm -rf "$PROBE_DIR"
+
   cleanup; trap - EXIT INT TERM
   [ "$SELF_FAILED" = 0 ] && exit 0
   exit 1
@@ -191,8 +215,7 @@ if [ ! -f "$SOLUTION" ]; then
   bad "$SOLUTION not found under $REPO_ROOT"; exit 2
 fi
 note "${#PROJECTS[@]} projects; policy in .editorconfig, procedure here"
-PENDING="$(git status --porcelain)"
-PENDING_PATHS="$(printf '%s\n' "$PENDING" | awk 'NF {print $NF}')"
+PENDING_PATHS="$(pending_paths)"
 CODE_PENDING="$(printf '%s\n' "$PENDING_PATHS" \
   | grep -E '\.(cs|csproj|slnx|xaml|axaml|props|targets)$|(^|/)\.editorconfig$|(^|/)global\.json$' || true)"
 if [ -z "$(printf '%s' "$PENDING_PATHS" | tr -d '[:space:]')" ] && [ "$ALL" = 0 ]; then
