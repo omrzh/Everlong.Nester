@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:c="using:Everlong.Nester.Dialog"
+             mc:Ignorable="d"
+             d:DesignWidth="700"
+             d:DesignHeight="420"
+             x:Class="Everlong.Nester.Controls.SignaturePadDialogView"
+             x:DataType="c:SignaturePadDialogSession"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+  <Design.DataContext>
+    <c:SignaturePadDialogSession />
+  </Design.DataContext>
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          TextElement.Foreground="{DynamicResource Nester.DialogChrome.Foreground}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="{DynamicResource Nester.DialogChrome.Padding}"
+          BoxShadow="{DynamicResource Nester.DialogChrome.Shadow}">
+
+  <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" MinWidth="{DynamicResource Nester.Dialog.Width.Large}" MaxWidth="{DynamicResource Nester.Dialog.MaxWidth.Large}">
+      <TextBlock Grid.Row="0" Classes="DialogTitle" Text="{Binding Title}"
+                 Margin="0,0,40,8"
+                 IsVisible="{Binding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      <Button Grid.Row="0" Classes="DialogClose" Content="✕"
+              HorizontalAlignment="Right" VerticalAlignment="Top"
+              ToolTip.Tip="{Binding CloseText}"
+              AutomationProperties.Name="{Binding CloseText}"
+              Command="{Binding CloseCommand}" />
+      <TextBlock Grid.Row="1" Classes="DialogMessage" Text="{Binding Message}" Margin="0,0,0,12"
+                 IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+      <!--
+        The pad is paper: it stays light in either theme variant, so the ink a
+        user writes stays readable over it.
+      -->
+      <Border Grid.Row="2"
+              BorderBrush="{DynamicResource Nester.Border}"
+              BorderThickness="1"
+              CornerRadius="{DynamicResource Nester.CornerRadius.Medium}"
+              Background="White"
+              MinHeight="240">
+        <Canvas x:Name="SignatureCanvas"
+                Background="White"
+                ClipToBounds="True"
+                PointerPressed="OnCanvasPointerPressed"
+                PointerMoved="OnCanvasPointerMoved"
+                PointerReleased="OnCanvasPointerReleased"
+                PointerCaptureLost="OnCanvasPointerCaptureLost" />
+      </Border>
+
+      <TextBlock Grid.Row="3"
+                 HorizontalAlignment="Center"
+                 Margin="0,10,0,0"
+                 Opacity="0.75"
+                 Text="{Binding StrokeCountText}" />
+
+      <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right"
+                  Spacing="10" Margin="0,12,0,0">
+        <Button Classes="DialogAction" Content="{Binding ClearText}"
+                Command="{Binding ClearCommand}"
+                Click="OnClearClick" />
+        <Button Classes="DialogAction Primary" Content="{Binding ConfirmText}"
+                IsEnabled="{Binding CanSubmit}"
+                Click="OnConfirmClick" />
+      </StackPanel>
+    </Grid>
+  </Border>
+</UserControl>

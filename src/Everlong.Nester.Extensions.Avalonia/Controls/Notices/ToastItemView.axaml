@@ -1,0 +1,42 @@
+<c:BottomSlideItemViewBase xmlns="https://github.com/avaloniaui"
+                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                        xmlns:c="using:Everlong.Nester.Controls"
+                        xmlns:t="using:Everlong.Nester.Notice"
+                        xmlns:cvt="using:Everlong.Nester.Converters"
+                        mc:Ignorable="d"
+                        x:Class="Everlong.Nester.Controls.ToastItemView"
+                        x:DataType="t:ToastEntry"
+                        Background="Transparent">
+
+  <Design.DataContext>
+    <t:ToastEntry />
+  </Design.DataContext>
+
+  <UserControl.Resources>
+    <cvt:TypeToIconConverter x:Key="TypeToIconConverter" />
+    <cvt:TypeToBrushConverter x:Key="TypeToBrushConverter" />
+  </UserControl.Resources>
+
+  <Border Background="{DynamicResource Nester.Toast.Background}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.CornerRadius.Small}"
+          Padding="{DynamicResource Nester.Padding.Small}"
+          Margin="{DynamicResource Nester.Margin.Small}"
+          BoxShadow="{DynamicResource Nester.Shadow}"
+          MaxWidth="200">
+    <DockPanel HorizontalSpacing="8">
+      <!-- Icon -->
+      <PathIcon DockPanel.Dock="Left" Data="{Binding Level, Converter={StaticResource TypeToIconConverter}}"
+                Foreground="{Binding Level, Converter={StaticResource TypeToBrushConverter}}"
+                Width="{DynamicResource Nester.Icon.Size.Small}" Height="{DynamicResource Nester.Icon.Size.Small}"
+                IsVisible="{Binding Level, Converter={StaticResource TypeToIconConverter}, ConverterParameter=NotNull}"
+                VerticalAlignment="Center"/>
+
+      <TextBlock Text="{Binding Message}" Foreground="{DynamicResource Nester.Toast.Foreground}"
+                 VerticalAlignment="Center" HorizontalAlignment="Left" TextWrapping="Wrap" MaxLines="1"/>
+    </DockPanel>
+  </Border>
+</c:BottomSlideItemViewBase>

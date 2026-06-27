@@ -1,0 +1,341 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=netstandard">
+
+  <!--
+    The chrome theme of the Extensions platform package — the default
+    dialog chrome (surface, dimmer, keypad buttons) and the RouteSync nav
+    chrome (RouteLink / RouteTreeControl / RouteTreeItem).  Apps that use
+    the Extensions views merge this file next to the core NesterTheme.axaml:
+
+      <StyleInclude Source="avares://Everlong.Nester.Extensions.Avalonia/Themes/NesterExtendedTheme.axaml" />
+
+    The core theme does not know this chrome — every key below exists only
+    for the Extensions default views.
+
+    Palette — the color values carry the theme variants; every brush below
+    resolves its color through DynamicResource, so switching the theme
+    variant repaints the chrome without replacing the brushes.  Override a
+    color here (Light/Dark) or the paired brush to customize.
+  -->
+
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="RouteLink.axaml" />
+        <ResourceInclude Source="RouteTreeControl.axaml" />
+        <ResourceInclude Source="RouteTreeItem.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <Color x:Key="Nester.Color.Dimmer.Backdrop">#40000000</Color>
+          <Color x:Key="Nester.Color.DialogChrome.Background">#FFFFFF</Color>
+          <Color x:Key="Nester.Color.DialogChrome.Foreground">#212121</Color>
+
+          <!-- RouteLink palette -->
+          <Color x:Key="Nester.Color.RouteLink.Hover">#F0F0F0</Color>
+          <Color x:Key="Nester.Color.RouteLink.Active.Background">#1A000000</Color>
+          <Color x:Key="Nester.Color.RouteLink.Active.Foreground">#0078D7</Color>
+
+          <!-- RouteTreeItem palette -->
+          <Color x:Key="Nester.Color.RouteTreeItem.Hover">#F0F0F0</Color>
+          <Color x:Key="Nester.Color.RouteTreeItem.Selected.Background">#1A000000</Color>
+          <Color x:Key="Nester.Color.RouteTreeItem.Selected.Background.Light">#07000000</Color>
+          <Color x:Key="Nester.Color.RouteTreeItem.Active.Foreground">#0078D7</Color>
+
+          <!-- Notice palette -->
+          <Color x:Key="Nester.Color.Toast.Background">#FFFFFF</Color>
+          <Color x:Key="Nester.Color.Toast.Foreground">#212121</Color>
+          <Color x:Key="Nester.Color.Snackbar.Background">#FFFFFF</Color>
+          <Color x:Key="Nester.Color.Snackbar.Foreground">#212121</Color>
+          <Color x:Key="Nester.Color.Snackbar.Action">#FF4081</Color>
+          <Color x:Key="Nester.Color.Notice.Hover">#F0F0F0</Color>
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="Dark">
+          <Color x:Key="Nester.Color.Dimmer.Backdrop">#60000000</Color>
+          <Color x:Key="Nester.Color.DialogChrome.Background">#2D2D2D</Color>
+          <Color x:Key="Nester.Color.DialogChrome.Foreground">#E5E5E5</Color>
+
+          <!-- RouteLink palette -->
+          <Color x:Key="Nester.Color.RouteLink.Hover">#333333</Color>
+          <Color x:Key="Nester.Color.RouteLink.Active.Background">#33FFFFFF</Color>
+          <Color x:Key="Nester.Color.RouteLink.Active.Foreground">#3A96DD</Color>
+
+          <!-- RouteTreeItem palette -->
+          <Color x:Key="Nester.Color.RouteTreeItem.Hover">#333333</Color>
+          <Color x:Key="Nester.Color.RouteTreeItem.Selected.Background">#33FFFFFF</Color>
+          <Color x:Key="Nester.Color.RouteTreeItem.Selected.Background.Light">#1AFFFFFF</Color>
+          <Color x:Key="Nester.Color.RouteTreeItem.Active.Foreground">#3A96DD</Color>
+
+          <!-- Notice palette -->
+          <Color x:Key="Nester.Color.Toast.Background">#2D2D2D</Color>
+          <Color x:Key="Nester.Color.Toast.Foreground">#E5E5E5</Color>
+          <Color x:Key="Nester.Color.Snackbar.Background">#2D2D2D</Color>
+          <Color x:Key="Nester.Color.Snackbar.Foreground">#E5E5E5</Color>
+          <Color x:Key="Nester.Color.Snackbar.Action">#FF79A8</Color>
+          <Color x:Key="Nester.Color.Notice.Hover">#333333</Color>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+
+      <SolidColorBrush x:Key="Nester.Dimmer.Backdrop" Color="{DynamicResource Nester.Color.Dimmer.Backdrop}" />
+      <SolidColorBrush x:Key="Nester.DialogChrome.Background" Color="{DynamicResource Nester.Color.DialogChrome.Background}" />
+      <SolidColorBrush x:Key="Nester.DialogChrome.Foreground" Color="{DynamicResource Nester.Color.DialogChrome.Foreground}" />
+
+      <SolidColorBrush x:Key="Nester.RouteLink.Hover"
+                       Color="{DynamicResource Nester.Color.RouteLink.Hover}" />
+      <SolidColorBrush x:Key="Nester.RouteLink.Active.Background"
+                       Color="{DynamicResource Nester.Color.RouteLink.Active.Background}" />
+      <SolidColorBrush x:Key="Nester.RouteLink.Active.Foreground"
+                       Color="{DynamicResource Nester.Color.RouteLink.Active.Foreground}" />
+
+      <SolidColorBrush x:Key="Nester.RouteTreeItem.Hover"
+                       Color="{DynamicResource Nester.Color.RouteTreeItem.Hover}" />
+      <SolidColorBrush x:Key="Nester.RouteTreeItem.Selected.Background"
+                       Color="{DynamicResource Nester.Color.RouteTreeItem.Selected.Background}" />
+      <SolidColorBrush x:Key="Nester.RouteTreeItem.Selected.Background.Light"
+                       Color="{DynamicResource Nester.Color.RouteTreeItem.Selected.Background.Light}" />
+      <SolidColorBrush x:Key="Nester.RouteTreeItem.Active.Foreground"
+                       Color="{DynamicResource Nester.Color.RouteTreeItem.Active.Foreground}" />
+
+      <SolidColorBrush x:Key="Nester.Toast.Background" Color="{DynamicResource Nester.Color.Toast.Background}" />
+      <SolidColorBrush x:Key="Nester.Toast.Foreground" Color="{DynamicResource Nester.Color.Toast.Foreground}" />
+      <SolidColorBrush x:Key="Nester.Snackbar.Background"
+                       Color="{DynamicResource Nester.Color.Snackbar.Background}" />
+      <SolidColorBrush x:Key="Nester.Snackbar.Foreground"
+                       Color="{DynamicResource Nester.Color.Snackbar.Foreground}" />
+      <SolidColorBrush x:Key="Nester.Snackbar.Action.Foreground"
+                       Color="{DynamicResource Nester.Color.Snackbar.Action}" />
+      <SolidColorBrush x:Key="Nester.Notice.Hover" Color="{DynamicResource Nester.Color.Notice.Hover}" />
+
+      <CornerRadius x:Key="Nester.DialogChrome.CornerRadius">8</CornerRadius>
+      <Thickness x:Key="Nester.DialogChrome.Padding">20</Thickness>
+      <BoxShadows x:Key="Nester.DialogChrome.Shadow">0 4 10 0 #40000000</BoxShadows>
+
+      <!--
+        Dialog sizing.  A view picks the tier its content needs instead of
+        carrying its own pair of numbers, so two dialogs that show the same
+        kind of content end up the same size.
+      -->
+      <sys:Double x:Key="Nester.Dialog.Width.Small">300</sys:Double>
+      <sys:Double x:Key="Nester.Dialog.MaxWidth.Small">500</sys:Double>
+      <sys:Double x:Key="Nester.Dialog.Width.Medium">420</sys:Double>
+      <sys:Double x:Key="Nester.Dialog.MaxWidth.Medium">560</sys:Double>
+      <sys:Double x:Key="Nester.Dialog.Width.Large">560</sys:Double>
+      <sys:Double x:Key="Nester.Dialog.MaxWidth.Large">760</sys:Double>
+      <sys:Double x:Key="Nester.Dialog.Field.Width">64</sys:Double>
+      <sys:Double x:Key="Nester.Dialog.Options.MaxHeight">320</sys:Double>
+
+      <!--
+        Image preview overlay.  The preview floats over the image rather than
+        over the app surface, so its scrims stay dark in either theme variant
+        — white captions on them are what keeps the chrome legible against an
+        arbitrary picture.  Override the color keys to recolor the overlay.
+      -->
+      <Color x:Key="Nester.Color.ImagePreview.Backdrop">#AA000000</Color>
+      <Color x:Key="Nester.Color.ImagePreview.Bar.Background">#B3000000</Color>
+      <Color x:Key="Nester.Color.ImagePreview.Bar.Foreground">#FFFFFF</Color>
+      <Color x:Key="Nester.Color.ImagePreview.Status.Background">#AA000000</Color>
+      <Color x:Key="Nester.Color.ImagePreview.Status.Foreground">#FFFFFF</Color>
+      <Color x:Key="Nester.Color.ImagePreview.Caption.Background">#CC000000</Color>
+      <Color x:Key="Nester.Color.ImagePreview.Caption.Foreground">#E6E6E6</Color>
+
+      <SolidColorBrush x:Key="Nester.ImagePreview.Backdrop"
+                       Color="{DynamicResource Nester.Color.ImagePreview.Backdrop}" />
+      <SolidColorBrush x:Key="Nester.ImagePreview.Bar.Background"
+                       Color="{DynamicResource Nester.Color.ImagePreview.Bar.Background}" />
+      <SolidColorBrush x:Key="Nester.ImagePreview.Bar.Foreground"
+                       Color="{DynamicResource Nester.Color.ImagePreview.Bar.Foreground}" />
+      <SolidColorBrush x:Key="Nester.ImagePreview.Status.Background"
+                       Color="{DynamicResource Nester.Color.ImagePreview.Status.Background}" />
+      <SolidColorBrush x:Key="Nester.ImagePreview.Status.Foreground"
+                       Color="{DynamicResource Nester.Color.ImagePreview.Status.Foreground}" />
+      <SolidColorBrush x:Key="Nester.ImagePreview.Caption.Background"
+                       Color="{DynamicResource Nester.Color.ImagePreview.Caption.Background}" />
+      <SolidColorBrush x:Key="Nester.ImagePreview.Caption.Foreground"
+                       Color="{DynamicResource Nester.Color.ImagePreview.Caption.Foreground}" />
+
+      <sys:Double x:Key="Nester.ImagePreview.MinWidth">800</sys:Double>
+      <sys:Double x:Key="Nester.ImagePreview.MinHeight">600</sys:Double>
+      <sys:Double x:Key="Nester.ImagePreview.MaxWidth">1280</sys:Double>
+      <sys:Double x:Key="Nester.ImagePreview.MaxHeight">900</sys:Double>
+
+      <!-- The caption bar rounds only where it meets the chrome's corners. -->
+      <CornerRadius x:Key="Nester.ImagePreview.Caption.CornerRadius">0,0,8,0</CornerRadius>
+
+      <!--
+        The hex chip of the color picker: a scrim dark enough to keep white
+        digits readable over a light swatch as well as a dark one.
+      -->
+      <SolidColorBrush x:Key="Nester.ColorChip.Background" Color="#66000000" />
+      <FontFamily x:Key="Nester.FontFamily.Mono">Consolas, Menlo, DejaVu Sans Mono</FontFamily>
+
+      <sys:Double x:Key="Nester.Button.Keypad.Height">48</sys:Double>
+      <Thickness x:Key="Nester.Button.Keypad.Margin">4</Thickness>
+
+      <sys:Double x:Key="Nester.FontSize.Body">14</sys:Double>
+      <sys:Double x:Key="Nester.FontSize.Header">18</sys:Double>
+      <sys:Double x:Key="Nester.FontSize.DialogTitle">20</sys:Double>
+
+      <StreamGeometry x:Key="Nester.Icon.Back">M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z</StreamGeometry>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+  <!--
+    A dialog action button: the metric every button in a dialog button row
+    shares, so a row of them lines up without per-view padding.
+  -->
+  <Style Selector="Button.DialogAction">
+    <Setter Property="Padding" Value="15,8" />
+    <Setter Property="MinWidth" Value="96" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+
+  <!--
+    The dialog's primary action.  The pointerover / pressed look is set on the
+    template's ContentPresenter: the Fluent button template resolves those two
+    states itself, so a Background on the Button alone is replaced by Fluent's
+    hover fill the moment the pointer enters.
+  -->
+  <Style Selector="Button.Primary">
+    <Setter Property="Background" Value="{DynamicResource Nester.Brand}" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+
+  <Style Selector="Button.Primary:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Nester.Brand.Hover}" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+
+  <Style Selector="Button.Primary:pressed /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Nester.Brand.Pressed}" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+
+  <Style Selector="Button.Keypad">
+    <Setter Property="Height" Value="{DynamicResource Nester.Button.Keypad.Height}" />
+    <Setter Property="Margin" Value="{DynamicResource Nester.Button.Keypad.Margin}" />
+    <Setter Property="FontSize" Value="{DynamicResource Nester.FontSize.Header}" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+
+  <!--
+    A dialog option row: a full-width picker row, not a default button.  A
+    Fluent default button reads as a disabled text field next to a heading;
+    the row keeps the list scannable instead.
+  -->
+  <Style Selector="Button.DialogOptionItem">
+    <Setter Property="Padding" Value="12,10" />
+    <Setter Property="Margin" Value="0,0,0,6" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Nester.Border}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Nester.CornerRadius.Small}" />
+  </Style>
+
+  <Style Selector="Button.DialogOptionItem /template/ ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
+  <Style Selector="Button.DialogOptionItem:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Nester.Notice.Hover}" />
+  </Style>
+
+  <Style Selector="Button.DialogOptionItem:pressed /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Nester.RouteTreeItem.Selected.Background}" />
+  </Style>
+
+  <!-- The dialog heading: every built-in session that declares a Title renders it through this class. -->
+  <Style Selector="TextBlock.DialogTitle">
+    <Setter Property="FontSize" Value="{DynamicResource Nester.FontSize.DialogTitle}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="Margin" Value="0,0,0,8" />
+  </Style>
+
+  <!-- The dialog body line: what the session's Message means. -->
+  <Style Selector="TextBlock.DialogMessage">
+    <Setter Property="FontSize" Value="{DynamicResource Nester.FontSize.Body}" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="Opacity" Value="0.8" />
+    <Setter Property="Margin" Value="0,0,0,16" />
+  </Style>
+
+  <!--
+    The dismissal affordance: a compact glyph in the dialog header, named by the
+    session's CloseText — the label survives as the tooltip and the accessible
+    name rather than as a button caption.
+  -->
+  <Style Selector="Button.DialogClose">
+    <Setter Property="Width" Value="28" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Foreground" Value="{DynamicResource Nester.DialogChrome.Foreground}" />
+  </Style>
+
+  <Style Selector="Button.DialogClose /template/ ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
+  <Style Selector="Button.DialogClose:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Nester.Notice.Hover}" />
+  </Style>
+
+  <Style Selector="Button.DialogClose:pressed /template/ ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Nester.RouteTreeItem.Selected.Background}" />
+  </Style>
+
+  <!--
+    One octet of the address composer: a box the user can select, and the active
+    one is bordered in the brand color.
+  -->
+  <Style Selector="Border.IpPart">
+    <Setter Property="BorderBrush" Value="{DynamicResource Nester.Border}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Nester.CornerRadius.Small}" />
+    <Setter Property="Padding" Value="8,4" />
+    <Setter Property="MinWidth" Value="60" />
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+
+  <Style Selector="Border.IpPart.Active">
+    <Setter Property="BorderBrush" Value="{DynamicResource Nester.Brand}" />
+    <Setter Property="BorderThickness" Value="2" />
+  </Style>
+
+  <Style Selector="TextBlock.IpText">
+    <Setter Property="FontSize" Value="24" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="TextAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Foreground" Value="{DynamicResource Nester.DialogChrome.Foreground}" />
+  </Style>
+
+  <!-- The label above one dialog input. -->
+  <Style Selector="TextBlock.DialogFieldLabel">
+    <Setter Property="FontSize" Value="{DynamicResource Nester.FontSize.Body}" />
+    <Setter Property="Opacity" Value="0.7" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+
+  <!-- The reading a composed dialog shows for the value it currently holds. -->
+  <Style Selector="TextBlock.DialogPreview">
+    <Setter Property="FontSize" Value="{DynamicResource Nester.FontSize.Header}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+
+</Styles>

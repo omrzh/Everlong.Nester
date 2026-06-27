@@ -1,0 +1,89 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:c="using:Everlong.Nester.Dialog" x:Class="Everlong.Nester.Controls.ColorPickerDialogView"
+             mc:Ignorable="d" d:DesignWidth="520" d:DesignHeight="380"
+             x:DataType="c:ColorPickerDialogSession"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+  <Design.DataContext>
+    <c:ColorPickerDialogSession />
+  </Design.DataContext>
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          TextElement.Foreground="{DynamicResource Nester.DialogChrome.Foreground}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="{DynamicResource Nester.DialogChrome.Padding}"
+          BoxShadow="{DynamicResource Nester.DialogChrome.Shadow}">
+
+  <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" MinWidth="{DynamicResource Nester.Dialog.Width.Large}" MaxWidth="{DynamicResource Nester.Dialog.MaxWidth.Large}">
+      <StackPanel Grid.Row="0" Margin="0,0,0,16">
+        <TextBlock Classes="DialogTitle" Text="{Binding Title}"
+                   IsVisible="{Binding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" Margin="0,0,40,8" /> 
+        <TextBlock Classes="DialogMessage" Text="{Binding Message}" Margin="0,0,0,12"
+                   IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+        <Border Height="60"
+                CornerRadius="{DynamicResource Nester.CornerRadius.Medium}"
+                Background="{Binding PreviewHex}"
+                BorderBrush="{DynamicResource Nester.Border}"
+                BorderThickness="1">
+          <Border Background="{DynamicResource Nester.ColorChip.Background}" CornerRadius="4" HorizontalAlignment="Center" VerticalAlignment="Center"
+                  Padding="8,4">
+            <SelectableTextBlock
+              Text="{Binding PreviewHex}"
+              FontFamily="{DynamicResource Nester.FontFamily.Mono}"
+              FontSize="18"
+              FontWeight="Bold"
+              Foreground="White"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center" />
+          </Border>
+        </Border>
+      </StackPanel>
+
+      <Button Grid.Row="0" Classes="DialogClose" Content="✕"
+              HorizontalAlignment="Right" VerticalAlignment="Top"
+              ToolTip.Tip="{Binding CloseText}"
+              AutomationProperties.Name="{Binding CloseText}"
+              Command="{Binding CloseCommand}" />
+
+      <Grid Grid.Row="1" Margin="0,0,0,8" ColumnDefinitions="28,*,50">
+        <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="A" />
+        <Slider Grid.Column="1" Minimum="0" Maximum="255" Value="{Binding Alpha, Mode=TwoWay}" />
+        <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"
+                   Text="{Binding Alpha, StringFormat={}{0:0}}" />
+      </Grid>
+
+      <Grid Grid.Row="2" Margin="0,0,0,8" ColumnDefinitions="28,*,50">
+        <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="R" />
+        <Slider Grid.Column="1" Minimum="0" Maximum="255" Value="{Binding Red, Mode=TwoWay}" />
+        <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"
+                   Text="{Binding Red, StringFormat={}{0:0}}" />
+      </Grid>
+
+      <Grid Grid.Row="3" Margin="0,0,0,8" ColumnDefinitions="28,*,50">
+        <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="G" />
+        <Slider Grid.Column="1" Minimum="0" Maximum="255" Value="{Binding Green, Mode=TwoWay}" />
+        <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"
+                   Text="{Binding Green, StringFormat={}{0:0}}" />
+      </Grid>
+
+      <Grid Grid.Row="4" RowDefinitions="Auto,Auto">
+        <Grid Grid.Row="0" Margin="0,0,0,10" ColumnDefinitions="28,*,50">
+          <TextBlock Grid.Column="0" VerticalAlignment="Center" Text="B" />
+          <Slider Grid.Column="1" Minimum="0" Maximum="255" Value="{Binding Blue, Mode=TwoWay}" />
+          <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"
+                     Text="{Binding Blue, StringFormat={}{0:0}}" />
+        </Grid>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right"
+                    Spacing="10" Margin="0,8,0,0">
+          <Button Classes="DialogAction" Content="{Binding ResetText}"
+                  Command="{Binding ResetCommand}" />
+          <Button Classes="DialogAction Primary" Content="{Binding ConfirmText}"
+                  Command="{Binding ConfirmCommand}" />
+        </StackPanel>
+      </Grid>
+    </Grid>
+  </Border>
+</UserControl>

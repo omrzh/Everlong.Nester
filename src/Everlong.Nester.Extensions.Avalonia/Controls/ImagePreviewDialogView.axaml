@@ -1,0 +1,112 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:c="using:Everlong.Nester.Dialog"
+             mc:Ignorable="d"
+             d:DesignWidth="960"
+             d:DesignHeight="640"
+             x:Class="Everlong.Nester.Controls.ImagePreviewDialogView"
+             x:DataType="c:ImagePreviewDialogSession"
+             x:Name="Root"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+  <Design.DataContext>
+    <c:ImagePreviewDialogSession />
+  </Design.DataContext>
+  <Border x:Name="ChromeBorder"
+          Background="{DynamicResource Nester.ImagePreview.Backdrop}"
+          TextElement.Foreground="{DynamicResource Nester.ImagePreview.Bar.Foreground}"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          MinWidth="{DynamicResource Nester.ImagePreview.MinWidth}"
+          MinHeight="{DynamicResource Nester.ImagePreview.MinHeight}"
+          MaxWidth="{DynamicResource Nester.ImagePreview.MaxWidth}"
+          MaxHeight="{DynamicResource Nester.ImagePreview.MaxHeight}"
+          ClipToBounds="True"
+          BoxShadow="{DynamicResource Nester.DialogChrome.Shadow}">
+    <Grid>
+      <!-- Image Area -->
+      <Image x:Name="PreviewImage"
+             Source="{Binding CurrentImage}"
+             Stretch="Uniform"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center" />
+
+      <!-- Status Overlay (Loading/Error) -->
+      <Border Background="{DynamicResource Nester.ImagePreview.Status.Background}"
+              IsVisible="{Binding HasStatus}"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch"
+              CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}">
+        <StackPanel Spacing="15" VerticalAlignment="Center">
+
+          <TextBlock Text="{Binding StatusText}"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     TextWrapping="Wrap"
+                     Foreground="{DynamicResource Nester.ImagePreview.Status.Foreground}"
+                     FontSize="{DynamicResource Nester.FontSize.Header}" />
+
+          <ProgressBar Height="6" Margin="20 0"
+                       Foreground="{DynamicResource Nester.Brand}"
+                       IsVisible="{Binding IsLoading}"
+                       IsIndeterminate="True"
+                       HorizontalAlignment="Stretch" />
+
+        </StackPanel>
+      </Border>
+
+      <!-- Top Bar: Back Button, Title & Pager -->
+      <DockPanel VerticalAlignment="Top" Height="50"
+                 Background="{DynamicResource Nester.ImagePreview.Bar.Background}"
+                 ClipToBounds="True">
+        <Button DockPanel.Dock="Left"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Padding="12"
+                Background="Transparent"
+                BorderThickness="0"
+                Command="{Binding CloseDialogCommand}">
+          <PathIcon Data="{DynamicResource Nester.Icon.Back}" Width="16" Height="16"
+                    Foreground="{DynamicResource Nester.ImagePreview.Bar.Foreground}" />
+        </Button>
+        <TextBlock Text="{Binding Title}"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Left"
+                   Margin="4,0,12,0"
+                   FontWeight="Bold"
+                   TextTrimming="CharacterEllipsis"
+                   Foreground="{DynamicResource Nester.ImagePreview.Bar.Foreground}"
+                   FontSize="{DynamicResource Nester.FontSize.Header}"
+                   IsVisible="{Binding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                   IsHitTestVisible="False" />
+        <StackPanel DockPanel.Dock="Right"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Margin="0,0,8,0"
+                    Spacing="8"
+                    IsVisible="{Binding IsMultiMode}">
+          <TextBlock Text="{Binding IndexText}"
+                     VerticalAlignment="Center"
+                     Foreground="{DynamicResource Nester.ImagePreview.Bar.Foreground}" />
+          <Button Content="{Binding PreviousText}"
+                  Command="{Binding GoPreviousCommand}"
+                  IsEnabled="{Binding CanGoPrevious}" />
+          <Button Content="{Binding NextText}"
+                  Command="{Binding GoNextCommand}"
+                  IsEnabled="{Binding CanGoNext}" />
+        </StackPanel>
+      </DockPanel>
+
+      <!-- Bottom Bar: Message & URL -->
+      <Border VerticalAlignment="Bottom"
+              Background="{DynamicResource Nester.ImagePreview.Caption.Background}"
+              Padding="16,12"
+              CornerRadius="{DynamicResource Nester.ImagePreview.Caption.CornerRadius}">
+        <TextBlock Text="{Binding SourceText}"
+                   Foreground="{DynamicResource Nester.ImagePreview.Caption.Foreground}"
+                   TextTrimming="CharacterEllipsis" />
+      </Border>
+    </Grid>
+  </Border>
+</UserControl>

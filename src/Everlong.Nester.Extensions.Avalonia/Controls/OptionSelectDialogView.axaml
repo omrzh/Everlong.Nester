@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:c="using:Everlong.Nester.Dialog"
+             mc:Ignorable="d" d:DesignWidth="420" d:DesignHeight="260"
+             x:Class="Everlong.Nester.Controls.OptionSelectDialogView"
+             x:DataType="c:OptionSelectDialogSession"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+  <Design.DataContext>
+    <c:OptionSelectDialogSession />
+  </Design.DataContext>
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          TextElement.Foreground="{DynamicResource Nester.DialogChrome.Foreground}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="{DynamicResource Nester.DialogChrome.Padding}"
+          BoxShadow="{DynamicResource Nester.DialogChrome.Shadow}">
+
+  <Grid RowDefinitions="Auto,*"
+        MinWidth="{DynamicResource Nester.Dialog.Width.Medium}"
+        MaxWidth="{DynamicResource Nester.Dialog.MaxWidth.Medium}">
+      <Grid Grid.Row="0" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" Margin="0,0,0,16">
+        <TextBlock Grid.Row="0" Grid.Column="0" Classes="DialogTitle" Text="{Binding Title}"
+                   IsVisible="{Binding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"  />
+        <Button Grid.Row="0" Grid.Column="1" Classes="DialogClose" Content="✕"
+                VerticalAlignment="Center"
+                ToolTip.Tip="{Binding CloseText}"
+                AutomationProperties.Name="{Binding CloseText}"
+                Command="{Binding CloseCommand}" />
+        <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Classes="DialogMessage" Text="{Binding Prompt}"
+                   IsVisible="{Binding Prompt, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"  />
+      </Grid>
+
+      <ScrollViewer Grid.Row="1"
+                    MaxHeight="{DynamicResource Nester.Dialog.Options.MaxHeight}"
+                    VerticalAlignment="Top"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding Items}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="c:DialogOptionItem">
+              <Button Classes="DialogOptionItem"
+                      Command="{Binding $parent[UserControl].((c:OptionSelectDialogSession)DataContext).SelectCommand}"
+                      CommandParameter="{Binding}">
+                <ContentControl Content="{Binding Value}" />
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+
+    </Grid>
+  </Border>
+</UserControl>
