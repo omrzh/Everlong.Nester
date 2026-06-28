@@ -1,0 +1,214 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:v="clr-namespace:Everlong.Nester.Controls">
+
+  <Style TargetType="{x:Type v:RouteTreeItem}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type v:RouteTreeItem}">
+          <StackPanel>
+            <!--
+              Header row: Border#HeaderBorder is the visual container (hover/active background).
+              Two transparent buttons inside: PART_HeaderButton (navigation) and PART_ExpandButton (expand).
+              Background="Transparent" on buttons ensures full hit-test coverage (Transparent ≠ null).
+            -->
+            <Border x:Name="HeaderBorder"
+                    CornerRadius="4"
+                    Margin="0 2"
+                    Background="Transparent">
+              <Grid MinHeight="36">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- PART_HeaderButton: navigation click area -->
+                <Button x:Name="PART_HeaderButton"
+                        Grid.Column="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                        Cursor="Hand"
+                        Margin="0,1"
+                        Padding="0">
+                  <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                      <!-- Border with TemplateBinding Background ensures full area is hit-testable -->
+                      <Border Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                      </Border>
+                    </ControlTemplate>
+                  </Button.Template>
+                  <!-- Content is in RouteTreeItem's template namescope: all names accessible via TargetName -->
+                  <Grid x:Name="HeaderRow" MinHeight="36">
+                    <Grid.ColumnDefinitions>
+                      <!--
+                        Auto, not a fixed 14: the gutter is a fixed-width element of its
+                        own, so collapsing it in a compact slot collapses the column.
+                        (MinWidth on the pill would not do — it clamps the pill's own
+                        Width of 3 up to the minimum, turning the pill into a block.)
+                      -->
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!--
+                      Left active indicator pill (3 px x 16 px rounded).  The pill lives
+                      in a fixed-width gutter so the icon column keeps one x on every row
+                      whether or not the pill shows.
+                    -->
+                    <Border x:Name="IndicatorGutter" Grid.Column="0" Width="14">
+                      <Border x:Name="Indicator"
+                              Width="3"
+                              Height="16"
+                              HorizontalAlignment="Left"
+                              Margin="4,0,0,0"
+                              CornerRadius="2"
+                              Background="{DynamicResource Nester.RouteTreeItem.Active.Foreground}"
+                              VerticalAlignment="Center"
+                              Visibility="Collapsed" />
+                    </Border>
+
+                    <!-- Icon -->
+                    <ContentPresenter x:Name="IconHost"
+                                      Grid.Column="1"
+                                      Content="{Binding Icon, RelativeSource={RelativeSource AncestorType={x:Type v:RouteTreeItem}}}"
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,8,0"
+                                      Visibility="Visible" />
+
+                    <!-- Title -->
+                    <TextBlock x:Name="TitleText"
+                               Grid.Column="2"
+                               Text="{Binding Title, RelativeSource={RelativeSource AncestorType={x:Type v:RouteTreeItem}}}"
+                               VerticalAlignment="Center"
+                               Margin="8,0,0,0" />
+
+                  </Grid>
+                </Button>
+
+                <!-- PART_ExpandButton: expand/collapse click area -->
+                <Button x:Name="PART_ExpandButton"
+                        Grid.Column="1"
+                        Width="32"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Padding="0"
+                        Cursor="Hand"
+                        Visibility="Collapsed">
+                  <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                      <Border Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                      </Border>
+                    </ControlTemplate>
+                  </Button.Template>
+                  <Viewbox Width="16" Height="16" Stretch="Uniform">
+                    <Canvas Width="24" Height="24">
+                      <Path x:Name="ChevronIcon"
+                            Fill="#6B7280"
+                            Data="{DynamicResource Nester.Icon.TreeItem.Chevron.Collapsed}" />
+                    </Canvas>
+                  </Viewbox>
+                </Button>
+
+              </Grid>
+            </Border>
+
+            <!-- Children host: indented, collapsed until IsExpanded=true -->
+            <Border x:Name="ChildrenHost"
+                    Margin="{DynamicResource Nester.TreeItem.IndentMargin}"
+                    Visibility="Collapsed">
+              <ItemsPresenter />
+            </Border>
+
+          </StackPanel>
+          <ControlTemplate.Triggers>
+
+            <!-- Hover: HeaderBorder.IsMouseOver is true when pointer is over it or any child (both buttons) -->
+            <Trigger SourceName="HeaderBorder" Property="IsMouseOver" Value="True">
+              <Setter TargetName="HeaderBorder" Property="Background"
+                      Value="{DynamicResource Nester.RouteTreeItem.Hover}" />
+            </Trigger>
+
+            <!-- Show icon when HasIcon -->
+            <DataTrigger Binding="{Binding HasIcon, RelativeSource={RelativeSource TemplatedParent}}"
+                         Value="False">
+              <Setter TargetName="IconHost" Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+
+            <!-- Active: indicator + selected background + brand text (scoped to header row, no inheritance bleed) -->
+            <DataTrigger Binding="{Binding IsActive, RelativeSource={RelativeSource Self}}"
+                         Value="True">
+              <Setter TargetName="Indicator" Property="Visibility" Value="Visible" />
+              <Setter TargetName="HeaderBorder" Property="Background"
+                      Value="{DynamicResource Nester.RouteTreeItem.Selected.Background}" />
+              <Setter TargetName="TitleText" Property="Foreground"
+                      Value="{DynamicResource Nester.RouteTreeItem.Active.Foreground}" />
+              <Setter TargetName="TitleText" Property="FontWeight" Value="SemiBold" />
+            </DataTrigger>
+
+            <!-- Group with active descendant: lighter background + brand text -->
+            <DataTrigger Binding="{Binding HasHighlightedDescendant, RelativeSource={RelativeSource Self}}"
+                         Value="True">
+              <Setter TargetName="Indicator" Property="Visibility" Value="Visible" />
+              <Setter TargetName="HeaderBorder" Property="Background"
+                      Value="{DynamicResource Nester.RouteTreeItem.Selected.Background.Light}" />
+              <Setter TargetName="TitleText" Property="Foreground"
+                      Value="{DynamicResource Nester.RouteTreeItem.Active.Foreground}" />
+              <Setter TargetName="TitleText" Property="FontWeight" Value="SemiBold" />
+            </DataTrigger>
+
+            <!-- Show expand button when has items (must come before IsCollapsible=false trigger) -->
+            <DataTrigger Binding="{Binding HasItems, RelativeSource={RelativeSource Self}}"
+                         Value="True">
+              <Setter TargetName="PART_ExpandButton" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+
+            <!-- Hide expand button when not collapsible (overrides HasItems trigger above) -->
+            <DataTrigger Binding="{Binding IsCollapsible, RelativeSource={RelativeSource Self}}"
+                         Value="False">
+              <Setter TargetName="PART_ExpandButton" Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+
+            <!-- Chevron: expanded state + show children -->
+            <Trigger Property="IsExpanded" Value="True">
+              <Setter TargetName="ChevronIcon" Property="Data"
+                      Value="{DynamicResource Nester.Icon.TreeItem.Chevron.Expanded}" />
+              <Setter TargetName="ChildrenHost" Property="Visibility" Value="Visible" />
+            </Trigger>
+
+            <!-- Disabled -->
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.5" />
+            </Trigger>
+
+            <!--
+              Compact slot (rail): the icon is the whole affordance.  The gutter and the
+              title go, so do the chevron and the children, and the header centres on the
+              icon.  The property is the framework's own attached classification, read off
+              this element — WPF has no style classes to select on.  Declared last on
+              purpose — a trigger declared later wins, which is what makes these hold
+              against the expansion and highlight triggers above.
+            -->
+            <Trigger Property="v:Responsive.IsCompact" Value="True">
+              <Setter TargetName="IndicatorGutter" Property="Visibility" Value="Collapsed" />
+              <Setter TargetName="HeaderRow" Property="HorizontalAlignment" Value="Center" />
+              <Setter TargetName="IconHost" Property="Margin" Value="0" />
+              <Setter TargetName="TitleText" Property="Visibility" Value="Collapsed" />
+              <Setter TargetName="PART_ExpandButton" Property="Visibility" Value="Collapsed" />
+              <Setter TargetName="ChildrenHost" Property="Visibility" Value="Collapsed" />
+            </Trigger>
+
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>

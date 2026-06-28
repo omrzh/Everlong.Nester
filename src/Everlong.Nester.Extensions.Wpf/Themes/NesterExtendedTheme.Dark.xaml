@@ -1,0 +1,79 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!--
+    The dark half of the Extensions chrome palette.  WPF has no
+    ThemeDictionaries, so the app merges this dictionary on top of
+    NesterExtendedTheme.xaml (see NesterExtendedTheme.UseDark).  The brushes
+    are redefined here on purpose: replacing only the color keys leaves the
+    light brush instances in place — a brush's own DynamicResource Color does
+    not re-resolve after the dictionary is sealed, while a replaced brush key
+    is picked up by every DynamicResource consumer.
+  -->
+  <Color x:Key="Nester.Color.Dimmer.Backdrop">#60000000</Color>
+  <Color x:Key="Nester.Color.DialogChrome.Background">#2D2D2D</Color>
+  <Color x:Key="Nester.Color.DialogChrome.Foreground">#E5E5E5</Color>
+
+  <!-- RouteLink palette -->
+  <Color x:Key="Nester.Color.RouteLink.Hover">#333333</Color>
+  <Color x:Key="Nester.Color.RouteLink.Active.Background">#33FFFFFF</Color>
+  <Color x:Key="Nester.Color.RouteLink.Active.Foreground">#3A96DD</Color>
+
+  <!-- RouteTreeItem palette -->
+  <Color x:Key="Nester.Color.RouteTreeItem.Hover">#333333</Color>
+  <Color x:Key="Nester.Color.RouteTreeItem.Selected.Background">#33FFFFFF</Color>
+  <Color x:Key="Nester.Color.RouteTreeItem.Selected.Background.Light">#1AFFFFFF</Color>
+  <Color x:Key="Nester.Color.RouteTreeItem.Active.Foreground">#3A96DD</Color>
+
+  <!-- Notice palette -->
+  <Color x:Key="Nester.Color.Toast.Background">#2D2D2D</Color>
+  <Color x:Key="Nester.Color.Toast.Foreground">#E5E5E5</Color>
+  <Color x:Key="Nester.Color.Snackbar.Background">#2D2D2D</Color>
+  <Color x:Key="Nester.Color.Snackbar.Foreground">#E5E5E5</Color>
+  <Color x:Key="Nester.Color.Snackbar.Action">#FF79A8</Color>
+  <Color x:Key="Nester.Color.Notice.Hover">#333333</Color>
+
+  <SolidColorBrush x:Key="Nester.Dimmer.Backdrop" Color="{StaticResource Nester.Color.Dimmer.Backdrop}" />
+  <SolidColorBrush x:Key="Nester.DialogChrome.Background" Color="{StaticResource Nester.Color.DialogChrome.Background}" />
+  <SolidColorBrush x:Key="Nester.DialogChrome.Foreground" Color="{StaticResource Nester.Color.DialogChrome.Foreground}" />
+
+  <!-- Dialog action buttons -->
+  <Color x:Key="Nester.Color.DialogAction.Background">#383838</Color>
+  <Color x:Key="Nester.Color.DialogAction.Border">#4D4D4D</Color>
+  <Color x:Key="Nester.Color.DialogAction.Hover">#454545</Color>
+  <Color x:Key="Nester.Color.DialogAction.Pressed">#2A2A2A</Color>
+
+  <SolidColorBrush x:Key="Nester.DialogAction.Background"
+                   Color="{StaticResource Nester.Color.DialogAction.Background}" />
+  <SolidColorBrush x:Key="Nester.DialogAction.Border"
+                   Color="{StaticResource Nester.Color.DialogAction.Border}" />
+  <SolidColorBrush x:Key="Nester.DialogAction.Hover"
+                   Color="{StaticResource Nester.Color.DialogAction.Hover}" />
+  <SolidColorBrush x:Key="Nester.DialogAction.Pressed"
+                   Color="{StaticResource Nester.Color.DialogAction.Pressed}" />
+
+  <SolidColorBrush x:Key="Nester.RouteLink.Hover"
+                   Color="{StaticResource Nester.Color.RouteLink.Hover}" />
+  <SolidColorBrush x:Key="Nester.RouteLink.Active.Background"
+                   Color="{StaticResource Nester.Color.RouteLink.Active.Background}" />
+  <SolidColorBrush x:Key="Nester.RouteLink.Active.Foreground"
+                   Color="{StaticResource Nester.Color.RouteLink.Active.Foreground}" />
+
+  <SolidColorBrush x:Key="Nester.RouteTreeItem.Hover"
+                   Color="{StaticResource Nester.Color.RouteTreeItem.Hover}" />
+  <SolidColorBrush x:Key="Nester.RouteTreeItem.Selected.Background"
+                   Color="{StaticResource Nester.Color.RouteTreeItem.Selected.Background}" />
+  <SolidColorBrush x:Key="Nester.RouteTreeItem.Selected.Background.Light"
+                   Color="{StaticResource Nester.Color.RouteTreeItem.Selected.Background.Light}" />
+  <SolidColorBrush x:Key="Nester.RouteTreeItem.Active.Foreground"
+                   Color="{StaticResource Nester.Color.RouteTreeItem.Active.Foreground}" />
+
+  <SolidColorBrush x:Key="Nester.Toast.Background" Color="{StaticResource Nester.Color.Toast.Background}" />
+  <SolidColorBrush x:Key="Nester.Toast.Foreground" Color="{StaticResource Nester.Color.Toast.Foreground}" />
+  <SolidColorBrush x:Key="Nester.Snackbar.Background"
+                   Color="{StaticResource Nester.Color.Snackbar.Background}" />
+  <SolidColorBrush x:Key="Nester.Snackbar.Foreground"
+                   Color="{StaticResource Nester.Color.Snackbar.Foreground}" />
+  <SolidColorBrush x:Key="Nester.Snackbar.Action.Foreground"
+                   Color="{StaticResource Nester.Color.Snackbar.Action}" />
+  <SolidColorBrush x:Key="Nester.Notice.Hover" Color="{StaticResource Nester.Color.Notice.Hover}" />
+</ResourceDictionary>

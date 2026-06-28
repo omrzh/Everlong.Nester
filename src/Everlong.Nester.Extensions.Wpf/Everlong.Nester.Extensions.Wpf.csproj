@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <RootNamespace>Everlong.Nester</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>$(DefineConstants);WPF</DefineConstants>
+    <UseWPF>true</UseWPF>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Everlong.Nester\Everlong.Nester.csproj" />
+    <ProjectReference Include="..\Everlong.Nester.Wpf\Everlong.Nester.Wpf.csproj" />
+    <ProjectReference Include="..\Everlong.Nester.Extensions\Everlong.Nester.Extensions.csproj" />
+  </ItemGroup>
+
+  <!-- Single-source files shared with the extensions Avalonia project (kept there) -->
+  <ItemGroup>
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\DI\ServiceCollectionExtensions.cs" Link="DI\ServiceCollectionExtensions.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Helpers\ResourceKeyHelper.cs" Link="Helpers\ResourceKeyHelper.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Notice\NoticeEngine.cs" Link="Notice\NoticeEngine.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Notice\NoticeTransition.cs" Link="Notice\NoticeTransition.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Controls\Responsive.shared.cs" Link="Controls\Responsive.shared.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Controls\RouteLink.shared.cs" Link="Controls\RouteLink.shared.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Controls\RouteTreeControl.shared.cs" Link="Controls\RouteTreeControl.shared.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Controls\RouteTreeItem.shared.cs" Link="Controls\RouteTreeItem.shared.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Controls\RoutingSurface.cs" Link="Controls\RoutingSurface.cs" />
+    <!-- Presentation: the animation kit both platforms drive -->
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transition\DialogTransitions.cs" Link="Presentation\Transition\DialogTransitions.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transition\SlideDirection.cs" Link="Presentation\Transition\SlideDirection.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transition\TransitionContextExtensions.cs" Link="Presentation\Transition\TransitionContextExtensions.cs" />
+  </ItemGroup>
+
+</Project>
