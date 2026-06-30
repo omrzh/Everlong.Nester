@@ -1,0 +1,21 @@
+{
+  "Logout": "登出",
+  "Main": "主選單",
+  "Landing": "首頁",
+  "InteractionLab": "互動實驗室",
+  "Posts": "文章",
+  "Settings": "設定",
+  "General": "一般",
+  "Account": "帳戶",
+  "Security": "安全性",
+  "Profile": "個人資料",
+  "AdminPanel": "管理面板",
+  "RouteItemLab": "導覽實驗室",
+  "VideoPlayer": "影片播放器",
+  "Back": "上一頁",
+  "Forward": "下一頁",
+  "Minimize": "最小化",
+  "Maximize": "最大化",
+  "Close": "關閉",
+  "BackdropPanel": "背景面板"
+}

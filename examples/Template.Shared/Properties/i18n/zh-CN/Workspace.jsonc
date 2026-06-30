@@ -1,0 +1,18 @@
+/*
+ * Strings used by the workspace palette (Ctrl+Shift+P).
+*/
+{
+  // The session's title
+  "Title": "命令面板",
+  "Watermark": "搜索工作区文件",
+  "Empty": "没有匹配的文件",
+  "Hint": "回车打开文件 · Esc 关闭",
+  "WatchingFormat": "{count} 个文件 · {source}",
+  "SourceGit": "git 根目录",
+  "SourceProject": "项目目录",
+  "SourceDownloads": "下载目录",
+  "SourceCurrent": "当前目录",
+  "OpenFailedFormat": "无法打开 {path}",
+  "LandingHint": "快捷键提示：Ctrl+Shift+P",
+  "LandingHintNote": "打开工作区面板：列出被监控的每个文件，输入即过滤；回车用系统默认程序打开（当前实现仅 Windows）。"
+}

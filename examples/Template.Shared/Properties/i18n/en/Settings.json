@@ -1,0 +1,18 @@
+{
+  "Title": "General Settings",
+  "Subtitle": "Changes are applied automatically.",
+  "LocaleLabel": "Language",
+  "SwitchToEnglish": "English",
+  "SwitchToChinese": "Chinese",
+  "SwitchToTraditionalChinese": "Traditional Chinese",
+  "AppearanceLabel": "Appearance",
+  "ThemeLabel": "Theme",
+  "ThemeSystem": "System",
+  "ThemeLight": "Light",
+  "ThemeDark": "Dark",
+  "AutoSave": "Auto-save changes",
+  "FontSizeLabel": "Font size (10-24)",
+  "RestartConfirmMessage": "Restart to fully apply language switching?",
+  "RestartConfirmTitle": "Reminder",
+  "LanguageWatermark": "e.g. en, zh-CN"
+}

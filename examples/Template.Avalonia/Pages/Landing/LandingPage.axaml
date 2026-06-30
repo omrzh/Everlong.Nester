@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:NesterApp.Pages.Landing"
+             xmlns:n="https://nester.dev"
+             x:Class="NesterApp.Pages.Landing.LandingPage"
+             x:DataType="vm:LandingPageModel">
+  <ScrollViewer Margin="20">
+    <StackPanel Spacing="12">
+      <TextBlock Classes="pageTitle" Text="{Binding PagesStrings.DashboardTitle}" />
+      <TextBlock Classes="pageSubtitle" Text="{Binding PagesStrings.DashboardSubtitle}" Margin="0,0,0,8" />
+
+      <WrapPanel>
+        <Border Margin="0,0,16,16" Width="220" Background="{DynamicResource App.Card.Background}"
+                BorderBrush="{DynamicResource App.Card.BorderBrush}" BorderThickness="1" CornerRadius="8"
+                Padding="16">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{Binding PagesStrings.Feature1Title}" FontSize="16" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding PagesStrings.Feature1Desc}" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+        <Border Margin="0,0,16,16" Width="220" Background="{DynamicResource App.Card.Background}"
+                BorderBrush="{DynamicResource App.Card.BorderBrush}" BorderThickness="1" CornerRadius="8"
+                Padding="16">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{Binding PagesStrings.Feature2Title}" FontSize="16" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding PagesStrings.Feature2Desc}" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+        <Border Margin="0,0,16,16" Width="220" Background="{DynamicResource App.Card.Background}"
+                BorderBrush="{DynamicResource App.Card.BorderBrush}" BorderThickness="1" CornerRadius="8"
+                Padding="16">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{Binding PagesStrings.Feature3Title}" FontSize="16" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding PagesStrings.Feature3Desc}" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+      </WrapPanel>
+
+      <TextBlock Classes="sectionHeader" Text="{Binding PagesStrings.EntryHeader}" Margin="0,8,0,4" />
+      <WrapPanel>
+        <Button Content="{Binding PagesStrings.OpenInteractionLab}" Command="{Binding OpenInteractionLabCommand}"
+                Margin="0,0,12,12" />
+        <Button Content="{Binding PagesStrings.OpenPosts}" Command="{Binding OpenPostsCommand}" Margin="0,0,12,12" />
+        <Button Content="{Binding PagesStrings.OpenProfile}" Command="{Binding OpenProfileCommand}" Margin="0,0,12,12" />
+        <Button Content="{Binding PagesStrings.OpenSettings}" Command="{Binding OpenSettingsCommand}"
+                Margin="0,0,12,12" />
+        <Button Content="{Binding PagesStrings.OpenAdmin}" Command="{Binding OpenAdminCommand}" Margin="0,0,12,12" />
+      </WrapPanel>
+
+      <!-- The palette has no button by design (its gesture is the point) — so
+           the landing page names it once, where a user actually lands. -->
+      <TextBlock Classes="sectionHeader" Text="{Binding WorkspaceStrings.LandingHint}" Margin="0,12,0,4" />
+      <TextBlock Classes="pageSubtitle" Text="{Binding WorkspaceStrings.LandingHintNote}" TextWrapping="Wrap" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

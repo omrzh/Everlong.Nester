@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:NesterApp.Pages.Shell"
+        xmlns:props="using:NesterApp.Properties"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="NesterApp.Pages.Shell.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="{Binding Source={x:Static props:Lang.Shell}, Path=WindowTitle}"
+        Background="{DynamicResource App.Window.Background}"
+        ExtendClientAreaToDecorationsHint="True"
+        WindowDecorations="BorderOnly"
+        WindowStartupLocation="CenterScreen">
+  <!--
+    BorderOnly drops the system title bar and caption buttons while keeping the
+    DWM border/shadow; the client area extends into the caption.  MainLayout
+    draws the title bar, and the ElementRole on each button maps back to the
+    Win32 hit-test codes, so the maximize button keeps the snap-layout flyout.
+  -->
+</Window>

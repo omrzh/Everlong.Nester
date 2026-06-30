@@ -1,0 +1,12 @@
+{
+  "WindowTitle": "NesterApp",
+  "CloseConfirmMessage": "Are you sure you want to close this window?",
+  "CloseConfirmYes": "Yes, close",
+  "CloseConfirmNo": "No, stay",
+  "ActivationStartupArgs": "the startup arguments",
+  "ActivationFileCountFormat": "{count, plural, =0 {no files} one {{count} file} other {{count} files}}",
+  "ActivationRequestFormat": "Another instance requests the current instance to handle: {summary}. Handle it here?",
+  "ActivationAccept": "Handle here",
+  "ActivationDecline": "Open in new window",
+  "Unauthorized": "Unauthorized"
+}

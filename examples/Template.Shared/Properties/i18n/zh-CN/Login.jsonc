@@ -1,0 +1,12 @@
+{
+  "Title": "登录",
+  "WelcomeHeading": "欢迎回来",
+  "UsernameLabel": "用户名（admin/user）",
+  "UsernameWatermark": "用户名",
+  "PasswordLabel": "密码（任意）",
+  "PasswordWatermark": "密码",
+  "SignInButton": "登录",
+  "AdminButton": "管理员",
+  "UserButton": "普通用户",
+  "InvalidCredentials": "凭据无效，请输入 'admin' 或 'user'。"
+}

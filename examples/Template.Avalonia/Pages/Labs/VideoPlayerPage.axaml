@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:props="using:NesterApp.Properties"
+             xmlns:vm="using:NesterApp.Pages.Labs"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="NesterApp.Pages.Labs.VideoPlayerPage"
+             x:DataType="vm:VideoPlayerPageModel">
+
+  <UserControl.Resources>
+    <StreamGeometry x:Key="IconPlay">M8,5.14V19.14L19,12.14L8,5.14Z</StreamGeometry>
+  </UserControl.Resources>
+
+  <Grid Margin="20" RowDefinitions="Auto,*,Auto">
+    <TextBlock Classes="pageTitle" Text="{Binding VideoTitle}" />
+
+    <!--
+      Mock stage.  A real app hosts a native VideoView here; the point of the
+      page is the lifecycle demo — navigate away and the playback hands over
+      to the floating player (OnDeparted → FloatingPlayerHost).
+    -->
+    <Border Grid.Row="1" Margin="0,12" CornerRadius="10" Background="#FF0E1015" MinHeight="220">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+        <PathIcon Data="{StaticResource IconPlay}" Width="44" Height="44" Foreground="#66FFFFFF" />
+        <TextBlock Text="{Binding Source={x:Static props:Lang.Labs}, Path=NowPlaying}"
+                   Foreground="#CCFFFFFF" FontSize="14" FontWeight="SemiBold" />
+        <TextBlock Text="{Binding VideoTitle}" Foreground="#80FFFFFF" FontSize="12" />
+      </StackPanel>
+    </Border>
+
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+      <ProgressBar Value="{Binding PlaybackPosition}" Maximum="100" Height="4" VerticalAlignment="Center" />
+      <TextBlock Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
+                 Foreground="{DynamicResource App.Muted.Foreground}"
+                 Text="{Binding PlaybackPosition, StringFormat='{}{0:0.0}s'}" />
+    </Grid>
+  </Grid>
+</UserControl>

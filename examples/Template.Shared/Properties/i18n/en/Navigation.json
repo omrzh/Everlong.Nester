@@ -1,0 +1,21 @@
+{
+  "Logout": "Logout",
+  "Main": "Main",
+  "Landing": "Landing",
+  "InteractionLab": "Interaction Lab",
+  "Posts": "Posts",
+  "Settings": "Settings",
+  "General": "General",
+  "Account": "Account",
+  "Security": "Security",
+  "Profile": "Profile",
+  "AdminPanel": "Admin Panel",
+  "RouteItemLab": "Navigation Lab",
+  "VideoPlayer": "Video Player",
+  "Back": "Back",
+  "Forward": "Forward",
+  "Minimize": "Minimize",
+  "Maximize": "Maximize",
+  "Close": "Close",
+  "BackdropPanel": "Backdrop panel"
+}

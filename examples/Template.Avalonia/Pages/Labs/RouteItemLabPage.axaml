@@ -1,0 +1,136 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:n="https://nester.dev"
+             xmlns:vm="using:NesterApp.Pages.Labs"
+             xmlns:views="using:NesterApp.Pages.Labs"
+             xmlns:props="using:NesterApp.Properties"
+             mc:Ignorable="d"
+             x:Class="NesterApp.Pages.Labs.RouteItemLabPage"
+             x:DataType="vm:RouteItemLabPageModel"
+             d:DesignWidth="900" d:DesignHeight="600">
+
+  <UserControl.Resources>
+    <views:SvgIconConverter x:Key="SvgIconConverter" />
+  </UserControl.Resources>
+
+  <!--
+    Pattern B: DataTemplate for SvgIcon - the ContentPresenter inside RouteLink resolves
+    this template by type and renders the path geometry as a PathIcon.
+    SvgIcon is a plain C# record; the view model has no UI dependency.
+    In Avalonia, DataTemplates must live in DataTemplates (not Resources) to be picked up by ContentPresenter.
+  -->
+  <UserControl.DataTemplates>
+    <DataTemplate DataType="vm:SvgIcon">
+      <PathIcon Data="{Binding PathData, Converter={StaticResource SvgIconConverter}}"
+                Width="16" Height="16" />
+    </DataTemplate>
+  </UserControl.DataTemplates>
+
+  <ScrollViewer Margin="20">
+    <StackPanel Spacing="24">
+      <TextBlock Classes="pageTitle" Text="{Binding LabsStrings.RouteItemLabTitle}" />
+      <TextBlock Classes="pageSubtitle" Text="{Binding LabsStrings.RouteItemLabSubtitle}" Margin="0,0,0,4" />
+
+      <!-- Section A: Flat nav with ItemsControl + RouteLink (existing approach, reference) -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="sectionHeader" Text="{Binding LabsStrings.SectionATitle}" />
+        <TextBlock Text="{Binding LabsStrings.SectionADesc}" Foreground="{DynamicResource App.Muted.Foreground}" />
+        <Border Background="{DynamicResource App.Card.Background}" CornerRadius="8" Padding="8" BorderBrush="{DynamicResource App.Card.BorderBrush}"
+                BorderThickness="1">
+          <ItemsControl ItemsSource="{Binding FlatNavItems}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <n:RouteLink />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Border>
+      </StackPanel>
+
+      <StackPanel Spacing="8">
+        <TextBlock Classes="sectionHeader" Text="{Binding LabsStrings.SectionA2Title}" />
+        <TextBlock Text="{Binding LabsStrings.SectionA2Desc}" Foreground="{DynamicResource App.Muted.Foreground}" />
+        <Border Background="{DynamicResource App.Card.Background}" CornerRadius="8" Padding="8" BorderBrush="{DynamicResource App.Card.BorderBrush}"
+                BorderThickness="1">
+          <ItemsControl ItemsSource="{Binding FlatNavItems}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <n:RouteLink HorizontalAlignment="Stretch">
+                  <StackPanel Orientation="Horizontal" Spacing="10">
+                    <!-- Resolve the EmojiIcon record through the hook template (the same
+                         lookup RouteLink's own icon host uses) — binding Icon to a
+                         TextBlock would print the record's ToString() instead. -->
+                    <ContentPresenter Content="{Binding Icon}" Width="20"
+                                      HorizontalContentAlignment="Center" />
+                    <TextBlock Text="{Binding Title}" />
+                  </StackPanel>
+                </n:RouteLink>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Border>
+      </StackPanel>
+
+      <!-- Section B: Tree nav using RouteTreeControl -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="sectionHeader" Text="{Binding LabsStrings.SectionBTitle}" />
+        <TextBlock Foreground="{DynamicResource App.Muted.Foreground}" TextWrapping="Wrap">
+          <Run Text="{Binding LabsStrings.SectionBDesc1}" />
+          <LineBreak />
+          <Run Text="{Binding LabsStrings.SectionBDesc2}" />
+          <Run Text="{Binding LabsStrings.SectionBDesc3}" />
+        </TextBlock>
+        <Border Background="{DynamicResource App.Card.Background}" CornerRadius="8" Padding="8" BorderBrush="{DynamicResource App.Card.BorderBrush}"
+                BorderThickness="1">
+          <n:RouteTreeControl ItemsSource="{Binding TreeNavItems}" />
+        </Border>
+      </StackPanel>
+
+      <!-- Section C: Pure TreeControl (no navigation) -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="sectionHeader" Text="{Binding LabsStrings.SectionCTitle}" />
+        <TextBlock Foreground="{DynamicResource App.Muted.Foreground}" TextWrapping="Wrap">
+          <Run Text="{Binding LabsStrings.SectionCDesc1}" />
+          <LineBreak />
+          <Run Text="{Binding LabsStrings.SectionCDesc2}" />
+        </TextBlock>
+        <Border Background="{DynamicResource App.Card.Background}" CornerRadius="8" Padding="8" BorderBrush="{DynamicResource App.Card.BorderBrush}"
+                BorderThickness="1">
+          <n:TreeControl ItemsSource="{Binding TreeControlNodes}">
+            <n:TreeControl.DataTemplates>
+              <TreeDataTemplate DataType="{x:Type vm:TreeNode}" ItemsSource="{Binding Children}">
+                <Border Background="Transparent">
+                  <Border.ContextFlyout>
+                    <MenuFlyout>
+                      <MenuItem Header="{Binding Source={x:Static props:Lang.Labs}, Path=PlaceholderMenu1}" />
+                      <MenuItem Header="{Binding Source={x:Static props:Lang.Labs}, Path=PlaceholderMenu2}" />
+                      <MenuItem Header="{Binding Source={x:Static props:Lang.Labs}, Path=PlaceholderMenu3}" />
+                    </MenuFlyout>
+                  </Border.ContextFlyout>
+                  <TextBlock Text="{Binding Label}" VerticalAlignment="Center" Padding="0 6" />
+                </Border>
+              </TreeDataTemplate>
+            </n:TreeControl.DataTemplates>
+          </n:TreeControl>
+        </Border>
+      </StackPanel>
+
+      <!-- Section D: Custom Icon - Pattern B (SvgIcon record + DataTemplate) -->
+      <StackPanel Spacing="8">
+        <TextBlock Classes="sectionHeader" Text="{Binding LabsStrings.SectionDTitle}" />
+        <TextBlock Foreground="{DynamicResource App.Muted.Foreground}" TextWrapping="Wrap">
+          <Run Text="{Binding LabsStrings.SectionDDesc1}" />
+          <LineBreak />
+          <Run Text="{Binding LabsStrings.SectionDDesc2}" />
+        </TextBlock>
+        <Border Background="{DynamicResource App.Card.Background}" CornerRadius="8" Padding="8" BorderBrush="{DynamicResource App.Card.BorderBrush}"
+                BorderThickness="1">
+          <n:RouteTreeControl ItemsSource="{Binding SvgIconNavItems}" />
+        </Border>
+      </StackPanel>
+
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

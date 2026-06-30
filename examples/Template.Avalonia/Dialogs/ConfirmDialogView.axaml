@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:props="using:NesterApp.Properties"
+             xmlns:vm="using:NesterApp.Dialogs"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="200"
+             x:Class="NesterApp.Dialogs.ConfirmDialogView"
+             x:DataType="vm:MyConfirmDialogSession"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="{DynamicResource Nester.DialogChrome.Padding}"
+          BoxShadow="{DynamicResource Nester.DialogChrome.Shadow}">
+    <StackPanel MinWidth="300" MaxWidth="480" Spacing="20">
+      <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold"
+                 HorizontalAlignment="Center" />
+      <TextBlock Text="{Binding Message}" TextWrapping="Wrap" TextAlignment="Center"
+                 HorizontalAlignment="Center" />
+
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+        <Button Content="{Binding Source={x:Static props:Lang.Labs}, Path=DialogYes}" Command="{Binding YesCommand}" MinWidth="88" Classes="accent" />
+        <Button Content="{Binding Source={x:Static props:Lang.Labs}, Path=DialogNo}" Command="{Binding NoCommand}" MinWidth="88" />
+        <Button Content="{Binding Source={x:Static props:Lang.Labs}, Path=DialogNested}" Command="{Binding OpenNestedCommand}" MinWidth="88" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

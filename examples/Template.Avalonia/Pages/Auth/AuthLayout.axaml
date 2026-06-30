@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:n="https://nester.dev"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="NesterApp.Pages.Auth.AuthLayout">
+
+  <Grid>
+    <Border HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="420"
+            Background="{DynamicResource App.Card.Background}"
+            BoxShadow="{DynamicResource Nester.Shadow}"
+            CornerRadius="10">
+      <Grid RowDefinitions="Auto,*">
+
+        <!-- Brand band — the app identity above the mounted content. -->
+        <Border Grid.Row="0" Background="{DynamicResource Nester.Brand}" CornerRadius="10,10,0,0" Padding="20,18">
+          <StackPanel HorizontalAlignment="Center" Spacing="8">
+            <TextBlock Text="🧭" FontSize="40" HorizontalAlignment="Center" />
+            <TextBlock Text="NesterApp" Foreground="White" FontSize="22" FontWeight="SemiBold"
+                       HorizontalAlignment="Center" />
+          </StackPanel>
+        </Border>
+
+        <!-- Content mount point -->
+        <n:LayoutBody x:Name="Body" Grid.Row="1" Margin="20" />
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

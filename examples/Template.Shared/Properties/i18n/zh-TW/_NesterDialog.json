@@ -1,0 +1,93 @@
+{
+  "$KeyPrefix": "Everlong.Nester.Dialog",
+  // No codgen for strong typed properties. It's Supplementary Translation for strings used by nester.
+  "$DataOnly": true,
+  "Close": "關閉",
+  "Alert": {
+    "Title": "提示",
+    "ButtonText": "確定"
+  },
+  "Confirm": {
+    "Title": "確認",
+    "ConfirmText": "是",
+    "CancelText": "取消"
+  },
+  "Choice": {
+    "Title": "選擇",
+    "PrimaryText": "是",
+    "SecondaryText": "否",
+    "CancelText": "取消"
+  },
+  "OptionSelect": {
+    "Title": "請選擇"
+  },
+  "Numpad": {
+    "Title": "輸入數字",
+    "Message": "",
+    "ConfirmText": "確認",
+    "ClearToolTip": "清空",
+    "BackspaceToolTip": "退格",
+    "RangeHintFormat": "範圍：{min} - {max}{step}",
+    "ResultHintInvalid": "= ?",
+    "ResultHintFormat": "= {value}{suffix}",
+    "InvalidExpressionError": "運算式無效",
+    "OutOfRangeWarningFormat": "結果超出範圍：{range}"
+  },
+  "ColorPicker": {
+    "Title": "選擇顏色",
+    "Message": "調整通道值以選擇顏色",
+    "ConfirmText": "確認",
+    "ResetText": "重設"
+  },
+  "DateTimePicker": {
+    "Title": "選擇日期和時間",
+    "Message": "輸入日期和時間",
+    "ConfirmText": "確認",
+    "NowText": "現在",
+    "InvalidInput": "日期／時間輸入無效",
+    "UnlimitedRange": "範圍：不限",
+    "RangeHintFormat": "範圍：{min} - {max}",
+    "YearLabel": "年",
+    "MonthLabel": "月",
+    "DayLabel": "日",
+    "HourLabel": "時",
+    "MinuteLabel": "分",
+    "SecondLabel": "秒"
+  },
+  "ImagePreview": {
+    "Title": "圖片預覽",
+    "PreviousText": "上一張",
+    "NextText": "下一張",
+    "LoadingStatus": "正在載入圖片…",
+    "LoadFailedError": "圖片載入失敗",
+    "NoHttpClientError": "無法載入網路圖片：未提供 HttpClient，請透過 ImagePreviewInput.HttpClient 傳入。",
+    "BytesSourceDisplayFormat": "記憶體資料（{count} 位元組）"
+  },
+  "SignaturePad": {
+    "Title": "簽名板",
+    "Message": "請在下方區域簽名以確認",
+    "ConfirmText": "確認",
+    "ClearText": "清除",
+    "StrokeCountFormat": "已簽名筆畫：{count}"
+  },
+  "Ipv4": {
+    "Title": "輸入 IP 位址",
+    "Message": "請輸入一個 IPv4 位址",
+    "ConfirmText": "確認",
+    "ClearText": "清除",
+    "PingText": "Ping 測試",
+    "BackspaceToolTip": "退格",
+    "PingSuccessFormat": "Ping 成功（{time} ms）",
+    "PingFailedFormat": "Ping 失敗（{reason}）",
+    "PingUnavailableError": "Ping 不可用",
+    "PingTimedOutReason": "已逾時",
+    "PingHostUnreachableReason": "主機無法連線",
+    "PingNetworkUnreachableReason": "網路無法連線",
+    "PingProtocolUnreachableReason": "通訊協定無法連線",
+    "PingPortUnreachableReason": "連接埠無法連線",
+    "PingPacketTooBigReason": "封包過大",
+    "PingTtlExpiredReason": "TTL 已過期",
+    "PingBadRouteReason": "路由錯誤",
+    "PingUnknownReason": "未知錯誤"
+  }
+}

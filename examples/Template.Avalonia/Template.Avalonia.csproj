@@ -1,0 +1,56 @@
+<!--This csproj is for debug time
+When pack to Template, this csproj file is not packed
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Xplat shared App project: the Application definition (App.axaml), the
+         views, the Directors and the shell assembly live here — platform
+         launch shells (Desktop/Browser) reference this project and only
+         supply their own Program.cs (+ platform-only window types). -->
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <RootNamespace>NesterApp</RootNamespace>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <Elg>..\Template.Shared\Properties\i18n\i18n.jsonc</Elg>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+    <!-- The `[Settings]`/`[Setting]` generator the shared settings files compile against. -->
+    <PackageReference Include="Everlong.Settings" Version="0.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
+  </ItemGroup>
+
+  <!-- The CJK face the Browser and Android hosts register through `CjkFontCollection`; the
+       desktop hosts resolve CJK through the platform instead, and the font is kept out of
+       the template package entirely.  A coverage-limited subset. -->
+  <ItemGroup>
+    <AvaloniaResource Include="Assets/Fonts/*.otf" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('..\Template.Shared\Pages')">
+    <Compile Include="..\Template.Shared\Pages\**\*.cs" Link="Pages\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Template.Shared\Dialogs\**\*.cs" Link="Dialogs\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Template.Shared\Properties\**\*.cs" Link="Properties\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="..\Template.Shared\Properties\**\*.json*" Link="Properties\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Template.Shared\Models\**\*.cs" Link="Models\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Template.Shared\Services\**\*.cs" Link="Services\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\Template.Shared\Hosting\**\*.cs" Link="Hosting\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Everlong.Nester.Avalonia\Everlong.Nester.Avalonia.csproj" />
+    <ProjectReference Include="..\..\src\Everlong.Nester.Extensions.Avalonia\Everlong.Nester.Extensions.Avalonia.csproj" />
+    <ProjectReference Include="..\..\src\Everlong.Nester.Generators\Everlong.Nester.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\src\Everlong.Nester.CodeFixers\Everlong.Nester.CodeFixers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

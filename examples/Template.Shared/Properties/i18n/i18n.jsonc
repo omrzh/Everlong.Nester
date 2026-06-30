@@ -1,0 +1,57 @@
+{
+  // --- Locale ---
+  "locale": {
+    // BCP 47 tag of the neutral (default) locale, e.g. "en", "zh-CN".
+    "default": "zh-CN"
+    // sourceDir defaults to the folder containing this config file.
+    // When placing i18n.jsonc in a shared folder used by multiple projects,
+    // omit sourceDir so locale subdirectories are discovered relative to this file.
+  },
+  // --- Output ---
+  "output": {
+    // Directory for generated *.g.cs files. Relative to the .csproj file.
+    "dir": "Properties",
+    // C# namespace of the generated class.
+    "namespace": "NesterApp.Properties",
+    // Root static class name.
+    "className": "Lang",
+    // Line endings of every file `dotnet elg` writes: "lf" (the tool's default) | "crlf" | "platform"
+    // (the newline of the running OS).  "lf" matches this repository's .editorconfig, so regenerating
+    // on any platform leaves the working tree byte-identical.
+    "lineEnding": "lf"
+  },
+  // --- Type visibility ---
+  "types": {
+    "classVisibility": "public",
+    // "public" | "internal"
+    "memberVisibility": "public",
+    // "public" | "internal"
+    "localesVisibility": "public",
+    // "public" | "internal"
+    // Suffix appended to each per-module string-section class name, e.g. "Strings" → AppStrings.
+    "suffix": "Strings"
+  },
+  // --- Code generation options ---
+  "codegen": {
+    // Generate XML documentation comments on all public members.
+    // When true: full /// <summary> on every property (using JSON value or JSONC comment).
+    // When false (default): suppress CS1591 warnings with #pragma disable instead.
+    "xmlDoc": true,
+    // Emit a Format(…) helper on string entries that contain format placeholders.
+    "formattingMethod": true,
+    // Place the Locales nested class in a separate *.Locales.g.cs partial file.
+    "localesPartial": true,
+    // Place each string-section class in its own *.{Module}.g.cs partial file.
+    "sectionsPartial": false
+  },
+  // --- Coordinator generation ---
+  "coordinator": {
+    // Generate Lang.Coordinator.g.cs: extends Lang with Initialize() and UseLocale().
+    // Only set this in app projects, not library/package projects.
+    "generate": true,
+    // External assembly manifests to register and apply collaborative overlay for.
+    "manifests": [
+      "Everlong.Nester.Extensions.Properties.Lang"
+    ]
+  }
+}

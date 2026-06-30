@@ -1,0 +1,16 @@
+/*
+ * Strings the shell itself surfaces: the host window, the close guard and the
+ * single-instance activation negotiation.
+*/
+{
+  "WindowTitle": "NesterApp",
+  "CloseConfirmMessage": "确定要关闭此窗口吗？",
+  "CloseConfirmYes": "是，关闭",
+  "CloseConfirmNo": "否，留下",
+  "ActivationStartupArgs": "启动参数",
+  "ActivationFileCountFormat": "{count, plural, =0 {没有文件} other {{count} 个文件}}",
+  "ActivationRequestFormat": "另一个实例请求当前实例处理：{summary}。在此处处理吗？",
+  "ActivationAccept": "在此处理",
+  "ActivationDecline": "在新窗口打开",
+  "Unauthorized": "未授权"
+}

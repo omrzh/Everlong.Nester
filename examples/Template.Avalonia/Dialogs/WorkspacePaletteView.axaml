@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:props="using:NesterApp.Properties"
+             xmlns:vm="using:NesterApp.Dialogs"
+             mc:Ignorable="d" d:DesignWidth="640" d:DesignHeight="420"
+             x:Class="NesterApp.Dialogs.WorkspacePaletteView"
+             x:DataType="vm:WorkspacePaletteSession"
+             Width="640" MaxHeight="460"
+             HorizontalAlignment="Center" VerticalAlignment="Top"
+             Margin="0,48,0,0">
+  <!-- The palette is the whole surface it needs: a filter, the rows, a status
+       line.  Where it sits is the view's business (top-centre, like an editor's
+       command palette); the dimmer below it stays the framework's. -->
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="12"
+          BoxShadow="{DynamicResource Nester.DialogChrome.Shadow}">
+    <Grid RowDefinitions="Auto,*,Auto">
+      <TextBox x:Name="FilterBox" Grid.Row="0"
+               Text="{Binding Filter}"
+               PlaceholderText="{Binding Source={x:Static props:Lang.Workspace}, Path=Watermark}"
+               FontSize="15" Margin="0,0,0,10" />
+
+      <Grid Grid.Row="1">
+        <ListBox ItemsSource="{Binding Matches}"
+                 SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+                 Background="Transparent" BorderThickness="0"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.ItemTemplate>
+            <!-- A row is a workspace-relative path; the whole row is the path. -->
+            <DataTemplate>
+              <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" />
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <TextBlock Text="{Binding Source={x:Static props:Lang.Workspace}, Path=Empty}"
+                   Opacity="0.6"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   IsVisible="{Binding IsEmpty}" />
+      </Grid>
+
+      <DockPanel Grid.Row="2" Margin="4,10,4,0" LastChildFill="False">
+        <TextBlock DockPanel.Dock="Left" Text="{Binding Watching}" Opacity="0.6" FontSize="12"
+                   TextTrimming="CharacterEllipsis" />
+        <TextBlock DockPanel.Dock="Right"
+                   Text="{Binding Source={x:Static props:Lang.Workspace}, Path=Hint}"
+                   Opacity="0.6" FontSize="12" />
+      </DockPanel>
+    </Grid>
+  </Border>
+</UserControl>

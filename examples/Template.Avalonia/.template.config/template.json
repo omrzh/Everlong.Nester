@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Nolon Technology",
+  "classifications": [ "Desktop", "Avalonia", "Nester" ],
+  "identity": "Everlong.Nester.App.Avalonia.CSharp",
+  "name": "Nester Avalonia Application",
+  "shortName": "nester-avalonia",
+  "description": "A cross-platform desktop application using Nester navigation with Avalonia UI.",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "NesterApp",
+  "preferNameDirectory": true,
+  "symbols": {
+    "Framework": {
+      "type": "parameter",
+      "description": "The target framework for the project.",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "net8.0",  "description": "Target .NET 8.0" },
+        { "choice": "net9.0",  "description": "Target .NET 9.0" },
+        { "choice": "net10.0", "description": "Target .NET 10.0" }
+      ],
+      "replaces": "net10.0",
+      "defaultValue": "net10.0"
+    }
+  }
+}

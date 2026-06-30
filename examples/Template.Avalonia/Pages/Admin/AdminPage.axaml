@@ -1,0 +1,71 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:n="https://nester.dev"
+             xmlns:vm="using:NesterApp.Pages.Admin"
+             x:Class="NesterApp.Pages.Admin.AdminPage"
+             x:DataType="vm:AdminPageModel">
+
+  <UserControl.Styles>
+    <!--
+      Destructive action: an explicit template keeps the red fill on hover and
+      press.  Leaving the fill to a local Background would let the Fluent
+      theme repaint the template's ContentPresenter on hover.
+    -->
+    <Style Selector="Button.destructive">
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Padding" Value="12,6" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="PART_Surface" Background="{DynamicResource App.Danger.Button}" CornerRadius="4"
+                  Padding="{TemplateBinding Padding}">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="Button.destructive:pointerover /template/ Border#PART_Surface">
+      <Setter Property="Background" Value="{DynamicResource App.Danger.Button.Hover}" />
+    </Style>
+    <Style Selector="Button.destructive:pressed /template/ Border#PART_Surface">
+      <Setter Property="Background" Value="{DynamicResource App.Danger.Button.Pressed}" />
+    </Style>
+  </UserControl.Styles>
+
+  <!--
+    AuthorizeView: conditional content control that shows one of two subtrees based on auth.
+    Rules="" (empty) = authenticated users only.
+    Rules="Admin" = must have the "Admin" role.
+    Rules="CanEditData; Admin,Manager" = must have the "CanEditData" policy AND one of the roles.
+    Nester auto-discovers the IAuthService from the visual tree — no plumbing needed.
+  -->
+  <n:AuthorizeView Rules="Admin">
+    <n:AuthorizeView.Authorized>
+      <ScrollViewer Margin="20">
+        <Border Background="{DynamicResource App.Admin.Background}"
+                BorderBrush="{DynamicResource App.Admin.BorderBrush}"
+                BorderThickness="1" CornerRadius="8" Padding="16"
+                VerticalAlignment="Top" HorizontalAlignment="Left" MaxWidth="560">
+          <StackPanel Spacing="10">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <TextBlock Text="🛡️" FontSize="20" VerticalAlignment="Center" />
+              <TextBlock Classes="sectionHeader" Text="{Binding PagesStrings.AdminTitle}" />
+            </StackPanel>
+            <TextBlock Text="{Binding PagesStrings.AdminViewingReason}"
+                       Foreground="{DynamicResource App.Admin.Foreground}" TextWrapping="Wrap" />
+            <Button Classes="destructive" Content="{Binding PagesStrings.AdminAction}" />
+          </StackPanel>
+        </Border>
+      </ScrollViewer>
+    </n:AuthorizeView.Authorized>
+    <n:AuthorizeView.NotAuthorized>
+      <!-- Shown when the user lacks the Admin role; also fires during login transitions. -->
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
+        <TextBlock Text="⛔" FontSize="32" HorizontalAlignment="Center" />
+        <TextBlock Text="{Binding PagesStrings.NoPermission}"
+                   FontSize="16" Foreground="{DynamicResource App.Muted.Foreground}" />
+      </StackPanel>
+    </n:AuthorizeView.NotAuthorized>
+  </n:AuthorizeView>
+</UserControl>

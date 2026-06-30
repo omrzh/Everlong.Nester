@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:NesterApp.Pages.Settings"
+             x:Class="NesterApp.Pages.Settings.SecuritySettingsPage"
+             x:DataType="vm:SecuritySettingsPageModel"
+             d:DataContext="{x:Static vm:SecuritySettingsPageModel.Design}">
+  <StackPanel Margin="10" Spacing="8">
+    <TextBlock Classes="sectionHeader" Text="{Binding PagesStrings.SecurityTitle}" Margin="0,0,0,8" />
+    <TextBlock Classes="pageSubtitle" Text="{Binding PagesStrings.ChangesSubtitle}" />
+    <CheckBox Content="{Binding PagesStrings.RequireTwoFactor}"
+              IsChecked="{Binding Security.RequireTwoFactor}" />
+    <CheckBox Content="{Binding PagesStrings.AutoLock}"
+              IsChecked="{Binding Security.AutoLockOnInactivity}" Margin="0,0,0,8" />
+    <TextBlock Text="{Binding PagesStrings.SessionTimeoutLabel}" />
+    <Grid ColumnDefinitions="*,Auto">
+      <Slider Grid.Column="0" Minimum="5" Maximum="120" TickFrequency="5" IsSnapToTickEnabled="True"
+              Value="{Binding Security.SessionTimeoutMinutes}" />
+      <TextBlock Grid.Column="1" Text="{Binding Security.SessionTimeoutMinutes}" MinWidth="28"
+                 Margin="10,0,0,0" TextAlignment="Right" VerticalAlignment="Center"
+                 Foreground="{DynamicResource App.Muted.Foreground}" />
+    </Grid>
+  </StackPanel>
+</UserControl>

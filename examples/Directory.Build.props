@@ -1,0 +1,10 @@
+<!-- examples/Directory.Build.props -->
+<Project>
+  <PropertyGroup>
+    <!-- On Linux/macOS, enable targeting Windows frameworks for build (not runtime) -->
+    <EnableWindowsTargeting Condition="!$([MSBuild]::IsOSPlatform('Windows'))">true</EnableWindowsTargeting>
+
+    <!-- Development projects only — they are never packed. -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+</Project>

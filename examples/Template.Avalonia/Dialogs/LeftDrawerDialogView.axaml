@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:props="using:NesterApp.Properties"
+             xmlns:vm="using:NesterApp.Dialogs"
+             mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="400"
+             x:Class="NesterApp.Dialogs.LeftDrawerDialogView"
+             x:DataType="vm:LeftDrawerDialogSession"
+             Width="320" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+  <!-- Width is the drawer's own business; VerticalAlignment=Stretch makes
+       its height match the shell (the dimmer slot is full-stage). -->
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="0,10,10,0"
+          Padding="28"
+          BoxShadow="{DynamicResource Nester.DialogChrome.Shadow}">
+    <StackPanel Spacing="14">
+      <TextBlock Text="{Binding Title}" FontSize="20" FontWeight="Bold" />
+      <TextBlock Text="{Binding Source={x:Static props:Lang.Labs}, Path=LeftDrawerBody1}"
+                 TextWrapping="Wrap" />
+      <TextBlock Text="{Binding Source={x:Static props:Lang.Labs}, Path=LeftDrawerBody2}"
+                 TextWrapping="Wrap" />
+    </StackPanel>
+  </Border>
+</UserControl>

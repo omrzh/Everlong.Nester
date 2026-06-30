@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:NesterApp.Pages.Settings"
+             xmlns:properties="using:NesterApp.Properties"
+             x:Class="NesterApp.Pages.Settings.SettingsPage"
+             x:DataType="vm:SettingsPageModel"
+             d:DataContext="{x:Static vm:SettingsPageModel.Design}">
+  <StackPanel Margin="10" Spacing="8">
+    <TextBlock Classes="sectionHeader" Text="{Binding SettingsStrings.Title}" Margin="0,0,0,8" />
+    <TextBlock Classes="pageSubtitle" Text="{Binding SettingsStrings.Subtitle}" />
+    <TextBlock Text="{Binding SettingsStrings.LocaleLabel}" />
+    <!-- Language toggle — calls Lang.Provider.Use(...) + shell.Restart() (placeholder) -->
+    <StackPanel Orientation="Horizontal" Spacing="8">
+      <Button Content="{Binding SettingsStrings.SwitchToEnglish}"
+              Command="{Binding UseLanguageCommand}" CommandParameter="en" />
+      <Button Content="{Binding SettingsStrings.SwitchToChinese}"
+              Command="{Binding UseLanguageCommand}" CommandParameter="zh-CN" />
+      <Button Content="{Binding SettingsStrings.SwitchToTraditionalChinese}"
+              Command="{Binding UseLanguageCommand}" CommandParameter="zh-TW" />
+    </StackPanel>
+    <TextBox Text="{Binding AppSettings.Language}" PlaceholderText="{Binding SettingsStrings.LanguageWatermark}" />
+    <TextBlock Text="{Binding SettingsStrings.AppearanceLabel}" Margin="0,8,0,0" />
+    <TextBlock Text="{Binding SettingsStrings.ThemeLabel}" />
+    <StackPanel Orientation="Horizontal" Spacing="8">
+      <Button Content="{Binding SettingsStrings.ThemeSystem}" Command="{Binding SetThemeCommand}"
+              CommandParameter="{x:Static properties:AppTheme.System}" />
+      <Button Content="{Binding SettingsStrings.ThemeLight}" Command="{Binding SetThemeCommand}"
+              CommandParameter="{x:Static properties:AppTheme.Light}" />
+      <Button Content="{Binding SettingsStrings.ThemeDark}" Command="{Binding SetThemeCommand}"
+              CommandParameter="{x:Static properties:AppTheme.Dark}" />
+    </StackPanel>
+    <CheckBox Content="{Binding SettingsStrings.AutoSave}" IsChecked="{Binding AppSettings.AutoSave}" />
+    <TextBlock Text="{Binding SettingsStrings.FontSizeLabel}" />
+    <Grid ColumnDefinitions="*,Auto">
+      <Slider Grid.Column="0" Minimum="10" Maximum="24" TickFrequency="1" IsSnapToTickEnabled="True"
+              Value="{Binding AppSettings.FontSize}" />
+      <TextBlock Grid.Column="1" Text="{Binding AppSettings.FontSize}" MinWidth="24"
+                 Margin="10,0,0,0" TextAlignment="Right" VerticalAlignment="Center"
+                 Foreground="{DynamicResource App.Muted.Foreground}" />
+    </Grid>
+  </StackPanel>
+</UserControl>

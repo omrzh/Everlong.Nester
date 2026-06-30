@@ -1,0 +1,238 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!--
+    App-level resource dictionary for NesterApp.
+
+    OVERVIEW
+    ────────
+    Two sections live here:
+
+      1. App.* tokens  — active color tokens used throughout this template.
+         Apply them with {DynamicResource App.Page.Background} etc.
+
+      2. Nester.* overrides  — commented-out copies of every overridable
+         Nester built-in color key.  Uncomment any entry (in both Light and
+         Dark variants) to customize Nester's components (dialogs, toasts,
+         nav links, …) without touching the library source.
+
+    HOW OVERRIDES WORK
+    ──────────────────
+    AppResources.axaml is merged AFTER the core NesterTheme.axaml and the Extensions NesterExtendedTheme.axaml in App.axaml.
+    Avalonia's DynamicResource lookup honors the last-merged definition,
+    so any key you redefine here will silently win over the built-in default.
+    Light/Dark variants inside ThemeDictionaries have higher priority than
+    the same key declared outside, so per-theme overrides work correctly.
+  -->
+
+  <ResourceDictionary.ThemeDictionaries>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!--  LIGHT THEME                                                    -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <ResourceDictionary x:Key="Light">
+
+      <!-- ── App tokens (active) ─────────────────────────────────── -->
+
+      <Color x:Key="App.Color.Card.Background">#CCFFFFFF</Color>
+      <Color x:Key="App.Color.Card.BorderBrush">#10000000</Color>
+      <Color x:Key="App.Color.Body.BorderBrush">#E0E0E0</Color>
+      <Color x:Key="App.Color.Sidebar.Background">#0AFFFFFF</Color>
+      <Color x:Key="App.Color.Sidebar.Border">#1A000000</Color>
+      <Color x:Key="App.Color.TitleBar.Foreground">#1B2130</Color>
+      <Color x:Key="App.Color.TitleBar.Hover.Background">#14000000</Color>
+      <Color x:Key="App.Color.TitleBar.Pressed.Background">#24000000</Color>
+      <Color x:Key="App.Color.Caption.Hover.Background">#14000000</Color>
+      <Color x:Key="App.Color.Caption.Pressed.Background">#24000000</Color>
+      <Color x:Key="App.Color.Caption.Close.Hover.Background">#C42B1C</Color>
+      <Color x:Key="App.Color.Muted.Foreground">#6B7280</Color>
+      <Color x:Key="App.Color.Window.Background">#F7FAFF</Color>
+      <Color x:Key="App.Color.Panel.Background">#F7FFFFFF</Color>
+      <Color x:Key="App.Color.Panel.BorderBrush">#1A000000</Color>
+      <Color x:Key="App.Color.Panel.Foreground">#1B2130</Color>
+      <Color x:Key="App.Color.Panel.Muted">#6B7280</Color>
+      <Color x:Key="App.Color.Panel.Graph.Surface">#EDF1F8</Color>
+      <Color x:Key="App.Color.Panel.Graph.Guide">#C3CCDC</Color>
+      <Color x:Key="App.Color.Panel.Graph.Line">#0A84D8</Color>
+      <Color x:Key="App.Color.Admin.Background">#FFF4CE</Color>
+      <Color x:Key="App.Color.Admin.BorderBrush">#FFD700</Color>
+      <Color x:Key="App.Color.Admin.Foreground">#1B2130</Color>
+      <Color x:Key="App.Color.Danger.Foreground">#DC2626</Color>
+      <Color x:Key="App.Color.Danger.Hover.Background">#FEE2E2</Color>
+      <Color x:Key="App.Color.Danger.Button">#DC2626</Color>
+      <Color x:Key="App.Color.Danger.Button.Hover">#B91C1C</Color>
+      <Color x:Key="App.Color.Danger.Button.Pressed">#991B1B</Color>
+
+      <!-- ── Nester built-in overrides (commented — uncomment to customize) ── -->
+
+      <!-- Brand / Primary -->
+      <!--<Color x:Key="Nester.Color.Brand">#0078D4</Color>-->
+      <!--<Color x:Key="Nester.Color.Brand.Hover">#106EBE</Color>-->
+      <!--<Color x:Key="Nester.Color.Brand.Pressed">#005A9E</Color>-->
+      <!--<Color x:Key="Nester.Color.Brand.Selected">#106EBE</Color>-->
+
+      <!-- Border -->
+      <!--<Color x:Key="Nester.Color.Border">#E0E0E0</Color>-->
+
+      <!-- Dialog chrome -->
+      <!--<Color x:Key="Nester.Color.DialogChrome.Background">#FFFFFF</Color>-->
+      <!--<Color x:Key="Nester.Color.DialogChrome.Foreground">#212121</Color>-->
+
+      <!-- Toast -->
+      <!--<Color x:Key="Nester.Color.Toast.Background">#FFFFFF</Color>-->
+      <!--<Color x:Key="Nester.Color.Toast.Foreground">#212121</Color>-->
+
+      <!-- Snackbar -->
+      <!--<Color x:Key="Nester.Color.Snackbar.Background">#FFFFFF</Color>-->
+      <!--<Color x:Key="Nester.Color.Snackbar.Foreground">#212121</Color>-->
+      <!--<Color x:Key="Nester.Color.Snackbar.Action">#FF4081</Color>-->
+
+      <!-- Semantic status -->
+      <!--<Color x:Key="Nester.Color.Success">#4CAF50</Color>-->
+      <!--<Color x:Key="Nester.Color.Error">#F44336</Color>-->
+      <!--<Color x:Key="Nester.Color.Warning">#FF9800</Color>-->
+      <!--<Color x:Key="Nester.Color.Info">#2196F3</Color>-->
+
+      <!-- RouteLink -->
+      <!--<Color x:Key="Nester.Color.RouteLink.Hover">#F0F0F0</Color>-->
+      <!--<Color x:Key="Nester.Color.RouteLink.Active.Background">#1A000000</Color>-->
+      <!--<Color x:Key="Nester.Color.RouteLink.Active.Foreground">#0078D7</Color>-->
+
+      <!-- RouteTreeItem -->
+      <!--<Color x:Key="Nester.Color.RouteTreeItem.Hover">#F0F0F0</Color>-->
+      <!--<Color x:Key="Nester.Color.RouteTreeItem.Selected.Background">#1A000000</Color>-->
+      <!--<Color x:Key="Nester.Color.RouteTreeItem.Selected.Background.Light">#07000000</Color>-->
+      <!--<Color x:Key="Nester.Color.RouteTreeItem.Active.Foreground">#0078D7</Color>-->
+
+      <!-- TreeItem / Notice -->
+      <!--<Color x:Key="Nester.Color.TreeItem.Hover">#F0F0F0</Color>-->
+      <!--<Color x:Key="Nester.Color.Notice.Hover">#F0F0F0</Color>-->
+
+      <!-- Dimmer backdrop -->
+      <!--<Color x:Key="Nester.Color.Dimmer.Backdrop">#40000000</Color>-->
+
+    </ResourceDictionary>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!--  DARK THEME                                                     -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <ResourceDictionary x:Key="Dark">
+
+      <!-- ── App tokens (active) ─────────────────────────────────── -->
+
+      <Color x:Key="App.Color.Card.Background">#CC1C1C1C</Color>
+      <Color x:Key="App.Color.Card.BorderBrush">#18FFFFFF</Color>
+      <Color x:Key="App.Color.Sidebar.Background">#0AFFFFFF</Color>
+      <Color x:Key="App.Color.Sidebar.Border">#26FFFFFF</Color>
+      <Color x:Key="App.Color.TitleBar.Foreground">#E6EAF2</Color>
+      <Color x:Key="App.Color.TitleBar.Hover.Background">#1AFFFFFF</Color>
+      <Color x:Key="App.Color.TitleBar.Pressed.Background">#2EFFFFFF</Color>
+      <Color x:Key="App.Color.Caption.Hover.Background">#1AFFFFFF</Color>
+      <Color x:Key="App.Color.Caption.Pressed.Background">#2EFFFFFF</Color>
+      <Color x:Key="App.Color.Caption.Close.Hover.Background">#C42B1C</Color>
+      <Color x:Key="App.Color.Body.BorderBrush">#18FFFFFF</Color>
+      <Color x:Key="App.Color.Muted.Foreground">#9CA3AF</Color>
+      <Color x:Key="App.Color.Window.Background">#06080F</Color>
+      <Color x:Key="App.Color.Panel.Background">#F21A1E28</Color>
+      <Color x:Key="App.Color.Panel.BorderBrush">#26FFFFFF</Color>
+      <Color x:Key="App.Color.Panel.Foreground">#E6EAF2</Color>
+      <Color x:Key="App.Color.Panel.Muted">#8A94A8</Color>
+      <Color x:Key="App.Color.Panel.Graph.Surface">#1E232E</Color>
+      <Color x:Key="App.Color.Panel.Graph.Guide">#3A4254</Color>
+      <Color x:Key="App.Color.Panel.Graph.Line">#5AD1FF</Color>
+      <Color x:Key="App.Color.Admin.Background">#4A3F1A</Color>
+      <Color x:Key="App.Color.Admin.BorderBrush">#8A6D1A</Color>
+      <Color x:Key="App.Color.Admin.Foreground">#F0D98A</Color>
+      <Color x:Key="App.Color.Danger.Foreground">#F87171</Color>
+      <Color x:Key="App.Color.Danger.Hover.Background">#3A1D1D</Color>
+      <Color x:Key="App.Color.Danger.Button">#B3372C</Color>
+      <Color x:Key="App.Color.Danger.Button.Hover">#C8433A</Color>
+      <Color x:Key="App.Color.Danger.Button.Pressed">#962C23</Color>
+
+      <!-- ── Nester built-in overrides (commented — uncomment to customize) ── -->
+
+      <!-- Brand / Primary -->
+      <!--<Color x:Key="Nester.Color.Brand">#3A96DD</Color>-->
+      <!--<Color x:Key="Nester.Color.Brand.Hover">#2886CD</Color>-->
+      <!--<Color x:Key="Nester.Color.Brand.Pressed">#1A76BD</Color>-->
+      <!--<Color x:Key="Nester.Color.Brand.Selected">#2886CD</Color>-->
+
+      <!-- Border -->
+      <!--<Color x:Key="Nester.Color.Border">#404040</Color>-->
+
+      <!-- Dialog chrome -->
+      <!--<Color x:Key="Nester.Color.DialogChrome.Background">#2D2D2D</Color>-->
+      <!--<Color x:Key="Nester.Color.DialogChrome.Foreground">#E5E5E5</Color>-->
+
+      <!-- Toast -->
+      <!--<Color x:Key="Nester.Color.Toast.Background">#2D2D2D</Color>-->
+      <!--<Color x:Key="Nester.Color.Toast.Foreground">#E5E5E5</Color>-->
+
+      <!-- Snackbar -->
+      <!--<Color x:Key="Nester.Color.Snackbar.Background">#2D2D2D</Color>-->
+      <!--<Color x:Key="Nester.Color.Snackbar.Foreground">#E5E5E5</Color>-->
+      <!--<Color x:Key="Nester.Color.Snackbar.Action">#FF79A8</Color>-->
+
+      <!-- Semantic status -->
+      <!--<Color x:Key="Nester.Color.Success">#66BB6A</Color>-->
+      <!--<Color x:Key="Nester.Color.Error">#EF5350</Color>-->
+      <!--<Color x:Key="Nester.Color.Warning">#FFA726</Color>-->
+      <!--<Color x:Key="Nester.Color.Info">#42A5F5</Color>-->
+
+      <!-- RouteLink -->
+      <!--<Color x:Key="Nester.Color.RouteLink.Hover">#333333</Color>-->
+      <!--<Color x:Key="Nester.Color.RouteLink.Active.Background">#33FFFFFF</Color>-->
+      <!--<Color x:Key="Nester.Color.RouteLink.Active.Background.Light">#1AFFFFFF</Color>-->
+      <!--<Color x:Key="Nester.Color.RouteLink.Active.Foreground">#3A96DD</Color>-->
+
+      <!-- RouteTreeItem -->
+      <!--<Color x:Key="Nester.Color.RouteTreeItem.Hover">#333333</Color>-->
+      <!--<Color x:Key="Nester.Color.RouteTreeItem.Selected.Background">#33FFFFFF</Color>-->
+      <!--<Color x:Key="Nester.Color.RouteTreeItem.Selected.Background.Light">#1AFFFFFF</Color>-->
+      <!--<Color x:Key="Nester.Color.RouteTreeItem.Active.Foreground">#3A96DD</Color>-->
+
+      <!-- TreeItem / Notice -->
+      <!--<Color x:Key="Nester.Color.TreeItem.Hover">#333333</Color>-->
+      <!--<Color x:Key="Nester.Color.Notice.Hover">#333333</Color>-->
+
+      <!-- Dimmer backdrop -->
+      <!--<Color x:Key="Nester.Color.Dimmer.Backdrop">#60000000</Color>-->
+
+    </ResourceDictionary>
+
+  </ResourceDictionary.ThemeDictionaries>
+
+  <!-- ─────────────────────────────────────────────────────────────────── -->
+  <!--  Brushes — auto-adapt to the active theme via DynamicResource       -->
+  <!-- ─────────────────────────────────────────────────────────────────── -->
+
+  <SolidColorBrush x:Key="App.Card.Background"                Color="{DynamicResource App.Color.Card.Background}" />
+  <SolidColorBrush x:Key="App.Card.BorderBrush"               Color="{DynamicResource App.Color.Card.BorderBrush}" />
+  <SolidColorBrush x:Key="App.Sidebar.Background"             Color="{DynamicResource App.Color.Sidebar.Background}" />
+  <SolidColorBrush x:Key="App.Sidebar.Border"                 Color="{DynamicResource App.Color.Sidebar.Border}" />
+  <SolidColorBrush x:Key="App.Body.Background"                Color="Transparent" />
+  <SolidColorBrush x:Key="App.Body.BorderBrush"               Color="{DynamicResource App.Color.Body.BorderBrush}" />
+  <SolidColorBrush x:Key="App.Window.Background"              Color="{DynamicResource App.Color.Window.Background}" />
+  <SolidColorBrush x:Key="App.Muted.Foreground"               Color="{DynamicResource App.Color.Muted.Foreground}" />
+  <SolidColorBrush x:Key="App.TitleBar.Foreground"            Color="{DynamicResource App.Color.TitleBar.Foreground}" />
+  <SolidColorBrush x:Key="App.TitleBar.Hover.Background"      Color="{DynamicResource App.Color.TitleBar.Hover.Background}" />
+  <SolidColorBrush x:Key="App.TitleBar.Pressed.Background"    Color="{DynamicResource App.Color.TitleBar.Pressed.Background}" />
+  <SolidColorBrush x:Key="App.Caption.Hover.Background"       Color="{DynamicResource App.Color.Caption.Hover.Background}" />
+  <SolidColorBrush x:Key="App.Caption.Pressed.Background"     Color="{DynamicResource App.Color.Caption.Pressed.Background}" />
+  <SolidColorBrush x:Key="App.Caption.Close.Hover.Background" Color="{DynamicResource App.Color.Caption.Close.Hover.Background}" />
+  <SolidColorBrush x:Key="App.Panel.Background"               Color="{DynamicResource App.Color.Panel.Background}" />
+  <SolidColorBrush x:Key="App.Panel.BorderBrush"              Color="{DynamicResource App.Color.Panel.BorderBrush}" />
+  <SolidColorBrush x:Key="App.Panel.Foreground"               Color="{DynamicResource App.Color.Panel.Foreground}" />
+  <SolidColorBrush x:Key="App.Panel.Muted"                    Color="{DynamicResource App.Color.Panel.Muted}" />
+  <SolidColorBrush x:Key="App.Panel.Graph.Surface"            Color="{DynamicResource App.Color.Panel.Graph.Surface}" />
+  <SolidColorBrush x:Key="App.Panel.Graph.Guide"              Color="{DynamicResource App.Color.Panel.Graph.Guide}" />
+  <SolidColorBrush x:Key="App.Panel.Graph.Line"               Color="{DynamicResource App.Color.Panel.Graph.Line}" />
+  <SolidColorBrush x:Key="App.Admin.Background"               Color="{DynamicResource App.Color.Admin.Background}" />
+  <SolidColorBrush x:Key="App.Admin.BorderBrush"              Color="{DynamicResource App.Color.Admin.BorderBrush}" />
+  <SolidColorBrush x:Key="App.Admin.Foreground"               Color="{DynamicResource App.Color.Admin.Foreground}" />
+  <SolidColorBrush x:Key="App.Danger.Foreground"              Color="{DynamicResource App.Color.Danger.Foreground}" />
+  <SolidColorBrush x:Key="App.Danger.Hover.Background"        Color="{DynamicResource App.Color.Danger.Hover.Background}" />
+  <SolidColorBrush x:Key="App.Danger.Button"                  Color="{DynamicResource App.Color.Danger.Button}" />
+  <SolidColorBrush x:Key="App.Danger.Button.Hover"            Color="{DynamicResource App.Color.Danger.Button.Hover}" />
+  <SolidColorBrush x:Key="App.Danger.Button.Pressed"          Color="{DynamicResource App.Color.Danger.Button.Pressed}" />
+</ResourceDictionary>

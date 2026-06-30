@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:NesterApp.Pages.Posts"
+             xmlns:s="using:NesterApp.Models"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="NesterApp.Pages.Posts.PostsPage"
+             x:Name="Root" x:DataType="vm:PostsPageModel">
+  <Grid RowDefinitions="Auto,*">
+    <TextBlock Classes="pageTitle" Text="{Binding PagesStrings.PostsTitle}" Margin="20" />
+    <ScrollViewer Grid.Row="1">
+      <ItemsControl x:Name="PostsList" ItemsSource="{Binding Posts}" Margin="20,0,20,20"
+                    HorizontalAlignment="Center" MaxWidth="500">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Spacing="6" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="s:Post">
+            <Border Background="{DynamicResource App.Card.Background}" CornerRadius="8" Padding="12"
+                    BorderBrush="{DynamicResource App.Card.BorderBrush}" BorderThickness="1">
+              <Grid ColumnDefinitions="*,Auto,Auto">
+                <SelectableTextBlock Text="{Binding Title}" />
+                <Button Grid.Column="1"
+                        Content="{Binding #Root.((vm:PostsPageModel)DataContext).PagesStrings.ViewDetail}"
+                        Command="{Binding #Root.((vm:PostsPageModel)DataContext).OpenPostCommand}"
+                        CommandParameter="{Binding}"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                        Background="Transparent" BorderThickness="0" />
+                <Button Grid.Column="2"
+                        Content="{Binding #Root.((vm:PostsPageModel)DataContext).PagesStrings.OpenInFloat}"
+                        Command="{Binding #Root.((vm:PostsPageModel)DataContext).OpenInDialogCommand}"
+                        CommandParameter="{Binding}"
+                        HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
+                        Background="Transparent" BorderThickness="0" />
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

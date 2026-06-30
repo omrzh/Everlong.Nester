@@ -1,0 +1,14 @@
+{
+  "Title": "命令面板",
+  "Watermark": "搜尋工作區檔案",
+  "Empty": "沒有符合的檔案",
+  "Hint": "Enter 開啟檔案 · Esc 關閉",
+  "WatchingFormat": "{count} 個檔案 · {source}",
+  "SourceGit": "git 根目錄",
+  "SourceProject": "專案目錄",
+  "SourceDownloads": "下載目錄",
+  "SourceCurrent": "目前目錄",
+  "OpenFailedFormat": "無法開啟 {path}",
+  "LandingHint": "快捷鍵提示：Ctrl+Shift+P",
+  "LandingHintNote": "開啟工作區面板：列出被監控的每個檔案，輸入即過濾；Enter 以系統預設程式開啟（目前實作僅 Windows）。"
+}

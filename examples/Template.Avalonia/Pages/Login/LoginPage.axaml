@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:NesterApp.Pages.Login"
+             x:Class="NesterApp.Pages.Login.LoginPage"
+             mc:Ignorable="d" d:DesignWidth="420" d:DesignHeight="360"
+             x:DataType="vm:LoginPageModel">
+
+  <!-- The form sits on a glass card; the leased aurora field stays visible
+       around it and bleeds through the translucent fill. -->
+  <Border HorizontalAlignment="Center" VerticalAlignment="Center"
+          Background="{DynamicResource App.Card.Background}"
+          BorderBrush="{DynamicResource App.Card.BorderBrush}"
+          BorderThickness="1" CornerRadius="12" Padding="20,16"
+          BoxShadow="0 6 18 0 #26000000">
+    <StackPanel Width="300" Spacing="10">
+      <TextBlock Text="{Binding LoginStrings.WelcomeHeading}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,20" />
+
+      <TextBlock Text="{Binding LoginStrings.UsernameLabel}" />
+      <TextBox Text="{Binding Username}" PlaceholderText="{Binding LoginStrings.UsernameWatermark}" />
+
+      <TextBlock Text="{Binding LoginStrings.PasswordLabel}" />
+      <TextBox Text="{Binding Password}" PlaceholderText="{Binding LoginStrings.PasswordWatermark}" PasswordChar="*" />
+
+      <Button Content="{Binding LoginStrings.SignInButton}" Command="{Binding LoginCommand}" HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Center" />
+
+      <Grid ColumnDefinitions="*,*">
+        <Button Grid.Column="0" Content="{Binding LoginStrings.AdminButton}" Command="{Binding LoginAsAdminCommand}" HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center" Margin="0,0,5,0" />
+        <Button Grid.Column="1" Content="{Binding LoginStrings.UserButton}" Command="{Binding LoginAsUserCommand}" HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center" Margin="5,0,0,0" />
+      </Grid>
+    </StackPanel>
+  </Border>
+</UserControl>

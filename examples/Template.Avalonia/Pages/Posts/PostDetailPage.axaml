@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:NesterApp.Pages.Posts"
+             xmlns:s="using:NesterApp.Models"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="NesterApp.Pages.Posts.PostDetailPage"
+             x:DataType="vm:PostDetailPageModel">
+
+  <ScrollViewer>
+    <StackPanel Margin="20" Spacing="10">
+
+      <TextBlock x:Name="HeroTitle" Classes="pageTitle"
+                 Text="{Binding Post.Title,FallbackValue=Loading}"
+                 TextWrapping="Wrap" />
+      <TextBlock x:Name="BodyText" Text="{Binding Post.Body, FallbackValue=Loading}" TextWrapping="Wrap" />
+
+      <TextBlock x:Name="CommentsHeader" Classes="sectionHeader"
+                 Text="{Binding PagesStrings.Comments}" Margin="0,20,0,6" />
+      <ItemsControl x:Name="CommentsSection" ItemsSource="{Binding Comments}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Spacing="8" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="s:Comment">
+            <Border Background="{DynamicResource App.Card.Background}"
+                    BorderBrush="{DynamicResource App.Card.BorderBrush}"
+                    BorderThickness="1" CornerRadius="6" Padding="12">
+              <StackPanel Spacing="4">
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding Email}" FontSize="12" FontStyle="Italic"
+                           Foreground="{DynamicResource App.Muted.Foreground}" />
+                <TextBlock Text="{Binding Body}" TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

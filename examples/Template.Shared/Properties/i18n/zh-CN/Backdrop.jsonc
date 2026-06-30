@@ -1,0 +1,14 @@
+/*
+ * Strings of the backdrop dev-tools panel.
+*/
+{
+  "Title": "背景实验台",
+  "Mode": "模式",
+  "Motes": "微粒",
+  "Veils": "光幕",
+  "Speed": "速度",
+  "Glass": "玻璃",
+  "Parallax": "视差",
+  "Pause": "暂停",
+  "Reset": "重置"
+}

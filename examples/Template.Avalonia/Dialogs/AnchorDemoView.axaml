@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:props="using:NesterApp.Properties"
+             xmlns:vm="using:NesterApp.Dialogs"
+             mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="240"
+             x:Class="NesterApp.Dialogs.AnchorDemoView"
+             x:DataType="vm:AnchorDemoSession"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="{DynamicResource Nester.DialogChrome.Padding}"
+          BoxShadow="{DynamicResource Nester.DialogChrome.Shadow}">
+    <StackPanel MinWidth="280" Spacing="16" VerticalAlignment="Center">
+      <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold"
+                 HorizontalAlignment="Center" />
+      <Button Content="{Binding Source={x:Static props:Lang.Labs}, Path=DialogClose}" Command="{Binding DoneCommand}"
+              HorizontalAlignment="Center" Width="120" Classes="accent" />
+    </StackPanel>
+  </Border>
+</UserControl>

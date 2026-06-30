@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:NesterApp.Pages.Profile"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="NesterApp.Pages.Profile.ProfilePage"
+             x:DataType="vm:ProfilePageModel">
+
+  <!-- The page is a navigation guard: editing either field and then leaving
+       trips the BackIntent interception in ProfilePageModel.HandleAsync. -->
+  <ScrollViewer Margin="20">
+    <StackPanel MaxWidth="500" HorizontalAlignment="Left" Spacing="8">
+
+      <TextBlock Classes="pageTitle" Text="{Binding PagesStrings.ProfileTitle}" Margin="0,0,0,4" />
+
+      <Border Background="{DynamicResource App.Card.Background}"
+              BorderBrush="{DynamicResource Nester.Info}"
+              BorderThickness="1" CornerRadius="6" Padding="12"
+              Margin="0,0,0,12">
+        <StackPanel Orientation="Horizontal" Spacing="10">
+          <TextBlock Text="ℹ️" VerticalAlignment="Top" />
+          <StackPanel Spacing="2">
+            <TextBlock Text="{Binding PagesStrings.NavigationGuardTitle}" FontWeight="SemiBold" />
+            <TextBlock Classes="pageSubtitle"
+                       Text="{Binding PagesStrings.NavigationGuardMessage}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <TextBlock Text="{Binding PagesStrings.ProfileDisplayName}" />
+      <TextBox Text="{Binding DisplayName}" PlaceholderText="{Binding PagesStrings.DisplayNameWatermark}" Margin="0,0,0,8" />
+
+      <TextBlock Text="{Binding PagesStrings.ProfileBio}" />
+      <TextBox Text="{Binding Bio}" Height="100" TextWrapping="Wrap"
+               AcceptsReturn="True" VerticalContentAlignment="Top" Margin="0,0,0,12" />
+
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <Button Content="{Binding PagesStrings.Save}" Command="{Binding SaveCommand}" Classes="accent" MinWidth="88" />
+        <Button Content="{Binding PagesStrings.Cancel}" Command="{Binding CancelCommand}" MinWidth="88" />
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

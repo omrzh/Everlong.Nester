@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:backdrop="using:NesterApp.Backdrop"
+             xmlns:props="using:NesterApp.Properties"
+             x:Class="NesterApp.Backdrop.BackdropDevPanel"
+             x:DataType="backdrop:BackdropLab">
+
+  <UserControl.Styles>
+    <Style Selector="TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource App.Panel.Foreground}" />
+    </Style>
+  </UserControl.Styles>
+
+  <!-- No background on the root: the empty area stays hit-test transparent, so
+       only the card below takes input. -->
+  <Grid>
+    <Border HorizontalAlignment="Right" VerticalAlignment="Bottom"
+            Margin="0,0,18,18" Width="278" CornerRadius="10" Padding="12,10"
+            Background="{DynamicResource App.Panel.Background}"
+            BorderBrush="{DynamicResource App.Panel.BorderBrush}"
+            BorderThickness="1">
+      <StackPanel Spacing="9">
+
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="{Binding Source={x:Static props:Lang.Backdrop}, Path=Title}" FontSize="13" FontWeight="SemiBold"
+                     Foreground="{DynamicResource App.Panel.Foreground}" />
+          <TextBlock x:Name="FpsText" Grid.Column="1" Text="—" FontSize="12"
+                     Foreground="{DynamicResource App.Panel.Muted}" />
+        </Grid>
+
+        <backdrop:FrameGraph x:Name="Graph" Height="32"
+                             SurfaceBrush="{DynamicResource App.Panel.Graph.Surface}"
+                             GuideBrush="{DynamicResource App.Panel.Graph.Guide}"
+                             LineBrush="{DynamicResource App.Panel.Graph.Line}" />
+
+        <Grid ColumnDefinitions="48,*,38" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+          <TextBlock Text="{Binding Source={x:Static props:Lang.Backdrop}, Path=Mode}" VerticalAlignment="Center" />
+          <ComboBox Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch"
+                    ItemsSource="{Binding Modes}" SelectedItem="{Binding Mode}" />
+
+          <TextBlock Grid.Row="1" Text="{Binding Source={x:Static props:Lang.Backdrop}, Path=Motes}" VerticalAlignment="Center" />
+          <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="1200"
+                  TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding MoteCount}" />
+          <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding MoteCount}"
+                     TextAlignment="Right" VerticalAlignment="Center" />
+
+          <TextBlock Grid.Row="2" Text="{Binding Source={x:Static props:Lang.Backdrop}, Path=Veils}" VerticalAlignment="Center" />
+          <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="6"
+                  TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding VeilCount}" />
+          <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding VeilCount}"
+                     TextAlignment="Right" VerticalAlignment="Center" />
+
+          <TextBlock Grid.Row="3" Text="{Binding Source={x:Static props:Lang.Backdrop}, Path=Speed}" VerticalAlignment="Center" />
+          <Slider Grid.Row="3" Grid.Column="1" Minimum="0.1" Maximum="3" Value="{Binding Speed}" />
+          <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding Speed, StringFormat='{}{0:0.0}x'}"
+                     TextAlignment="Right" VerticalAlignment="Center" />
+
+          <TextBlock Grid.Row="4" Text="{Binding Source={x:Static props:Lang.Backdrop}, Path=Glass}" VerticalAlignment="Center" />
+          <Slider Grid.Row="4" Grid.Column="1" Minimum="0.2" Maximum="1" Value="{Binding PanelOpacity}" />
+          <TextBlock Grid.Row="4" Grid.Column="2" Text="{Binding PanelOpacity, StringFormat='{}{0:0.00}'}"
+                     TextAlignment="Right" VerticalAlignment="Center" />
+        </Grid>
+
+        <StackPanel Orientation="Horizontal" Spacing="14">
+          <CheckBox Content="{Binding Source={x:Static props:Lang.Backdrop}, Path=Parallax}" IsChecked="{Binding Parallax}"
+                    Foreground="{DynamicResource App.Panel.Foreground}" />
+          <CheckBox Content="{Binding Source={x:Static props:Lang.Backdrop}, Path=Pause}" IsChecked="{Binding Paused}"
+                    Foreground="{DynamicResource App.Panel.Foreground}" />
+        </StackPanel>
+
+        <Button Content="{Binding Source={x:Static props:Lang.Backdrop}, Path=Reset}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Click="OnResetClicked" />
+
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

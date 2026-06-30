@@ -1,0 +1,12 @@
+{
+  "WindowTitle": "NesterApp",
+  "CloseConfirmMessage": "確定要關閉此視窗嗎？",
+  "CloseConfirmYes": "是，關閉",
+  "CloseConfirmNo": "否，留下",
+  "ActivationStartupArgs": "啟動參數",
+  "ActivationFileCountFormat": "{count, plural, =0 {沒有檔案} other {{count} 個檔案}}",
+  "ActivationRequestFormat": "另一個執行個體要求目前的執行個體處理：{summary}。要在此處理嗎？",
+  "ActivationAccept": "在此處理",
+  "ActivationDecline": "在新視窗開啟",
+  "Unauthorized": "未授權"
+}

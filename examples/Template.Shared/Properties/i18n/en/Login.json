@@ -1,0 +1,12 @@
+{
+  "Title": "Sign In",
+  "WelcomeHeading": "Welcome Back",
+  "UsernameLabel": "Username (admin/user)",
+  "UsernameWatermark": "Username",
+  "PasswordLabel": "Password (any)",
+  "PasswordWatermark": "Password",
+  "SignInButton": "Sign In",
+  "AdminButton": "Admin",
+  "UserButton": "User",
+  "InvalidCredentials": "Invalid credentials. Try 'admin' or 'user'."
+}

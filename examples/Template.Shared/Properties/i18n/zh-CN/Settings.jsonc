@@ -1,0 +1,18 @@
+{
+  "Title": "通用设置",
+  "Subtitle": "更改会自动保存。",
+  "LocaleLabel": "语言",
+  "SwitchToEnglish": "英文",
+  "SwitchToChinese": "简体中文",
+  "SwitchToTraditionalChinese": "繁体中文",
+  "AppearanceLabel": "外观",
+  "ThemeLabel": "主题",
+  "ThemeSystem": "跟随系统",
+  "ThemeLight": "浅色",
+  "ThemeDark": "深色",
+  "AutoSave": "自动保存更改",
+  "FontSizeLabel": "字体大小（10–24）",
+  "RestartConfirmMessage": "重启以查看完整的语言切换?",
+  "RestartConfirmTitle": "提醒",
+  "LanguageWatermark": "例如 en、zh-CN"
+}

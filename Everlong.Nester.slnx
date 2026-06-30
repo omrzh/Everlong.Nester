@@ -16,4 +16,7 @@
     <Project Path="tests/Everlong.Nester.CodeFixers.Tests/Everlong.Nester.CodeFixers.Tests.csproj" />
     <Project Path="tests/Everlong.Nester.Tests/Everlong.Nester.Tests.csproj" />
   </Folder>
+  <Folder Name="/examples/">
+    <Project Path="examples/Template.Avalonia/Template.Avalonia.csproj" />
+  </Folder>
 </Solution>

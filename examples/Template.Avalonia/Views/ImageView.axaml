@@ -1,0 +1,20 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:m="using:NesterApp.Models"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="NesterApp.Views.ImageView"
+             x:DataType="m:ImageMessage">
+  <Border Background="{DynamicResource App.Card.Background}" Padding="10" Margin="5" CornerRadius="6">
+    <StackPanel>
+      <Border Background="{DynamicResource App.Panel.Graph.Surface}" Height="100" Width="100"
+              CornerRadius="4" HorizontalAlignment="Center">
+        <TextBlock Text="IMAGE" VerticalAlignment="Center" HorizontalAlignment="Center"
+                   Foreground="{DynamicResource App.Muted.Foreground}" />
+      </Border>
+      <TextBlock Text="{Binding Url}" FontSize="10" Foreground="{DynamicResource App.Muted.Foreground}" HorizontalAlignment="Center" />
+      <TextBlock Text="{Binding Caption}" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,5,0,0" />
+    </StackPanel>
+  </Border>
+</UserControl>

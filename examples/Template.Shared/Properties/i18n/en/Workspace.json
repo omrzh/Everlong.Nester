@@ -1,0 +1,14 @@
+{
+  "Title": "Command palette",
+  "Watermark": "Search files in the workspace",
+  "Empty": "No matching file",
+  "Hint": "Enter opens the file · Esc closes",
+  "WatchingFormat": "{count} files · {source}",
+  "SourceGit": "git root",
+  "SourceProject": "project dir",
+  "SourceDownloads": "downloads",
+  "SourceCurrent": "current dir",
+  "OpenFailedFormat": "Could not open {path}",
+  "LandingHint": "Keyboard tip: Ctrl+Shift+P",
+  "LandingHintNote": "Opens the workspace palette: every file the app watches, filtered by typing. Enter opens the file with the OS default application (the shipped opener is Windows)."
+}

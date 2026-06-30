@@ -1,0 +1,21 @@
+{
+  "Logout": "退出登录",
+  "Main": "主菜单",
+  "Landing": "首页",
+  "InteractionLab": "交互实验室",
+  "Posts": "文章",
+  "Settings": "设置",
+  "General": "通用",
+  "Account": "账户",
+  "Security": "安全",
+  "Profile": "个人资料",
+  "AdminPanel": "管理面板",
+  "RouteItemLab": "导航实验室",
+  "VideoPlayer": "视频播放器",
+  "Back": "后退",
+  "Forward": "前进",
+  "Minimize": "最小化",
+  "Maximize": "最大化",
+  "Close": "关闭",
+  "BackdropPanel": "背景面板"
+}

@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:n="https://nester.dev"
+             xmlns:vm="using:NesterApp.Pages.Settings"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="NesterApp.Pages.Settings.SettingsLayout"
+             x:DataType="vm:SettingsLayoutModel">
+  <Grid ColumnDefinitions="200,*" Margin="20">
+    <!-- Settings Sidebar -->
+    <Border BorderBrush="{DynamicResource App.Sidebar.Border}" BorderThickness="0,0,1,0" Padding="0,0,20,0">
+      <StackPanel>
+        <TextBlock Classes="pageTitle" Text="{Binding Header}" Margin="0,0,0,20" />
+
+        <!--
+          No local RouteLink styling: the framework ControlTheme already owns
+          hover / active / disabled, and its palette is theme-aware.  A local
+          Style would outrank the ControlTheme and pin the look to one theme.
+        -->
+        <ItemsControl ItemsSource="{Binding NavItems}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <n:RouteLink>
+                <TextBlock Text="{Binding Title}" />
+              </n:RouteLink>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+
+    <!-- Content -->
+    <n:LayoutBody x:Name="Body" Grid.Column="1" Margin="20,0,0,0" />
+  </Grid>
+</UserControl>

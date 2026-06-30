@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:NesterApp.Pages.Settings"
+             x:Class="NesterApp.Pages.Settings.AccountSettingsPage"
+             x:DataType="vm:AccountSettingsPageModel">
+  <StackPanel Margin="10" Spacing="8">
+    <TextBlock Classes="sectionHeader" Text="{Binding PagesStrings.AccountTitle}" Margin="0,0,0,8" />
+    <TextBlock Classes="pageSubtitle" Text="{Binding PagesStrings.ChangesSubtitle}" />
+    <TextBlock Text="{Binding PagesStrings.ProfileSection}" />
+    <TextBox Text="{Binding Account.Email}" IsReadOnly="True" />
+    <TextBox Text="{Binding Account.DisplayName}" PlaceholderText="{Binding PagesStrings.DisplayNameWatermark}"
+             Margin="0,0,0,8" />
+    <TextBlock Text="{Binding PagesStrings.PrivacySection}" />
+    <CheckBox Content="{Binding PagesStrings.AllowProfileDiscovery}"
+              IsChecked="{Binding Account.AllowProfileDiscovery}" />
+    <CheckBox Content="{Binding PagesStrings.HideActivityDetails}" IsChecked="{Binding Account.HideActivityDetails}"
+              Margin="0,0,0,8" />
+    <WrapPanel>
+      <Button Content="{Binding PagesStrings.DeleteAccount}" />
+    </WrapPanel>
+  </StackPanel>
+</UserControl>

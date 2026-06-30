@@ -1,0 +1,298 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:n="https://nester.dev"
+             xmlns:chrome="using:Avalonia.Controls.Chrome"
+             xmlns:props="using:NesterApp.Properties"
+             xmlns:vm="using:NesterApp.Pages.Shell"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="NesterApp.Pages.Shell.MainLayout"
+             x:DataType="vm:MainLayoutModel">
+
+  <UserControl.Resources>
+    <!--
+      Title-bar arrows as geometry, not glyph fonts: the caption buttons rely
+      on "Segoe Fluent Icons" (Windows only), but the history buttons must
+      render on every backend (Linux, macOS, browser).  IconForward mirrors
+      IconBack across the 24x24 viewbox (x -> 24 - x).
+    -->
+    <StreamGeometry x:Key="IconBack">M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z</StreamGeometry>
+    <StreamGeometry x:Key="IconForward">M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z</StreamGeometry>
+    <!-- Material "tune" — the backdrop dev panel toggle. -->
+    <StreamGeometry x:Key="IconTune">M3,17V19H9V17H3M3,5V7H13V5H3M13,21V19H21V17H13V15H11V21H13M7,9V11H3V13H7V15H9V9H7M21,13V11H11V13H21M15,9H17V7H21V5H17V3H15V9Z</StreamGeometry>
+  </UserControl.Resources>
+
+  <UserControl.Styles>
+    <!-- History buttons: flat by default, with real hover/pressed/disabled states. -->
+    <Style Selector="Button.titlebar">
+      <Setter Property="Width" Value="32" />
+      <Setter Property="Height" Value="24" />
+      <Setter Property="Margin" Value="4,0,0,0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Foreground" Value="{DynamicResource App.TitleBar.Foreground}" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="PART_Surface" Background="{TemplateBinding Background}" CornerRadius="4">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              HorizontalContentAlignment="Center" VerticalContentAlignment="Center" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="Button.titlebar:pointerover /template/ Border#PART_Surface">
+      <Setter Property="Background" Value="{DynamicResource App.TitleBar.Hover.Background}" />
+    </Style>
+    <Style Selector="Button.titlebar:pressed /template/ Border#PART_Surface">
+      <Setter Property="Background" Value="{DynamicResource App.TitleBar.Pressed.Background}" />
+    </Style>
+    <Style Selector="Button.titlebar:disabled">
+      <Setter Property="Opacity" Value="0.35" />
+    </Style>
+    <!-- The dev-panel toggle reads as "on" with the pressed surface + brand ink. -->
+    <Style Selector="Button.titlebar:checked /template/ Border#PART_Surface">
+      <Setter Property="Background" Value="{DynamicResource App.TitleBar.Pressed.Background}" />
+    </Style>
+    <Style Selector="Button.titlebar:checked">
+      <Setter Property="Foreground" Value="{DynamicResource Nester.Brand}" />
+    </Style>
+
+    <!-- System-sized caption buttons (46x32), drawn by the app. -->
+    <Style Selector="Button.caption">
+      <Setter Property="Width" Value="46" />
+      <Setter Property="Height" Value="32" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Foreground" Value="{DynamicResource App.Panel.Foreground}" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="PART_Surface" Background="{TemplateBinding Background}">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="Button.caption:pointerover /template/ Border#PART_Surface">
+      <Setter Property="Background" Value="{DynamicResource App.Caption.Hover.Background}" />
+    </Style>
+    <Style Selector="Button.caption:pressed /template/ Border#PART_Surface">
+      <Setter Property="Background" Value="{DynamicResource App.Caption.Pressed.Background}" />
+    </Style>
+    <Style Selector="Button.caption.close:pointerover /template/ Border#PART_Surface">
+      <Setter Property="Background" Value="{DynamicResource App.Caption.Close.Hover.Background}" />
+    </Style>
+    <Style Selector="Button.caption.close:pointerover">
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <!--
+      Sidebar footer actions.  They opt out of the Fluent Button chrome so the
+      sidebar keeps one flat surface; hover/pressed are re-declared here.
+    -->
+    <Style Selector="Button.sidebarAction">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="Padding" Value="10,8" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="PART_Surface"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="4"
+                  Padding="{TemplateBinding Padding}">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="Center" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="Button.adminAction">
+      <Setter Property="Margin" Value="0,0,0,4" />
+      <Setter Property="Background" Value="{DynamicResource App.Admin.Background}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource App.Admin.BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Foreground" Value="{DynamicResource App.Admin.Foreground}" />
+    </Style>
+    <Style Selector="Button.adminAction:pointerover /template/ Border#PART_Surface">
+      <Setter Property="Background" Value="{DynamicResource App.Admin.BorderBrush}" />
+    </Style>
+
+    <Style Selector="Button.logoutAction">
+      <Setter Property="Margin" Value="0,4,0,0" />
+    </Style>
+    <Style Selector="Button.logoutAction:pointerover /template/ Border#PART_Surface">
+      <Setter Property="Background" Value="{DynamicResource App.Danger.Hover.Background}" />
+    </Style>
+    <Style Selector="Button.logoutAction:pointerover">
+      <Setter Property="Foreground" Value="{DynamicResource App.Danger.Foreground}" />
+    </Style>
+
+    <!--
+      Responsive chrome.  A class the framework put on an element by measuring
+      its slot is what these read — the chrome declares no state of its own,
+      and the sidebar keeps listening rather than deciding.
+
+      The sidebar's width is declared here and never in markup: a local value
+      outranks every style setter, so a `Width="250"` written on the element
+      would outrank the compact setter below and the pane would never narrow —
+      the body's star column would absorb the whole resize instead.
+    -->
+    <Style Selector="Border.sidebar">
+      <Setter Property="Width" Value="250" />
+    </Style>
+    <Style Selector="Grid.root.compact Border.sidebar">
+      <Setter Property="Width" Value="64" />
+    </Style>
+    <!--
+      A rail can express destinations, not containment: the docked tree becomes the
+      flattened projection, and the headings it has no room for never appear as icons
+      that do nothing.  Both states are declared here — a local IsVisible would outrank
+      the setter that flips it.
+    -->
+    <Style Selector="n|RouteTreeControl.navRail">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="Grid.root.compact n|RouteTreeControl.navRail">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    <Style Selector="Grid.root.compact n|RouteTreeControl.navTree">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="Border.sidebar.compact Button.sidebarAction">
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.sidebar.compact TextBlock.collapse">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+  </UserControl.Styles>
+
+  <!--
+    The root grid owns the shell's breakpoint: below 700 the sidebar column
+    narrows from a full sidebar to a rail.  The sidebar then owns a second and
+    unrelated one — its own slot is what decides whether its labels still fit,
+    so a 250-wide docked sidebar and a 280-wide drawer both keep them.
+  -->
+  <Grid Classes="root" n:Responsive.CompactBelow="700"
+        RowDefinitions="32,*" ColumnDefinitions="Auto,*">
+
+    <!--
+      Title bar: spans both columns, transparent so the leased backdrop shows
+      through.  ElementRole drives the Win32 hit test: the bar drags the window,
+      the buttons keep their own input and their system hit-test code.
+    -->
+    <Grid Grid.Row="0" Grid.ColumnSpan="2" Background="Transparent"
+          chrome:WindowDecorationProperties.ElementRole="TitleBar">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center"
+                  Margin="12,0,0,0">
+        <TextBlock Text="NesterApp" FontSize="13" FontWeight="SemiBold"
+                   Foreground="{DynamicResource Nester.Brand}" VerticalAlignment="Center" />
+        <Button Classes="titlebar" Margin="12,0,0,0"
+                chrome:WindowDecorationProperties.ElementRole="User"
+                Command="{Binding GoBackCommand}" IsEnabled="{Binding Stack.CanGoBack}"
+                ToolTip.Tip="{Binding Source={x:Static props:Lang.Navigation}, Path=Back}">
+          <PathIcon Data="{StaticResource IconBack}" Width="16" Height="16"
+                    Foreground="{Binding $parent[Button].Foreground}" />
+        </Button>
+        <Button Classes="titlebar"
+                chrome:WindowDecorationProperties.ElementRole="User"
+                Command="{Binding GoForwardCommand}" IsEnabled="{Binding Stack.CanGoForward}"
+                ToolTip.Tip="{Binding Source={x:Static props:Lang.Navigation}, Path=Forward}">
+          <PathIcon Data="{StaticResource IconForward}" Width="16" Height="16"
+                    Foreground="{Binding $parent[Button].Foreground}" />
+        </Button>
+        <ToggleButton Classes="titlebar" Margin="12,0,0,0"
+                      chrome:WindowDecorationProperties.ElementRole="User"
+                      Command="{Binding ToggleBackdropPanelCommand}"
+                      IsChecked="{Binding IsBackdropPanelVisible, Mode=OneWay}"
+                      ToolTip.Tip="{Binding Source={x:Static props:Lang.Navigation}, Path=BackdropPanel}">
+          <PathIcon Data="{StaticResource IconTune}" Width="16" Height="16"
+                    Foreground="{Binding $parent[Button].Foreground}" />
+        </ToggleButton>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+        <Button x:Name="MinimizeButton" Classes="caption"
+                chrome:WindowDecorationProperties.ElementRole="MinimizeButton"
+                Click="OnMinimizeClicked" ToolTip.Tip="{Binding Source={x:Static props:Lang.Navigation}, Path=Minimize}">
+          <TextBlock FontFamily="Segoe Fluent Icons" FontSize="10"
+                     Text="&#xE921;" Foreground="{Binding $parent[Button].Foreground}" />
+        </Button>
+        <Button x:Name="MaximizeButton" Classes="caption"
+                chrome:WindowDecorationProperties.ElementRole="MaximizeButton"
+                Click="OnMaximizeClicked" ToolTip.Tip="{Binding Source={x:Static props:Lang.Navigation}, Path=Maximize}">
+          <TextBlock x:Name="MaximizeIcon" FontFamily="Segoe Fluent Icons" FontSize="10"
+                     Text="&#xE922;" Foreground="{Binding $parent[Button].Foreground}" />
+        </Button>
+        <Button x:Name="CloseButton" Classes="caption close"
+                chrome:WindowDecorationProperties.ElementRole="CloseButton"
+                Click="OnCloseClicked" ToolTip.Tip="{Binding Source={x:Static props:Lang.Navigation}, Path=Close}">
+          <TextBlock FontFamily="Segoe Fluent Icons" FontSize="10"
+                     Text="&#xE711;" Foreground="{Binding $parent[Button].Foreground}" />
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <!-- Sidebar -->
+    <Border Grid.Row="1" Grid.Column="0" Classes="sidebar"
+            n:Responsive.CompactBelow="150"
+            CornerRadius="0 15 0 0"
+            Background="{DynamicResource App.Sidebar.Background}">
+      <Grid Margin="10" RowDefinitions="*,Auto">
+
+        <!--
+          One menu, two projections.  Docked, the tree — sections with collapsible
+          children.  Compact, the destinations only, because a rail has no way to
+          show a heading and no way to reach what a heading holds.
+        -->
+        <n:RouteTreeControl Grid.Row="0" Classes="navTree" ItemsSource="{Binding NavItems}" Margin="0,10,0,0" />
+        <n:RouteTreeControl Grid.Row="0" Classes="navRail" ItemsSource="{Binding RailItems}" Margin="0,10,0,0" />
+
+        <!-- Footer: admin shortcut (Authorize.Visible) + logout -->
+        <StackPanel Grid.Row="1">
+          <!--
+            n:Authorize.Visible="Admin": attached property that hides this element when the
+            current user does NOT have the "Admin" role. The element is invisible (not just
+            disabled) — it takes no space and receives no input. Nester re-checks the
+            property whenever IAuthService.AuthorizationChanged fires (e.g., on login/logout).
+            Format mirrors AuthorizeView.Rules: "Policy=X; Roles=A,B" or shorthand "R=A,B".
+          -->
+          <Button Classes="sidebarAction adminAction"
+                  n:Authorize.Visible="Admin"
+                  Command="{Binding GoToAdminCommand}">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <TextBlock Text="🛡️" Width="20" TextAlignment="Center" />
+              <TextBlock Classes="collapse" Text="{Binding Source={x:Static props:Lang.Navigation}, Path=AdminPanel}" />
+            </StackPanel>
+          </Button>
+
+          <Button Classes="sidebarAction logoutAction"
+                  Command="{Binding LogoutCommand}">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <TextBlock Text="🚪" Width="20" TextAlignment="Center" />
+              <TextBlock Classes="collapse" Text="{Binding LogoutLabel}" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Content Area: Declare a LayoutBody named 'Body' for Nester to mount content -->
+    <Border Grid.Row="1" Grid.Column="1"
+            Background="{DynamicResource App.Body.Background}"
+            BorderBrush="{DynamicResource App.Body.BorderBrush}"
+            CornerRadius="15 0 0 0" BorderThickness="1 1 0 0"
+            Padding="10">
+      <n:LayoutBody x:Name="Body" />
+    </Border>
+  </Grid>
+</UserControl>
