@@ -18,5 +18,6 @@
   </Folder>
   <Folder Name="/examples/">
     <Project Path="examples/Template.Avalonia/Template.Avalonia.csproj" />
+    <Project Path="examples/Template.Avalonia.Desktop/Template.Avalonia.Desktop.csproj" />
   </Folder>
 </Solution>
