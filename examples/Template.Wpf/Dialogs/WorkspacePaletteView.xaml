@@ -1,0 +1,88 @@
+<UserControl x:Class="NesterApp.Dialogs.WorkspacePaletteView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:props="clr-namespace:NesterApp.Properties"
+             xmlns:vm="clr-namespace:NesterApp.Dialogs"
+             mc:Ignorable="d" Background="Transparent"
+             d:DesignHeight="420" d:DesignWidth="640"
+             d:DataContext="{d:DesignInstance Type=vm:WorkspacePaletteSession}"
+             Width="640" MaxHeight="460"
+             HorizontalAlignment="Center" VerticalAlignment="Top"
+             Margin="0,48,0,0">
+  <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+  </UserControl.Resources>
+
+  <!-- The palette is the whole surface it needs: a filter, the rows, a status
+       line.  Where it sits is the view's business (top-centre, like an editor's
+       command palette); the dimmer below it stays the framework's. -->
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="12">
+    <Border.Effect>
+      <DropShadowEffect BlurRadius="{DynamicResource Nester.BlurRadius}"
+                        ShadowDepth="2"
+                        Opacity="0.2" />
+    </Border.Effect>
+
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- The watermark WPF's TextBox does not have: a label that steps aside
+           the moment the filter has text. -->
+      <Grid Grid.Row="0" Margin="0,0,0,10">
+        <TextBox x:Name="FilterBox" Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged}"
+                 FontSize="15" Padding="4,6" />
+        <TextBlock Text="{Binding Source={x:Static props:Lang.Workspace}, Path=Watermark}"
+                   IsHitTestVisible="False" Opacity="0.5" Margin="8,0,0,0"
+                   VerticalAlignment="Center">
+          <TextBlock.Style>
+            <Style TargetType="TextBlock">
+              <Setter Property="Visibility" Value="Collapsed" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Filter}" Value="">
+                  <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </TextBlock.Style>
+        </TextBlock>
+      </Grid>
+
+      <Grid Grid.Row="1">
+        <ListBox ItemsSource="{Binding Matches}"
+                 SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+                 Background="Transparent" BorderThickness="0"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.ItemTemplate>
+            <!-- A row is a workspace-relative path; the whole row is the path. -->
+            <DataTemplate>
+              <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" />
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <TextBlock Text="{Binding Source={x:Static props:Lang.Workspace}, Path=Empty}"
+                   Opacity="0.6"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Visibility="{Binding IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" />
+      </Grid>
+
+      <DockPanel Grid.Row="2" Margin="4,10,4,0" LastChildFill="False">
+        <TextBlock DockPanel.Dock="Left" Text="{Binding Watching}" Opacity="0.6" FontSize="12"
+                   TextTrimming="CharacterEllipsis" />
+        <TextBlock DockPanel.Dock="Right"
+                   Text="{Binding Source={x:Static props:Lang.Workspace}, Path=Hint}"
+                   Opacity="0.6" FontSize="12" />
+      </DockPanel>
+    </Grid>
+  </Border>
+</UserControl>

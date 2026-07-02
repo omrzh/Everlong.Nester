@@ -1,0 +1,50 @@
+<UserControl x:Class="NesterApp.Pages.Posts.PostDetailPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:NesterApp.Pages.Posts"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewModels:PostDetailPageModel}"
+             d:DesignHeight="450" d:DesignWidth="800">
+
+  <Grid Margin="20">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <TextBlock x:Name="HeroTitle" Grid.Row="1" Text="{Binding Post.Title, FallbackValue=Loading}"
+               FontSize="24" FontWeight="Bold" TextWrapping="Wrap" />
+    <TextBlock x:Name="BodyText" Grid.Row="2" Text="{Binding Post.Body,FallbackValue=Loading}"
+               Margin="0,10" TextWrapping="Wrap" FontSize="16" />
+
+    <Grid x:Name="CommentsSection" Grid.Row="3" Margin="0,20,0,0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+      <TextBlock Text="{Binding PagesStrings.Comments}" FontWeight="Bold" Margin="0,0,0,5" />
+      <ScrollViewer Grid.Row="1">
+        <ItemsControl ItemsSource="{Binding Comments}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="4" Margin="0,5" Padding="10"
+                      Background="{DynamicResource App.Card.Background}">
+                <StackPanel>
+                  <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                  <TextBlock Text="{Binding Email}" FontStyle="Italic" Foreground="{DynamicResource App.Muted.Foreground}" FontSize="12" />
+                  <TextBlock Text="{Binding Body}" TextWrapping="Wrap" Margin="0,5,0,0" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+  </Grid>
+
+
+</UserControl>

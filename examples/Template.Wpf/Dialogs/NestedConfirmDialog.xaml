@@ -1,0 +1,47 @@
+<UserControl x:Class="NesterApp.Dialogs.NestedConfirmDialog"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:props="clr-namespace:NesterApp.Properties"
+             xmlns:vm="clr-namespace:NesterApp.Dialogs"
+             mc:Ignorable="d" Background="Transparent"
+             d:DataContext="{d:DesignInstance Type=vm:NestedConfirmDialogSession}"
+             d:DesignHeight="200" d:DesignWidth="300"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="{DynamicResource Nester.DialogChrome.Padding}">
+    <Border.Effect>
+      <DropShadowEffect BlurRadius="{DynamicResource Nester.BlurRadius}"
+                        ShadowDepth="2"
+                        Opacity="0.2" />
+    </Border.Effect>
+
+    <StackPanel MinWidth="280" VerticalAlignment="Center">
+      <TextBlock Text="{Binding Source={x:Static props:Lang.Labs}, Path=NestedDialog}" FontSize="18" FontWeight="SemiBold"
+                 HorizontalAlignment="Center" Margin="0,0,0,20" />
+      <TextBlock Text="{Binding Message}" TextWrapping="Wrap" TextAlignment="Center"
+                 HorizontalAlignment="Center" Margin="0,0,0,20" />
+
+      <Button Content="{Binding Source={x:Static props:Lang.Labs}, Path=DialogOk}" Command="{Binding OkCommand}" Width="80" HorizontalAlignment="Center">
+        <Button.Style>
+          <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="{DynamicResource Nester.Brand}" />
+            <Setter Property="Foreground" Value="White" />
+            <Style.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Nester.Brand.Hover}" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{DynamicResource Nester.Brand.Pressed}" />
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </Button.Style>
+      </Button>
+    </StackPanel>
+  </Border>
+</UserControl>

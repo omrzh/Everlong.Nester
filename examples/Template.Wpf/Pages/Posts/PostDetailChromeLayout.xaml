@@ -1,0 +1,44 @@
+<UserControl x:Class="NesterApp.Pages.Posts.PostDetailChromeLayout"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:n="https://nester.dev"
+             xmlns:props="clr-namespace:NesterApp.Properties"
+             xmlns:viewModels="clr-namespace:NesterApp.Pages.Posts"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewModels:PostDetailChromeLayoutModel}"
+             d:DesignHeight="560" d:DesignWidth="760">
+
+  <!-- Floating panel chrome: centered card hosting the overlay content. -->
+  <Grid>
+    <Border Background="{DynamicResource App.Card.Background}"
+            BorderBrush="{DynamicResource App.Card.BorderBrush}"
+            BorderThickness="1" CornerRadius="16"
+            Width="720" MaxHeight="620"
+            HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Panel header -->
+        <Border Grid.Row="0" CornerRadius="16,16,0,0" Padding="20,12"
+                Background="{DynamicResource App.Sidebar.Background}">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Source={x:Static props:Lang.Pages}, Path=PostDetailChromeTitle}" FontSize="16" FontWeight="Bold" />
+            <TextBlock Grid.Column="1" Text="⇱" FontSize="14" Opacity="0.6" />
+          </Grid>
+        </Border>
+
+        <!-- Overlay content mount point -->
+        <n:LayoutBody x:Name="Body" Grid.Row="1" Margin="0,4,0,0" />
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

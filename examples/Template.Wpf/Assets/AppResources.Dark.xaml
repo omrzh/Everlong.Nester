@@ -1,0 +1,20 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!--
+    The dark half of the template's App.* palette.  WPF has no
+    ThemeDictionaries, so WpfThemeService merges this dictionary on top of
+    AppResources.xaml while the app runs in the dark theme and removes it
+    again on the way back.  Keys must stay in sync with AppResources.xaml.
+  -->
+  <SolidColorBrush x:Key="App.Sidebar.Background" Color="#0AFFFFFF" />
+  <SolidColorBrush x:Key="App.Sidebar.Border" Color="#26FFFFFF" />
+  <SolidColorBrush x:Key="App.Body.BorderBrush" Color="#18FFFFFF" />
+  <SolidColorBrush x:Key="App.Muted.Foreground" Color="#9CA3AF" />
+  <SolidColorBrush x:Key="App.Card.Background" Color="#CC1C1C1C" />
+  <SolidColorBrush x:Key="App.Card.BorderBrush" Color="#18FFFFFF" />
+  <SolidColorBrush x:Key="App.Admin.Background" Color="#4A3F1A" />
+  <SolidColorBrush x:Key="App.Admin.BorderBrush" Color="#8A6D1A" />
+  <SolidColorBrush x:Key="App.Admin.Foreground" Color="#F0D98A" />
+  <SolidColorBrush x:Key="App.Danger.Foreground" Color="#F87171" />
+  <SolidColorBrush x:Key="App.Danger.Hover.Background" Color="#3A1D1D" />
+</ResourceDictionary>

@@ -1,0 +1,41 @@
+<UserControl x:Class="NesterApp.Pages.Settings.SettingsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:NesterApp.Pages.Settings"
+             xmlns:properties="clr-namespace:NesterApp.Properties"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:SettingsPageModel, IsDesignTimeCreatable=True}"
+             d:DesignHeight="300" d:DesignWidth="400">
+  <StackPanel Margin="10">
+    <TextBlock Text="{Binding SettingsStrings.Title}" FontSize="20" FontWeight="Bold" Margin="0,0,0,16" />
+    <TextBlock Text="{Binding SettingsStrings.Subtitle}" Opacity="0.75" Margin="0,0,0,8" />
+    <Label Content="{Binding SettingsStrings.LocaleLabel}" />
+    <!-- Language toggle — calls Lang.Provider.Use(...) + shell.Restart() (placeholder) -->
+    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+      <Button Content="{Binding SettingsStrings.SwitchToEnglish}" Command="{Binding UseLanguageCommand}"
+              CommandParameter="en" Margin="0,0,8,0" Padding="8,4" />
+      <Button Content="{Binding SettingsStrings.SwitchToChinese}" Command="{Binding UseLanguageCommand}"
+              CommandParameter="zh-CN" Margin="0,0,8,0" Padding="8,4" />
+      <Button Content="{Binding SettingsStrings.SwitchToTraditionalChinese}" Command="{Binding UseLanguageCommand}"
+              CommandParameter="zh-TW" Padding="8,4" />
+    </StackPanel>
+    <TextBox Text="{Binding AppSettings.Language, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8" Padding="6" />
+    <Label Content="{Binding SettingsStrings.AppearanceLabel}" />
+    <Label Content="{Binding SettingsStrings.ThemeLabel}" />
+    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+      <Button Content="{Binding SettingsStrings.ThemeSystem}" Command="{Binding SetThemeCommand}"
+              CommandParameter="{x:Static properties:AppTheme.System}" Margin="0,0,8,0" Padding="8,4" />
+      <Button Content="{Binding SettingsStrings.ThemeLight}" Command="{Binding SetThemeCommand}"
+              CommandParameter="{x:Static properties:AppTheme.Light}" Margin="0,0,8,0" Padding="8,4" />
+      <Button Content="{Binding SettingsStrings.ThemeDark}" Command="{Binding SetThemeCommand}"
+              CommandParameter="{x:Static properties:AppTheme.Dark}" Padding="8,4" />
+    </StackPanel>
+    <CheckBox Content="{Binding SettingsStrings.AutoSave}"
+              IsChecked="{Binding AppSettings.AutoSave}" Margin="0,0,0,8" />
+    <Label Content="{Binding SettingsStrings.FontSizeLabel}" />
+    <TextBox Text="{Binding AppSettings.FontSize, UpdateSourceTrigger=PropertyChanged}"
+             Margin="0,0,0,8" Padding="6" Width="80" HorizontalAlignment="Left" />
+  </StackPanel>
+</UserControl>

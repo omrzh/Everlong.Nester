@@ -1,0 +1,52 @@
+<UserControl x:Class="NesterApp.Pages.Login.LoginPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:NesterApp.Pages.Login"
+             d:DataContext="{d:DesignInstance Type=local:LoginPageModel}"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+  <d:DesignInstance />
+  <!-- The form sits on a glass card; the leased aurora field stays visible
+       around it and bleeds through the translucent fill. -->
+  <Border HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="10 0"
+          Background="{DynamicResource LayerFillColorDefaultBrush}"
+          BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+          BorderThickness="1" CornerRadius="12" Padding="20,16">
+    <Border.Effect>
+      <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.18" Color="Black" />
+    </Border.Effect>
+    <StackPanel MaxWidth="420">
+
+      <TextBlock Text="{Binding LoginStrings.WelcomeHeading}" FontSize="24" FontWeight="Bold"
+                 HorizontalAlignment="Center" Margin="0,0,0,12" />
+
+      <Label Content="{Binding LoginStrings.UsernameLabel}" Margin="0,0,0,2"/>
+      <TextBox Text="{Binding Username}"
+               Margin="0,0,0,6" Padding="5" />
+
+      <Label Content="{Binding LoginStrings.PasswordLabel}" Margin="0,0,0,2"/>
+      <PasswordBox x:Name="PwdBox" Margin="0,0,0,12" Padding="5" />
+
+      <Button Content="{Binding LoginStrings.SignInButton}" Command="{Binding LoginCommand}"
+              Padding="10,5" Margin="0,0,0,6"
+              HorizontalAlignment="Stretch" />
+
+      <Grid Margin="0,4,0,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="0" Content="{Binding LoginStrings.AdminButton}"
+                Command="{Binding LoginAsAdminCommand}"
+                Margin="0,0,5,0" Padding="5"
+                HorizontalAlignment="Stretch" />
+        <Button Grid.Column="1" Content="{Binding LoginStrings.UserButton}"
+                Command="{Binding LoginAsUserCommand}"
+                Margin="5,0,0,0" Padding="5"
+                HorizontalAlignment="Stretch" />
+      </Grid>
+    </StackPanel>
+  </Border>
+</UserControl>

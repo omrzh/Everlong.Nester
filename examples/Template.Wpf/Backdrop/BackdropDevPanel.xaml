@@ -1,0 +1,90 @@
+<UserControl x:Class="NesterApp.Backdrop.BackdropDevPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:backdrop="clr-namespace:NesterApp.Backdrop"
+             xmlns:props="clr-namespace:NesterApp.Properties"
+             d:DataContext="{d:DesignInstance backdrop:BackdropLab}"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+
+  <!-- No background on the root: the empty area stays hit-test transparent, so
+       only the card below takes input. -->
+  <Grid>
+    <Border HorizontalAlignment="Right" VerticalAlignment="Bottom"
+            Margin="0,0,18,18" Width="278" CornerRadius="10" Padding="12,10"
+            Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1"
+            TextElement.Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+      <StackPanel>
+
+        <Grid Margin="0,0,0,9">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="{Binding Source={x:Static props:Lang.Backdrop}, Path=Title}" FontSize="13" FontWeight="SemiBold" />
+          <TextBlock x:Name="FpsText" Grid.Column="1" Text="—" FontSize="12"
+                     Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        </Grid>
+
+        <backdrop:FrameGraph x:Name="Graph" Height="32" Margin="0,0,0,9"
+                             SurfaceBrush="{DynamicResource ControlFillColorSecondaryBrush}"
+                             GuideBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                             LineBrush="{DynamicResource AccentFillColorDefaultBrush}" />
+
+        <Grid Margin="0,0,0,9">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="48" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="38" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <TextBlock Text="{Binding Source={x:Static props:Lang.Backdrop}, Path=Mode}" VerticalAlignment="Center" />
+          <ComboBox Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="0,2"
+                    ItemsSource="{Binding Modes}" SelectedItem="{Binding Mode}" />
+
+          <TextBlock Grid.Row="1" Text="{Binding Source={x:Static props:Lang.Backdrop}, Path=Motes}" VerticalAlignment="Center" />
+          <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="1200" Margin="0,2"
+                  TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding MoteCount}" />
+          <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding MoteCount}" Margin="4,0,0,0"
+                     TextAlignment="Right" VerticalAlignment="Center" />
+
+          <TextBlock Grid.Row="2" Text="{Binding Source={x:Static props:Lang.Backdrop}, Path=Veils}" VerticalAlignment="Center" />
+          <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="6" Margin="0,2"
+                  TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding VeilCount}" />
+          <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding VeilCount}" Margin="4,0,0,0"
+                     TextAlignment="Right" VerticalAlignment="Center" />
+
+          <TextBlock Grid.Row="3" Text="{Binding Source={x:Static props:Lang.Backdrop}, Path=Speed}" VerticalAlignment="Center" />
+          <Slider Grid.Row="3" Grid.Column="1" Minimum="0.1" Maximum="3" Margin="0,2"
+                  Value="{Binding Speed}" />
+          <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding Speed}" Margin="4,0,0,0"
+                     TextAlignment="Right" VerticalAlignment="Center" />
+
+          <TextBlock Grid.Row="4" Text="{Binding Source={x:Static props:Lang.Backdrop}, Path=Glass}" VerticalAlignment="Center" />
+          <Slider Grid.Row="4" Grid.Column="1" Minimum="0.2" Maximum="1" Margin="0,2"
+                  Value="{Binding PanelOpacity}" />
+          <TextBlock Grid.Row="4" Grid.Column="2" Text="{Binding PanelOpacity}" Margin="4,0,0,0"
+                     TextAlignment="Right" VerticalAlignment="Center" />
+        </Grid>
+
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,9">
+          <CheckBox Content="{Binding Source={x:Static props:Lang.Backdrop}, Path=Parallax}" IsChecked="{Binding Parallax}" Margin="0,0,14,0" />
+          <CheckBox Content="{Binding Source={x:Static props:Lang.Backdrop}, Path=Pause}" IsChecked="{Binding Paused}" />
+        </StackPanel>
+
+        <Button Content="{Binding Source={x:Static props:Lang.Backdrop}, Path=Reset}" HorizontalAlignment="Stretch" Click="OnResetClicked" />
+
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

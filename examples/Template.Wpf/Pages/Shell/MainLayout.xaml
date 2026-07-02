@@ -1,0 +1,316 @@
+<UserControl x:Class="NesterApp.Pages.Shell.MainLayout"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:n="https://nester.dev"
+             xmlns:chrome="clr-namespace:Everlong.Nester.Chrome;assembly=Everlong.Nester.Wpf"
+             xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+             xmlns:props="clr-namespace:NesterApp.Properties"
+             xmlns:viewModels="clr-namespace:NesterApp.Pages.Shell"
+             d:DataContext="{d:DesignInstance viewModels:MainLayoutModel}"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="1000">
+
+  <UserControl.Resources>
+    <!-- Material "tune" — the backdrop dev panel toggle. -->
+    <StreamGeometry x:Key="IconTune">M3,17V19H9V17H3M3,5V7H13V5H3M13,21V19H21V17H13V15H11V21H13M7,9V11H3V13H7V15H9V9H7M21,13V11H11V13H21M15,9H17V7H21V5H17V3H15V9Z</StreamGeometry>
+
+    <!--
+      Title-bar elements live inside the caption area: WindowChrome routes
+      input to them only when IsHitTestVisibleInChrome is set.
+    -->
+    <Style x:Key="TitleBarButtonStyle" TargetType="Button">
+      <Setter Property="Width" Value="30" />
+      <Setter Property="Height" Value="24" />
+      <Setter Property="Margin" Value="4,0,0,0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+      <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4"
+                    WindowChrome.IsHitTestVisibleInChrome="True">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ControlAltFillColorTertiaryBrush}" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ControlAltFillColorQuarternaryBrush}" />
+              </Trigger>
+              <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Foreground" Value="{DynamicResource TextFillColorDisabledBrush}" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!--
+      The dev-panel toggle.  ToggleButton derives from ButtonBase, not Button,
+      so it cannot reuse TitleBarButtonStyle — same chrome, plus a checked state.
+    -->
+    <Style x:Key="TitleBarToggleStyle" TargetType="ToggleButton">
+      <Setter Property="Width" Value="30" />
+      <Setter Property="Height" Value="24" />
+      <Setter Property="Margin" Value="12,0,0,0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+      <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ToggleButton">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="4"
+                    WindowChrome.IsHitTestVisibleInChrome="True">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ControlAltFillColorTertiaryBrush}" />
+              </Trigger>
+              <Trigger Property="IsChecked" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ControlAltFillColorQuarternaryBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource Nester.Brand}" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <!--
+      Caption buttons are system-sized (46x32).  The maximize button is
+      non-client while hovered (that is what opens the snap-layout flyout),
+      so its hover visual comes from IsChromeHot instead of IsMouseOver.
+    -->
+    <Style x:Key="CaptionButtonStyle" TargetType="Button">
+      <Setter Property="Width" Value="46" />
+      <Setter Property="Height" Value="32" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+      <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                    WindowChrome.IsHitTestVisibleInChrome="True">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ControlAltFillColorTertiaryBrush}" />
+              </Trigger>
+              <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ControlAltFillColorQuarternaryBrush}" />
+              </Trigger>
+              <Trigger Property="chrome:NesterWindowChrome.IsChromeHot" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ControlAltFillColorTertiaryBrush}" />
+              </Trigger>
+              <Trigger Property="chrome:NesterWindowChrome.IsChromePressed" Value="True">
+                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource ControlAltFillColorQuarternaryBrush}" />
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
+    <Style x:Key="CaptionCloseButtonStyle" BasedOn="{StaticResource CaptionButtonStyle}" TargetType="Button">
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="#C42B1C" />
+          <Setter Property="Foreground" Value="White" />
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+    <!--
+      A sidebar label: gone once the pane is a rail, where only the icon fits.
+      The trigger reads the root grid because WPF has no style classes to propagate.
+    -->
+    <Style x:Key="SidebarLabel" TargetType="TextBlock">
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding (n:Responsive.IsCompact), ElementName=Root}" Value="True">
+          <Setter Property="Visibility" Value="Collapsed" />
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+  </UserControl.Resources>
+
+  <!--
+    The root grid owns the shell's breakpoint: below 700 the sidebar column narrows
+    from a full sidebar to a rail.  It is the anchor every trigger below reads (WPF
+    carries no style classes), and the sidebar's width is declared in a style and
+    never in markup — a local value outranks every trigger, so a Width written here
+    would outrank the narrow one and the pane would never narrow.
+  -->
+  <Grid x:Name="Root" n:Responsive.CompactBelow="700">
+    <Grid.RowDefinitions>
+      <!-- Height must match AppChrome.TitleBarHeight: the WPF caption band. -->
+      <RowDefinition Height="32" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="Auto" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <!--
+      Title bar: spans both columns, transparent so the leased backdrop shows
+      through; the buttons are drawn by us, the system only supplies the
+      snap-layout flyout for the maximize button.
+    -->
+    <Grid Grid.Row="0" Grid.ColumnSpan="2">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center"
+                  Margin="12,0,0,0">
+        <TextBlock Text="NesterApp" FontSize="13" FontWeight="SemiBold" Foreground="{DynamicResource Nester.Brand}"
+                   VerticalAlignment="Center" />
+        <Button Margin="12,0,0,0"
+                Command="{Binding GoBackCommand}" IsEnabled="{Binding Stack.CanGoBack}"
+                Style="{StaticResource TitleBarButtonStyle}" ToolTip="{Binding Source={x:Static props:Lang.Navigation}, Path=Back}">
+          <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="11" Text="&#xE72B;" />
+        </Button>
+        <Button
+                Command="{Binding GoForwardCommand}" IsEnabled="{Binding Stack.CanGoForward}"
+                Style="{StaticResource TitleBarButtonStyle}" ToolTip="{Binding Source={x:Static props:Lang.Navigation}, Path=Forward}">
+          <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="11" Text="&#xE72A;" />
+        </Button>
+        <ToggleButton Style="{StaticResource TitleBarToggleStyle}"
+                      Command="{Binding ToggleBackdropPanelCommand}"
+                      IsChecked="{Binding IsBackdropPanelVisible, Mode=OneWay}"
+                      ToolTip="{Binding Source={x:Static props:Lang.Navigation}, Path=BackdropPanel}">
+          <Path Data="{StaticResource IconTune}" Width="14" Height="14" Stretch="Uniform"
+                Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" />
+        </ToggleButton>
+      </StackPanel>
+
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+        <Button x:Name="MinimizeButton" Style="{StaticResource CaptionButtonStyle}"
+                Click="OnMinimizeClicked" ToolTip="{Binding Source={x:Static props:Lang.Navigation}, Path=Minimize}">
+          <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="10" Text="&#xE921;" />
+        </Button>
+        <Button x:Name="MaximizeButton" Style="{StaticResource CaptionButtonStyle}"
+                Click="OnMaximizeClicked" ToolTip="{Binding Source={x:Static props:Lang.Navigation}, Path=Maximize}">
+          <TextBlock x:Name="MaximizeIcon" FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="10"
+                     Text="&#xE922;" />
+        </Button>
+        <Button x:Name="CloseButton" Style="{StaticResource CaptionCloseButtonStyle}"
+                Click="OnCloseClicked" ToolTip="{Binding Source={x:Static props:Lang.Navigation}, Path=Close}">
+          <TextBlock FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="12" Text="&#xE711;" />
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <!-- Sidebar -->
+    <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource App.Sidebar.Background}">
+      <Border.Style>
+        <Style TargetType="Border">
+          <Setter Property="Width" Value="250" />
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding (n:Responsive.IsCompact), ElementName=Root}" Value="True">
+              <Setter Property="Width" Value="64" />
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </Border.Style>
+      <Grid Margin="10">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!--
+          One menu, two projections: the docked tree, and the destinations a rail can
+          act on.  Each keeps its theme style through BasedOn — an explicit Style would
+          otherwise replace the implicit one that carries the control's template — and
+          both states are declared in the style, because a local Visibility would
+          outrank the trigger that flips it.
+        -->
+        <n:RouteTreeControl Grid.Row="0" ItemsSource="{Binding NavItems}" Margin="0,10,0,0">
+          <n:RouteTreeControl.Style>
+            <Style TargetType="n:RouteTreeControl" BasedOn="{StaticResource {x:Type n:RouteTreeControl}}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding (n:Responsive.IsCompact), ElementName=Root}" Value="True">
+                  <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </n:RouteTreeControl.Style>
+        </n:RouteTreeControl>
+
+        <n:RouteTreeControl Grid.Row="0" ItemsSource="{Binding RailItems}" Margin="0,10,0,0">
+          <n:RouteTreeControl.Style>
+            <Style TargetType="n:RouteTreeControl" BasedOn="{StaticResource {x:Type n:RouteTreeControl}}">
+              <Setter Property="Visibility" Value="Collapsed" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding (n:Responsive.IsCompact), ElementName=Root}" Value="True">
+                  <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </n:RouteTreeControl.Style>
+        </n:RouteTreeControl>
+
+        <!-- Footer: admin shortcut (Authorize.Visible) + logout -->
+        <StackPanel Grid.Row="1">
+          <!--
+            n:Authorize.Visible="Admin": attached property that hides this element when the
+            current user does NOT have the "Admin" role. The element is invisible (not just
+            disabled) — it takes no space and receives no input. Nester re-checks the
+            property whenever IAuthService.AuthorizationChanged fires (e.g., on login/logout).
+            Format mirrors AuthorizeView.Rules: "Policy=X; Roles=A,B" or shorthand "R=A,B".
+          -->
+          <Button n:Authorize.Visible="Admin"
+                  Command="{Binding GoToAdminCommand}" HorizontalAlignment="Stretch"
+                  Background="{DynamicResource App.Admin.Background}"
+                  BorderBrush="{DynamicResource App.Admin.BorderBrush}" BorderThickness="1"
+                  Foreground="{DynamicResource App.Admin.Foreground}"
+                  HorizontalContentAlignment="Left" Padding="10,8" Margin="0,0,0,4" Cursor="Hand">
+            <StackPanel Orientation="Horizontal">
+              <emoji:TextBlock Text="🛡️" Width="20" TextAlignment="Center" Margin="0,0,10,0" />
+              <TextBlock Style="{StaticResource SidebarLabel}"
+                         Text="{Binding Source={x:Static props:Lang.Navigation}, Path=AdminPanel}" />
+            </StackPanel>
+          </Button>
+
+          <Button Command="{Binding LogoutCommand}" Background="Transparent" BorderThickness="0"
+                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="10,8" Margin="0,4,0,0" Cursor="Hand">
+            <Button.Template>
+              <ControlTemplate TargetType="Button">
+                <Border Name="Border" CornerRadius="4" Background="{TemplateBinding Background}"
+                        Padding="{TemplateBinding Padding}">
+                  <ContentPresenter />
+                </Border>
+                <ControlTemplate.Triggers>
+                  <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Border" Property="Background"
+                            Value="{DynamicResource App.Danger.Hover.Background}" />
+                    <Setter Property="Foreground" Value="{DynamicResource App.Danger.Foreground}" />
+                  </Trigger>
+                </ControlTemplate.Triggers>
+              </ControlTemplate>
+            </Button.Template>
+            <StackPanel Orientation="Horizontal">
+              <emoji:TextBlock Text="🚪" Width="20" TextAlignment="Center" Margin="0,0,10,0" />
+              <TextBlock Style="{StaticResource SidebarLabel}" Text="{Binding LogoutLabel}" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Content Area: Declare a LayoutBody named 'Body' for Nester to mount content -->
+    <Border Grid.Row="1" Grid.Column="1"
+            BorderBrush="{DynamicResource App.Body.BorderBrush}"
+            BorderThickness="1,1,0,0" CornerRadius="15, 0,0,0"
+            Padding="10">
+      <n:LayoutBody x:Name="Body" />
+    </Border>
+  </Grid>
+</UserControl>

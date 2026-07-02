@@ -1,0 +1,41 @@
+<UserControl x:Class="NesterApp.Pages.Profile.ProfilePage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:NesterApp.Pages.Profile"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=viewModels:ProfilePageModel}">
+  <Grid Margin="20">
+    <StackPanel MaxWidth="500" HorizontalAlignment="Left">
+      <TextBlock Text="{Binding PagesStrings.ProfileTitle}" FontSize="24" FontWeight="Bold" Margin="0,0,0,10" />
+
+      <!-- Info Bar simulation -->
+      <Border Background="{DynamicResource App.Card.Background}"
+              BorderBrush="{DynamicResource Nester.Info}" BorderThickness="1" CornerRadius="4" Padding="10"
+              Margin="0,0,0,20">
+        <StackPanel Orientation="Horizontal">
+          <emoji:TextBlock Text="ℹ️" Margin="0,0,10,0" />
+          <StackPanel>
+            <TextBlock Text="{Binding PagesStrings.NavigationGuardTitle}" FontWeight="Bold" />
+            <TextBlock Text="{Binding PagesStrings.NavigationGuardMessage}"
+                       TextWrapping="Wrap" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <Label Content="{Binding PagesStrings.ProfileDisplayName}" />
+      <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" Padding="5" Margin="0,0,0,10" />
+
+      <Label Content="{Binding PagesStrings.ProfileBio}" />
+      <TextBox Text="{Binding Bio, UpdateSourceTrigger=PropertyChanged}" Height="100" TextWrapping="Wrap" Padding="5"
+               Margin="0,0,0,20" VerticalContentAlignment="Top" />
+
+      <StackPanel Orientation="Horizontal">
+        <Button Content="{Binding PagesStrings.Save}" Command="{Binding SaveCommand}" Padding="15,5" Margin="0,0,10,0" />
+        <Button Content="{Binding PagesStrings.Cancel}" Command="{Binding CancelCommand}" Padding="15,5" />
+      </StackPanel>
+    </StackPanel>
+  </Grid>
+</UserControl>

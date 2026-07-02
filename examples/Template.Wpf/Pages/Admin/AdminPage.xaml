@@ -1,0 +1,45 @@
+<UserControl x:Class="NesterApp.Pages.Admin.AdminPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:n="https://nester.dev"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:NesterApp.Pages.Admin"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:AdminPageModel}">
+  <!--
+    AuthorizeView: conditional content control that shows one of two subtrees based on auth.
+    Rules="" (empty) = authenticated users only.
+    Rules="Admin" = must have the "Admin" role.
+    Rules="CanEditData; Admin,Manager" = must have the "CanEditData" policy AND one of the roles.
+    Nester auto-discovers the IAuthService from the visual tree — no plumbing needed.
+  -->
+  <n:AuthorizeView Rules="Admin">
+    <n:AuthorizeView.Authorized>
+      <Grid Margin="20">
+        <Border Background="{DynamicResource App.Admin.Background}"
+                BorderBrush="{DynamicResource App.Admin.BorderBrush}"
+                BorderThickness="1" CornerRadius="4" Padding="15">
+          <StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+              <emoji:TextBlock Text="🛡️" FontSize="20" Margin="0,0,10,0" />
+              <TextBlock Text="{Binding PagesStrings.AdminTitle}" FontSize="18" FontWeight="Bold" />
+            </StackPanel>
+            <TextBlock Text="{Binding PagesStrings.AdminViewingReason}" Margin="0,0,0,10" TextWrapping="Wrap" />
+            <Button Content="{Binding PagesStrings.AdminAction}" Background="#DC3545" Foreground="White" Padding="10,5"
+                    HorizontalAlignment="Left" />
+          </StackPanel>
+        </Border>
+      </Grid>
+    </n:AuthorizeView.Authorized>
+    <n:AuthorizeView.NotAuthorized>
+      <!-- Shown when the user lacks the Admin role; also fires during login transitions. -->
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <emoji:TextBlock Text="⛔" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,10" />
+        <TextBlock Text="{Binding PagesStrings.NoPermission}"
+                   FontSize="16" Foreground="{DynamicResource App.Muted.Foreground}" />
+      </StackPanel>
+    </n:AuthorizeView.NotAuthorized>
+  </n:AuthorizeView>
+</UserControl>

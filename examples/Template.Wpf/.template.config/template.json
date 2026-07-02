@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Nolon Technology",
+  "classifications": [ "Desktop", "WPF", "Nester", "Windows" ],
+  "identity": "Everlong.Nester.App.Wpf.CSharp",
+  "name": "Nester WPF Application",
+  "shortName": "nester-wpf",
+  "description": "A Windows desktop application using Nester navigation with WPF.",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "NesterApp",
+  "preferNameDirectory": true,
+  "symbols": {
+    "Framework": {
+      "type": "parameter",
+      "description": "The target framework for the project.",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "net8.0-windows",  "description": "Target .NET 8.0" },
+        { "choice": "net9.0-windows",  "description": "Target .NET 9.0" },
+        { "choice": "net10.0-windows", "description": "Target .NET 10.0" }
+      ],
+      "replaces": "net10.0-windows",
+      "defaultValue": "net10.0-windows"
+    }
+  }
+}

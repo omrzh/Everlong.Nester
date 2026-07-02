@@ -1,0 +1,21 @@
+<Window x:Class="NesterApp.Pages.Shell.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:NesterApp.Pages.Shell"
+        xmlns:props="clr-namespace:NesterApp.Properties"
+        d:DataContext="{d:DesignInstance Type=viewModels:MainViewModel}"
+        Title="{Binding Source={x:Static props:Lang.Shell}, Path=WindowTitle}" Height="700" Width="1100"
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen">
+
+  <!--
+    The window is a bare stage host: the title bar lives in MainLayout, so the
+    leased backdrop paints under it.  The caption buttons are drawn by the
+    system (WindowChrome extends the frame), which keeps the Windows 11
+    snap-layout flyout working without any custom hit testing.
+  -->
+  <Border x:Name="HighContrastBorder" BorderBrush="Transparent" BorderThickness="8 1 8 8">
+    <Grid x:Name="MainGrid" />
+  </Border>
+</Window>

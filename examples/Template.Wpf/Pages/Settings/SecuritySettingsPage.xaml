@@ -1,0 +1,21 @@
+<UserControl x:Class="NesterApp.Pages.Settings.SecuritySettingsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:NesterApp.Pages.Settings"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:SecuritySettingsPageModel, IsDesignTimeCreatable=True}"
+             d:DesignHeight="360" d:DesignWidth="480">
+  <StackPanel Margin="10">
+    <TextBlock Text="{Binding PagesStrings.SecurityTitle}" FontSize="20" FontWeight="Bold" Margin="0,0,0,16" />
+    <TextBlock Text="{Binding PagesStrings.ChangesSubtitle}" Opacity="0.75" Margin="0,0,0,8" />
+    <CheckBox Content="{Binding PagesStrings.RequireTwoFactor}"
+              IsChecked="{Binding Security.RequireTwoFactor}" Margin="0,0,0,10" />
+    <CheckBox Content="{Binding PagesStrings.AutoLock}"
+              IsChecked="{Binding Security.AutoLockOnInactivity}" Margin="0,0,0,20" />
+    <Label Content="{Binding PagesStrings.SessionTimeoutLabel}" />
+    <TextBox Text="{Binding Security.SessionTimeoutMinutes, UpdateSourceTrigger=PropertyChanged}"
+             Margin="0,0,0,8" Padding="6" Width="80" HorizontalAlignment="Left" />
+  </StackPanel>
+</UserControl>

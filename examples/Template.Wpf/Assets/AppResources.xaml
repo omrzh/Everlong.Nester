@@ -1,0 +1,101 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!--
+    App-level resource dictionary for NesterApp (WPF).
+
+    OVERVIEW
+    ────────
+    Two sections live here:
+
+      1. App.* tokens  — active brush resources used throughout this template.
+         Apply them with {DynamicResource App.Page.Background} etc.
+
+      2. Nester.* overrides  — commented-out copies of every overridable
+         Nester built-in color key.  Uncomment any entry to customise
+         Nester's components (dialogs, toasts, nav links, …) without
+         touching the library source.
+
+    HOW OVERRIDES WORK
+    ──────────────────
+    AppResources.xaml is merged AFTER the core Generic.xaml and the Extensions NesterExtendedTheme.xaml in App.xaml.
+    WPF's DynamicResource lookup honours the last-merged definition,
+    so any key you redefine here will silently win over the built-in default.
+
+    DARK MODE
+    ─────────
+    App.xaml sets ThemeMode and the shell's WpfThemeService drives it, so
+    WPF's Fluent controls adapt at runtime.  WPF has no ThemeDictionaries,
+    so the palettes swap explicitly: the service merges
+    Assets/AppResources.Dark.xaml over the App.* brushes below and calls
+    NesterTheme.UseDark / NesterExtendedTheme.UseDark for Nester's chrome
+    (Themes/Colors.Dark.xaml, NesterExtendedTheme.Dark.xaml).  Add a dark
+    value to AppResources.Dark.xaml whenever you add an App.* brush here.
+  -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!--  App tokens (active, light-mode)                                   -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <SolidColorBrush x:Key="App.Sidebar.Background" Color="#0AFFFFFF" />
+  <SolidColorBrush x:Key="App.Sidebar.Border" Color="#1A000000" />
+  <SolidColorBrush x:Key="App.Body.BorderBrush" Color="#10000000" />
+  <SolidColorBrush x:Key="App.Muted.Foreground" Color="#6B7280" />
+  <SolidColorBrush x:Key="App.Card.Background" Color="#CCFFFFFF" />
+  <SolidColorBrush x:Key="App.Card.BorderBrush" Color="#10000000" />
+  <SolidColorBrush x:Key="App.Admin.Background" Color="#FFF4CE" />
+  <SolidColorBrush x:Key="App.Admin.BorderBrush" Color="#FFD700" />
+  <SolidColorBrush x:Key="App.Admin.Foreground" Color="#1B2130" />
+  <SolidColorBrush x:Key="App.Danger.Foreground" Color="#DC2626" />
+  <SolidColorBrush x:Key="App.Danger.Hover.Background" Color="#FEE2E2" />
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!--  Nester built-in overrides (commented — uncomment to customize)    -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+  <!-- Brand / Primary -->
+  <!--<Color x:Key="Nester.Color.Brand">#0078D4</Color>-->
+  <!--<Color x:Key="Nester.Color.Brand.Hover">#106EBE</Color>-->
+  <!--<Color x:Key="Nester.Color.Brand.Pressed">#005A9E</Color>-->
+  <!--<Color x:Key="Nester.Color.Brand.Selected">#106EBE</Color>-->
+
+  <!-- Border -->
+  <!--<Color x:Key="Nester.Color.Border">#E0E0E0</Color>-->
+
+  <!-- Dialog chrome -->
+  <!--<Color x:Key="Nester.Color.DialogChrome.Background">#FFFFFF</Color>-->
+  <!--<Color x:Key="Nester.Color.DialogChrome.Foreground">#212121</Color>-->
+
+  <!-- Toast -->
+  <!--<Color x:Key="Nester.Color.Toast.Background">#FFFFFF</Color>-->
+  <!--<Color x:Key="Nester.Color.Toast.Foreground">#212121</Color>-->
+
+  <!-- Snackbar -->
+  <!--<Color x:Key="Nester.Color.Snackbar.Background">#FFFFFF</Color>-->
+  <!--<Color x:Key="Nester.Color.Snackbar.Foreground">#212121</Color>-->
+  <!--<Color x:Key="Nester.Color.Snackbar.Action">#FF4081</Color>-->
+
+  <!-- Semantic status -->
+  <!--<Color x:Key="Nester.Color.Success">#4CAF50</Color>-->
+  <!--<Color x:Key="Nester.Color.Error">#F44336</Color>-->
+  <!--<Color x:Key="Nester.Color.Warning">#FF9800</Color>-->
+  <!--<Color x:Key="Nester.Color.Info">#2196F3</Color>-->
+
+  <!-- RouteLink -->
+  <!--<Color x:Key="Nester.Color.RouteLink.Hover">#F0F0F0</Color>-->
+  <!--<Color x:Key="Nester.Color.RouteLink.Active.Background">#08000000</Color>-->
+  <!--<Color x:Key="Nester.Color.RouteLink.Active.Foreground">#0078D7</Color>-->
+
+  <!-- RouteTreeItem -->
+  <!--<Color x:Key="Nester.Color.RouteTreeItem.Hover">#F0F0F0</Color>-->
+  <!--<Color x:Key="Nester.Color.RouteTreeItem.Selected.Background">#0C000000</Color>-->
+  <!--<Color x:Key="Nester.Color.RouteTreeItem.Selected.Background.Light">#04000000</Color>-->
+  <!--<Color x:Key="Nester.Color.RouteTreeItem.Active.Foreground">#0078D7</Color>-->
+
+  <!-- TreeItem / Notice -->
+  <!--<Color x:Key="Nester.Color.TreeItem.Hover">#F0F0F0</Color>-->
+  <!--<Color x:Key="Nester.Color.Notice.Hover">#F0F0F0</Color>-->
+
+  <!-- Dimmer backdrop (light; the dark dictionary swaps it) -->
+  <!--<Color x:Key="Nester.Color.Dimmer.Backdrop">#40000000</Color>-->
+
+</ResourceDictionary>

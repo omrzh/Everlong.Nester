@@ -1,0 +1,97 @@
+<UserControl x:Class="NesterApp.Pages.Labs.FloatingPlayerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:l="clr-namespace:NesterApp.Pages.Labs"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance l:FloatingPlayerViewModel}"
+             d:DesignHeight="2200" d:DesignWidth="400">
+  <!-- No background: the root control does not participate in hit-testing; only the card itself is interactive. -->
+  <Border x:Name="DraggableCard"
+          Width="320" Height="180"
+          HorizontalAlignment="Left" VerticalAlignment="Top"
+          Margin="32,32,0,0"
+          Background="#F01E1E1E"
+          BorderBrush="#33FFFFFF"
+          BorderThickness="1"
+          CornerRadius="12"
+          Cursor="SizeAll"
+          MouseLeftButtonDown="OnDragStart"
+          MouseMove="OnDragMove"
+          MouseLeftButtonUp="OnDragEnd">
+    <Border.Effect>
+      <DropShadowEffect Color="#80000000" BlurRadius="24" ShadowDepth="6" Opacity="0.5" />
+    </Border.Effect>
+    <Grid Margin="12">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+
+      <!-- Title row + close -->
+      <Grid Grid.Row="0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <Ellipse Width="8" Height="8" Fill="#FF4CAF50" Margin="0,0,8,0" />
+          <TextBlock Text="{Binding VideoTitle}"
+                     Foreground="White" FontWeight="Bold"
+                     TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+        <Button Grid.Column="1"
+                Command="{Binding CloseCommand}"
+                Width="24" Height="24" Padding="0"
+                Background="Transparent" BorderThickness="0"
+                Cursor="Hand" VerticalAlignment="Top">
+          <Button.Style>
+            <Style TargetType="Button">
+              <Setter Property="Template">
+                <Setter.Value>
+                  <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" Background="{TemplateBinding Background}" CornerRadius="12">
+                      <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                      <Trigger Property="IsMouseOver" Value="True">
+                        <Setter TargetName="Bg" Property="Background" Value="#33FFFFFF" />
+                      </Trigger>
+                      <Trigger Property="IsPressed" Value="True">
+                        <Setter TargetName="Bg" Property="Background" Value="#55FFFFFF" />
+                      </Trigger>
+                    </ControlTemplate.Triggers>
+                  </ControlTemplate>
+                </Setter.Value>
+              </Setter>
+            </Style>
+          </Button.Style>
+          <Path Data="M 2,2 L 14,14 M 14,2 L 2,14"
+                Stroke="White" StrokeThickness="1.4"
+                StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                Width="16" Height="16" Stretch="None" />
+        </Button>
+      </Grid>
+
+      <!-- Playback status -->
+      <TextBlock Grid.Row="1"
+                 Text="{Binding NowPlaying}" Foreground="#99FFFFFF"
+                 VerticalAlignment="Center" />
+
+      <!-- Progress -->
+      <Grid Grid.Row="2">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <ProgressBar Value="{Binding PlaybackPosition}" Maximum="100"
+                     Height="4" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="1"
+                   Text="{Binding PlaybackPosition, StringFormat={}{0:0.0}s}"
+                   Foreground="#99FFFFFF" FontSize="11" Margin="8,0,0,0" />
+      </Grid>
+    </Grid>
+  </Border>
+</UserControl>

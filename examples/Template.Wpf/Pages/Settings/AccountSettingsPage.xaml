@@ -1,0 +1,32 @@
+<UserControl x:Class="NesterApp.Pages.Settings.AccountSettingsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="clr-namespace:NesterApp.Pages.Settings"
+             xmlns:prop="clr-namespace:NesterApp.Properties"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:AccountSettingsPageModel, IsDesignTimeCreatable=True}"
+             d:DesignHeight="300" d:DesignWidth="400">
+  <StackPanel Margin="10">
+    <TextBlock Text="{Binding PagesStrings.AccountTitle}" FontSize="20" FontWeight="Bold" Margin="0,0,0,16" />
+    <TextBlock Text="{Binding PagesStrings.ChangesSubtitle}" Opacity="0.75" Margin="0,0,0,8" />
+    <Label Content="{Binding PagesStrings.ProfileSection}" />
+    <TextBox
+      Text="{Binding Source={x:Static prop:AppSettings.Default}, Path=Account.Email, UpdateSourceTrigger=PropertyChanged}"
+      Margin="0,0,0,8" Padding="6" />
+    <TextBox
+      Text="{Binding Source={x:Static prop:AppSettings.Default}, Path=Account.DisplayName, UpdateSourceTrigger=PropertyChanged}"
+      Margin="0,0,0,16" Padding="6" />
+    <Label Content="{Binding PagesStrings.PrivacySection}" />
+    <CheckBox Content="{Binding PagesStrings.AllowProfileDiscovery}"
+              IsChecked="{Binding Source={x:Static prop:AppSettings.Default}, Path=Account.AllowProfileDiscovery, UpdateSourceTrigger=PropertyChanged}"
+              Margin="0,0,0,8" />
+    <CheckBox Content="{Binding PagesStrings.HideActivityDetails}"
+              IsChecked="{Binding Source={x:Static prop:AppSettings.Default}, Path=Account.HideActivityDetails, UpdateSourceTrigger=PropertyChanged}"
+              Margin="0,0,0,16" />
+    <WrapPanel>
+      <Button Content="{Binding PagesStrings.DeleteAccount}" Background="#DC2626" Foreground="White" Padding="12,6" />
+    </WrapPanel>
+  </StackPanel>
+</UserControl>
