@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <!-- The assembly name must not become the root namespace: `Everlong.Nester.Avalonia`
+         would then exist as an implicit namespace prefix and shadow the global `Avalonia`
+         namespace, so every `Avalonia.X` reference fails with CS0234.  The files declare
+         `Everlong.Nester.Tests.*`, so that is the root namespace. -->
+    <RootNamespace>Everlong.Nester.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Headless.XUnit" Version="12.1.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit.v3" Version="3.2.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Everlong.Nester\Everlong.Nester.csproj" />
+    <ProjectReference Include="..\..\src\Everlong.Nester.Avalonia\Everlong.Nester.Avalonia.csproj" />
+    <ProjectReference Include="..\..\src\Everlong.Nester.Extensions.Avalonia\Everlong.Nester.Extensions.Avalonia.csproj" />
+  </ItemGroup>
+
+</Project>
