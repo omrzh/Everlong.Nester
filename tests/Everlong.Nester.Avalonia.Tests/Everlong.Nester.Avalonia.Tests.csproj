@@ -15,12 +15,24 @@
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Headless.XUnit" Version="12.1.1" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="xunit.v3" Version="3.2.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The platform-free test kit the core head owns and this one shares: the
+         kit's own types are compiled into both heads, so they are linked rather
+         than moved, and only the files a landed suite needs are listed. -->
+    <Compile Include="..\Everlong.Nester.Tests\Layer\TestBrokerCore.cs" Link="Kit\Layer\TestBrokerCore.cs" />
+    <Compile Include="..\Everlong.Nester.Tests\Layer\TestLease.cs" Link="Kit\Layer\TestLease.cs" />
+    <Compile Include="..\Everlong.Nester.Tests\Navigation\ChainBuilder.cs" Link="Kit\Navigation\ChainBuilder.cs" />
+    <Compile Include="..\Everlong.Nester.Tests\Routing\Fakes.cs" Link="Kit\Routing\Fakes.cs" />
+    <Compile Include="..\Everlong.Nester.Tests\Routing\TestContent.cs" Link="Kit\Routing\TestContent.cs" />
   </ItemGroup>
 
   <ItemGroup>
