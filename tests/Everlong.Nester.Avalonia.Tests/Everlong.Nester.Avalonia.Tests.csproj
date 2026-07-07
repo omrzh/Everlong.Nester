@@ -14,8 +14,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
     <PackageReference Include="Avalonia.Headless.XUnit" Version="12.1.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+    <PackageReference Include="Everlong.Settings" Version="0.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="xunit.v3" Version="3.2.2" />
@@ -37,9 +41,28 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- The template the shell suites drive: the shared half plus the two
+         platform files it needs, linked rather than copied so the application
+         under test is the application that ships. -->
+    <Compile Include="..\..\examples\Template.Shared\Pages\**\*.cs" Link="Template.Shared\Pages\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\examples\Template.Shared\Dialogs\**\*.cs" Link="Template.Shared\Dialogs\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\examples\Template.Shared\Models\**\*.cs" Link="Template.Shared\Models\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\examples\Template.Shared\Services\**\*.cs" Link="Template.Shared\Services\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\examples\Template.Shared\Hosting\**\*.cs" Link="Template.Shared\Hosting\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\examples\Template.Shared\Properties\**\*.cs" Link="Template.Shared\Properties\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\examples\Template.Avalonia\UiShell.cs" Link="Template.Avalonia\UiShell.cs" />
+    <Compile Include="..\..\examples\Template.Avalonia\Pages\Shell\MainViewModel.Avalonia.cs" Link="Template.Avalonia\Pages\Shell\MainViewModel.Avalonia.cs" />
+    <!-- The generated locale set is carried, not regenerated: the head has no Elg
+         property, and this file is the artifact `dotnet elg gen` already wrote
+         for the template's own i18n source. -->
+    <Compile Include="..\..\examples\Template.Avalonia\Properties\Lang*.g.cs" Link="Template.Avalonia\Properties\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Everlong.Nester\Everlong.Nester.csproj" />
     <ProjectReference Include="..\..\src\Everlong.Nester.Avalonia\Everlong.Nester.Avalonia.csproj" />
     <ProjectReference Include="..\..\src\Everlong.Nester.Extensions.Avalonia\Everlong.Nester.Extensions.Avalonia.csproj" />
+    <ProjectReference Include="..\..\src\Everlong.Nester.Generators\Everlong.Nester.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>
