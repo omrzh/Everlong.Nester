@@ -33,6 +33,7 @@
     <!-- The platform-free test kit the core head owns and this one shares: the
          kit's own types are compiled into both heads, so they are linked rather
          than moved, and only the files a landed suite needs are listed. -->
+    <Compile Include="..\Everlong.Nester.Tests\Layer\LayerTestTenant.cs" Link="Kit\Layer\LayerTestTenant.cs" />
     <Compile Include="..\Everlong.Nester.Tests\Layer\TestBrokerCore.cs" Link="Kit\Layer\TestBrokerCore.cs" />
     <Compile Include="..\Everlong.Nester.Tests\Layer\TestLease.cs" Link="Kit\Layer\TestLease.cs" />
     <Compile Include="..\Everlong.Nester.Tests\Navigation\ChainBuilder.cs" Link="Kit\Navigation\ChainBuilder.cs" />
