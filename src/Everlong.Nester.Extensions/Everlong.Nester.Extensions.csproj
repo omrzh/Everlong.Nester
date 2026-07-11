@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Everlong.Nester.Tests" />
+    <InternalsVisibleTo Include="Everlong.Nester.Extensions.Tests" />
   </ItemGroup>
 
   <ItemGroup>
