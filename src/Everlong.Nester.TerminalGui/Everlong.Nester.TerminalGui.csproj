@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Terminal.Gui v2 targets net10.0 only — the one platform project off
+         the repository's net8.0 line. -->
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <RootNamespace>Everlong.Nester</RootNamespace>
+    <DefineConstants>$(DefineConstants);TERMINALGUI</DefineConstants>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <!-- Experimental surface: it rides the main line because a branch would
+         cost more than it is worth, but it stays off the packaging and
+         release line until it earns a place there. -->
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Terminal.Gui" Version="2.4.17" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Everlong.Nester\Everlong.Nester.csproj" />
+    <ProjectReference Include="..\Everlong.Nester.Extensions\Everlong.Nester.Extensions.csproj" />
+  </ItemGroup>
+
+</Project>

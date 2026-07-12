@@ -8,6 +8,7 @@
     <Project Path="src/Everlong.Nester.Extensions/Everlong.Nester.Extensions.csproj" />
     <Project Path="src/Everlong.Nester.Extensions.Avalonia/Everlong.Nester.Extensions.Avalonia.csproj" />
     <Project Path="src/Everlong.Nester.Extensions.Wpf/Everlong.Nester.Extensions.Wpf.csproj" />
+    <Project Path="src/Everlong.Nester.TerminalGui/Everlong.Nester.TerminalGui.csproj" />
     <Project Path="src/Everlong.Nester.Generators/Everlong.Nester.Generators.csproj" />
     <Project Path="src/Everlong.Nester.CodeFixers/Everlong.Nester.CodeFixers.csproj" />
   </Folder>
