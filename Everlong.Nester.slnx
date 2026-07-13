@@ -23,5 +23,6 @@
     <Project Path="examples/Template.Avalonia/Template.Avalonia.csproj" />
     <Project Path="examples/Template.Avalonia.Desktop/Template.Avalonia.Desktop.csproj" />
     <Project Path="examples/Template.Wpf/Template.Wpf.csproj" />
+    <Project Path="examples/Template.TerminalGui/Template.TerminalGui.csproj" />
   </Folder>
 </Solution>
