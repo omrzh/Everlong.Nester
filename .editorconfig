@@ -53,11 +53,14 @@ dotnet_naming_style.pascal_case.required_prefix =
 dotnet_naming_style.pascal_case.required_suffix =
 dotnet_naming_style.pascal_case.word_separator =
 dotnet_naming_style.pascal_case.capitalization = pascal_case
-# Rule severity can be declared either on the rule's own option line (as in
-# this block) or through `dotnet_diagnostic.<ID>.severity`, which wins when the
-# two disagree.  Both forms are read by `dotnet format` and by the IDE — the
-# build reports neither at any severity — so a rule parked at `suggestion`
-# here passes the gate without ever being enforced.
+# These lines carry preferences, not enforcement: they say what the code should
+# look like.  The `:severity` suffix on one of them is not a reliable lever — it
+# is honoured for some options and silently inert for others (measured here:
+# honoured for `dotnet_style_coalesce_expression`, inert for
+# `dotnet_style_collection_initializer`) — and `dotnet build` reports none of
+# them at any severity, so a rule parked at `suggestion` passes the build
+# without ever being enforced.  What refuses a commit is declared once, ID only,
+# in the enforced set at the bottom of this file.
 dotnet_style_coalesce_expression = true:warning
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
 dotnet_style_null_propagation = true:warning
@@ -172,9 +175,19 @@ csharp_align_multiline_property_pattern = true
 csharp_prefer_system_threading_lock = true:suggestion
 csharp_style_prefer_unbound_generic_type_in_nameof = true:suggestion
 
-# ID-only rules: these have no option of their own.
-dotnet_diagnostic.IDE0005.severity = warning
+# The enforced set: a rule refuses a commit if and only if it appears here, as
+# `dotnet_diagnostic.<ID>.severity`.  `warning` and `error` both refuse; a rule
+# absent here is a preference, not a gate.  An ID line wins over the option line
+# in this file, so a rule is pinned without touching its option — including one
+# whose option sits at `:silent`.
+#
+# Appending a line is a policy change.  This file is no project's document, so
+# none of them is checked because of it; run `./.agents/commit-gate.sh --all` in
+# the same change.
 dotnet_diagnostic.IDE0004.severity = warning
+dotnet_diagnostic.IDE0005.severity = warning
+dotnet_diagnostic.IDE0029.severity = warning
+dotnet_diagnostic.IDE0031.severity = warning
 dotnet_diagnostic.CS0105.severity = warning
 dotnet_diagnostic.CS1574.severity = warning
 

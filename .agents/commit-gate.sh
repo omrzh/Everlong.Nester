@@ -27,6 +27,10 @@
 #            option-backed IDE rules are visible only here.  Paths must arrive
 #            relative to the REPOSITORY ROOT — an MSYS absolute path (/d/...) or
 #            a project-relative `--include` makes it analyse nothing, exit 0.
+#            A `.csproj` in `--include` is that same trap, because it is not a
+#            document; a definition file the change touches therefore reaches no
+#            project here.  That is deliberate — it is no source change, and the
+#            build half alone judges it.
 #            9s a project, so this is the step worth scoping: by default only
 #            the projects the change reaches are checked, plus any project that
 #            LINKS one of the changed files — a linked file is compiled twice,
@@ -167,12 +171,14 @@ EOF
   fi
 
   # A null check is an option-backed rule only `dotnet format` can see, so this
-  # check also proves the rule is enabled in .editorconfig above `suggestion`.
+  # check also proves IDE0029 is pinned in .editorconfig's enforced set.  The
+  # option line above it is a preference: a `:severity` suffix there is not what
+  # makes a rule bite.
   dotnet format "$PROBE_PROJ" --verify-no-changes >"$LOG_DIR/self-test-format.log" 2>&1
   if diagnostics "$LOG_DIR/self-test-format.log" | grep -q 'IDE0029'; then
     ok "format half refuses a null-check shape"
   else
-    bad "format half did NOT report IDE0029 — is dotnet_style_coalesce_expression at warning?"
+    bad "format half did NOT report IDE0029 — is dotnet_diagnostic.IDE0029.severity set?"
     SELF_FAILED=1
   fi
 
