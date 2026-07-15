@@ -44,7 +44,7 @@ public partial class MainLayoutModel : RoutableModel, IBodyChanged, IMessageReci
 
   /// <summary>The tuner panel's visibility as last announced by the backdrop domain.</summary>
   [ObservableProperty]
-  private bool _isBackdropPanelVisible = true;
+  public partial bool IsBackdropPanelVisible { get; set; } = true;
 
   /// <summary>
   ///   Projects the menu's rail form once per instance.  A constructor rather than a

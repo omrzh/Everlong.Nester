@@ -181,6 +181,11 @@ csharp_style_prefer_unbound_generic_type_in_nameof = true:suggestion
 # in this file, so a rule is pinned without touching its option — including one
 # whose option sits at `:silent`.
 #
+# Which half of the gate sees a rule is the rule's business, not this file's: an
+# analyzer runs inside the compiler, so a pinned analyzer ID is a build warning
+# as well (`MVVMTK0042` below arrives with a NuGet package), while an option-
+# backed IDE rule is visible to the format half alone.
+#
 # Appending a line is a policy change.  This file is no project's document, so
 # none of them is checked because of it; run `./.agents/commit-gate.sh --all` in
 # the same change.
@@ -190,6 +195,7 @@ dotnet_diagnostic.IDE0029.severity = warning
 dotnet_diagnostic.IDE0031.severity = warning
 dotnet_diagnostic.CS0105.severity = warning
 dotnet_diagnostic.CS1574.severity = warning
+dotnet_diagnostic.MVVMTK0042.severity = warning
 
 
 # how to override a warning as error example

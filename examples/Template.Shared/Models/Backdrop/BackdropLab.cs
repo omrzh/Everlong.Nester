@@ -43,31 +43,31 @@ public sealed partial class BackdropLab : ObservableObject
 
   /// <summary>The active render path.</summary>
   [ObservableProperty]
-  private BackdropMode _mode = BackdropMode.Vector;
+  public partial BackdropMode Mode { get; set; } = BackdropMode.Vector;
 
   /// <summary>The resolved mote count.</summary>
   [ObservableProperty]
-  private int _moteCount = DefaultMotes;
+  public partial int MoteCount { get; set; } = DefaultMotes;
 
   /// <summary>The resolved veil count.</summary>
   [ObservableProperty]
-  private int _veilCount = DefaultVeils;
+  public partial int VeilCount { get; set; } = DefaultVeils;
 
   /// <summary>The motion speed multiplier.</summary>
   [ObservableProperty]
-  private double _speed = DefaultSpeed;
+  public partial double Speed { get; set; } = DefaultSpeed;
 
   /// <summary>The alpha applied to the shell's translucent surfaces.</summary>
   [ObservableProperty]
-  private double _panelOpacity = DefaultPanelOpacity;
+  public partial double PanelOpacity { get; set; } = DefaultPanelOpacity;
 
   /// <summary>Whether pointer position feeds the parallax offset.</summary>
   [ObservableProperty]
-  private bool _parallax = true;
+  public partial bool Parallax { get; set; } = true;
 
   /// <summary>Whether the field stops advancing.</summary>
   [ObservableProperty]
-  private bool _paused;
+  public partial bool Paused { get; set; }
 
   /// <summary>Restores every parameter to its default.</summary>
   public void Reset()
