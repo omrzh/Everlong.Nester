@@ -1,0 +1,26 @@
+<Project>
+  <!--
+    The Android host needs an Android SDK — an external, licence-gated toolchain that lives outside
+    the repository. Windows auto-detects one, so the host always builds there; elsewhere the SDK is
+    used only when the caller names it (`AndroidSdkDirectory`, or `ANDROID_HOME` / `ANDROID_SDK_ROOT`).
+    A machine without one would otherwise fail the whole solution build with XA5300, so this host is
+    skipped there instead. Pass `-p:AndroidSdkDirectory=…`, or `-p:SkipAndroidBuild=false`, to build it.
+  -->
+  <PropertyGroup>
+    <SkipAndroidBuild Condition="'$(SkipAndroidBuild)' == '' AND '$(AndroidSdkDirectory)' == '' AND '$(ANDROID_HOME)' == '' AND '$(ANDROID_SDK_ROOT)' == '' AND !$([MSBuild]::IsOSPlatform('Windows'))">true</SkipAndroidBuild>
+  </PropertyGroup>
+
+  <Target Name="_SkipAndroidBuildNotice" BeforeTargets="Build" Condition="'$(SkipAndroidBuild)' == 'true'">
+    <Message Importance="high" Text="Skipping Template.Avalonia.Android: no Android SDK found. Set AndroidSdkDirectory to build it." />
+  </Target>
+
+  <!--
+    Overrides the `Build` target from Microsoft.Common.CurrentVersion.targets (nothing imported later
+    redefines it), so a skipped build is a no-op instead of the SDK's XA5300 failure. When an SDK is
+    found this is the original target: `$(BuildDependsOn)` carries the Android targets' additions.
+  -->
+  <Target Name="Build"
+          Condition="'$(_InvalidConfigurationWarning)' != 'true' and '$(SkipAndroidBuild)' != 'true'"
+          DependsOnTargets="$(BuildDependsOn)"
+          Returns="@(TargetPathWithTargetPlatformMoniker)" />
+</Project>

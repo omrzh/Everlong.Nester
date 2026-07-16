@@ -24,5 +24,8 @@
     <Project Path="examples/Template.Avalonia.Desktop/Template.Avalonia.Desktop.csproj" />
     <Project Path="examples/Template.Wpf/Template.Wpf.csproj" />
     <Project Path="examples/Template.TerminalGui/Template.TerminalGui.csproj" />
+    <Project Path="examples/Template.Avalonia.Android/Template.Avalonia.Android.csproj">
+      <Deploy Solution="Debug|*" />
+    </Project>
   </Folder>
 </Solution>
