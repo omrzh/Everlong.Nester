@@ -27,5 +27,6 @@
     <Project Path="examples/Template.Avalonia.Android/Template.Avalonia.Android.csproj">
       <Deploy Solution="Debug|*" />
     </Project>
+    <Project Path="examples/Template.Avalonia.Browser/Template.Avalonia.Browser.csproj" />
   </Folder>
 </Solution>

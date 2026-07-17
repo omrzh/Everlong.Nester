@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-browser</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <RootNamespace>NesterApp</RootNamespace>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+
+  <!-- Enable full C# source-level debugging in WASM.
+       Without WasmDebugLevel=-1 the runtime emits no sequence points
+       and breakpoints are never hit. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <WasmDebugLevel>-1</WasmDebugLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Browser" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Xplat shared App project — the Application, views, Directors and the
+         shell assembly all live there; this project is only the browser
+         launch shell (Program.cs). -->
+    <ProjectReference Include="..\Template.Avalonia\Template.Avalonia.csproj" />
+    <ProjectReference Include="..\..\src\Everlong.Nester.Avalonia\Everlong.Nester.Avalonia.csproj" />
+    <ProjectReference Include="..\..\src\Everlong.Nester.Generators\Everlong.Nester.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\src\Everlong.Nester.CodeFixers\Everlong.Nester.CodeFixers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+</Project>
