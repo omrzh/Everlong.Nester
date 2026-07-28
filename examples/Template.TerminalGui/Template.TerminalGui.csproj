@@ -17,12 +17,12 @@ When pack to Template, this csproj file is not packed
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Terminal.Gui" Version="2.4.17" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+    <PackageReference Include="Terminal.Gui" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
     <!-- The `[Settings]`/`[Setting]` generator the shared settings files compile against. -->
-    <PackageReference Include="Everlong.Settings" Version="0.1.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
+    <PackageReference Include="Everlong.Settings" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
   </ItemGroup>
 
   <ItemGroup Condition="Exists('..\Template.Shared\Pages')">

@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
-    <PackageReference Include="Everlong.Globalization" Version="0.3.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Everlong.Globalization" />
   </ItemGroup>
 
   <ItemGroup>

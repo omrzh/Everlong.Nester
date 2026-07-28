@@ -17,8 +17,8 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Everlong.Nester.Generators.Tests" />
-    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.Annotations" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
