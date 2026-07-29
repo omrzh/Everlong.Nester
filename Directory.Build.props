@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- On Linux/macOS, enable targeting Windows frameworks for build (not runtime) -->
+    <EnableWindowsTargeting Condition="!$([MSBuild]::IsOSPlatform('Windows'))">true</EnableWindowsTargeting>
+  </PropertyGroup>
+</Project>
