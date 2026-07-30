@@ -12,6 +12,15 @@
     <UseWPF>true</UseWPF>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <PackageId>Everlong.Nester.Wpf</PackageId>
+    <Authors>Richard Zheng</Authors>
+    <Company>Everlong Technology</Company>
+    <Copyright>Copyright © 2026 Everlong Technology</Copyright>
+    <Description>Nester for WPF — the platform surface: the routing stages, the layout and layer plumbing, the presentation protocol and the tree primitives.</Description>
+    <PackageTags>Wpf;Navigation;Frame</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

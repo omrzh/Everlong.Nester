@@ -16,6 +16,15 @@
     <AvaloniaXamlReportImportance>high</AvaloniaXamlReportImportance>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <AvaloniaDesignerSupported>false</AvaloniaDesignerSupported>
+
+    <PackageId>Everlong.Nester.Extensions.Avalonia</PackageId>
+    <Authors>Richard Zheng</Authors>
+    <Company>Everlong Technology</Company>
+    <Copyright>Copyright © 2026 Everlong Technology</Copyright>
+    <Description>Nester extensions for Avalonia — the default views of the built-in dialog sessions and notice entries, the notice tenant and engine, the route-sync chrome controls, the authorization gating controls and the scene-transition kit.</Description>
+    <PackageTags>Avalonia;Navigation;Dialogs;Auth</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

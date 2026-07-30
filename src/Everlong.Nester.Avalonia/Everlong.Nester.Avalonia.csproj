@@ -16,6 +16,15 @@
     <AvaloniaXamlReportImportance>high</AvaloniaXamlReportImportance>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <AvaloniaDesignerSupported>false</AvaloniaDesignerSupported>
+
+    <PackageId>Everlong.Nester.Avalonia</PackageId>
+    <Authors>Richard Zheng</Authors>
+    <Company>Everlong Technology</Company>
+    <Copyright>Copyright © 2026 Everlong Technology</Copyright>
+    <Description>Nester for Avalonia — the platform surface: the routing stages, the layout and layer plumbing, the presentation protocol and the tree primitives.</Description>
+    <PackageTags>Avalonia;Navigation;Dialogs</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

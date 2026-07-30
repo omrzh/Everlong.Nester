@@ -9,6 +9,15 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <PackageId>Everlong.Nester</PackageId>
+    <Authors>Richard Zheng</Authors>
+    <Company>Everlong Technology</Company>
+    <Copyright>Copyright © 2026 Everlong Technology</Copyright>
+    <Description>Nester core — the shell assembly, the layer ledger, the intent chain, the routing engine, the presentation primitives and hosting, activation, threading and messaging.</Description>
+    <PackageTags>Navigation;Dialog;Settings;Avalonia;WPF</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +33,20 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Everlong.Nester.Abstractions\Everlong.Nester.Abstractions.csproj" />
+    <!-- The two analyzer projects are the framework's compiler-time half: the build
+         runs them against this project as well, so the generators a consumer gets
+         are the ones this tree compiles with.  Their output is an analyzer, never
+         a reference the package consumer sees. -->
+    <ProjectReference Include="..\Everlong.Nester.Generators\Everlong.Nester.Generators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" PrivateAssets="All" />
+    <ProjectReference Include="..\Everlong.Nester.CodeFixers\Everlong.Nester.CodeFixers.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" PrivateAssets="All" />
+  </ItemGroup>
+
+  <!-- The analyzers are packed exactly once, here, on the core package — a consumer
+       that references a platform package alone still gets them.  A ProjectReference
+       sets ReferenceOutputAssembly=false, so the DLLs have to be named explicitly. -->
+  <ItemGroup>
+    <None Include="..\Everlong.Nester.Generators\bin\$(Configuration)\netstandard2.0\Everlong.Nester.Generators.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
+    <None Include="..\Everlong.Nester.CodeFixers\bin\$(Configuration)\netstandard2.0\Everlong.Nester.CodeFixers.dll" PackagePath="analyzers/dotnet/cs" Pack="true" Visible="false" />
   </ItemGroup>
 
 </Project>

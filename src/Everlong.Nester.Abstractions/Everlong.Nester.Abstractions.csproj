@@ -9,6 +9,15 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <RootNamespace>Everlong.Nester</RootNamespace>
+
+    <PackageId>Everlong.Nester.Abstractions</PackageId>
+    <Authors>Richard Zheng</Authors>
+    <Company>Everlong Technology</Company>
+    <Copyright>Copyright © 2026 Everlong Technology</Copyright>
+    <Description>Nester abstractions — the routing, intent, shell, layer, activation, messaging, hosting, diagnostics and threading contracts every Nester package builds on.</Description>
+    <PackageTags>Navigation;Dialog;Abstractions</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
 </Project>

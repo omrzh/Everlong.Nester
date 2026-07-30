@@ -10,6 +10,15 @@
     <Elg>true</Elg>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <PackageId>Everlong.Nester.Extensions</PackageId>
+    <Authors>Richard Zheng</Authors>
+    <Company>Everlong Technology</Company>
+    <Copyright>Copyright © 2026 Everlong Technology</Copyright>
+    <Description>Nester extensions — the MvvmTk layer: the component-model bases, the built-in dialog sessions, the notice contracts, the route-sync contracts and the policy-based authorization engine.</Description>
+    <PackageTags>Navigation;Dialog;Auth;Mvvm;Avalonia;WPF</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

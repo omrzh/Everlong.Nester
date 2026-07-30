@@ -12,6 +12,15 @@
     <UseWPF>true</UseWPF>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+    <PackageId>Everlong.Nester.Extensions.Wpf</PackageId>
+    <Authors>Richard Zheng</Authors>
+    <Company>Everlong Technology</Company>
+    <Copyright>Copyright © 2026 Everlong Technology</Copyright>
+    <Description>Nester extensions for WPF — the same surface as the Avalonia extension package: the default dialog and notice views, the route-sync chrome controls, the authorization gating controls and the scene-transition kit.</Description>
+    <PackageTags>Wpf;Navigation;Dialogs;Auth</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
