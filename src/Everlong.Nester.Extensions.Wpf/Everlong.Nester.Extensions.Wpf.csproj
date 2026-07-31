@@ -20,6 +20,7 @@
     <Description>Nester extensions for WPF — the same surface as the Avalonia extension package: the default dialog and notice views, the route-sync chrome controls, the authorization gating controls and the scene-transition kit.</Description>
     <PackageTags>Wpf;Navigation;Dialogs;Auth</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/omrzh/Everlong.Nester</RepositoryUrl>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 

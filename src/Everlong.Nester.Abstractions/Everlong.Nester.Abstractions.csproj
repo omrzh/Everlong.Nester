@@ -17,6 +17,7 @@
     <Description>Nester abstractions — the routing, intent, shell, layer, activation, messaging, hosting, diagnostics and threading contracts every Nester package builds on.</Description>
     <PackageTags>Navigation;Dialog;Abstractions</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/omrzh/Everlong.Nester</RepositoryUrl>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 

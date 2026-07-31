@@ -17,6 +17,7 @@
     <Description>Nester core — the shell assembly, the layer ledger, the intent chain, the routing engine, the presentation primitives and hosting, activation, threading and messaging.</Description>
     <PackageTags>Navigation;Dialog;Settings;Avalonia;WPF</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/omrzh/Everlong.Nester</RepositoryUrl>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 

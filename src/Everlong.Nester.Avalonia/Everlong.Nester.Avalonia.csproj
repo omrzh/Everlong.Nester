@@ -24,6 +24,7 @@
     <Description>Nester for Avalonia — the platform surface: the routing stages, the layout and layer plumbing, the presentation protocol and the tree primitives.</Description>
     <PackageTags>Avalonia;Navigation;Dialogs</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/omrzh/Everlong.Nester</RepositoryUrl>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 

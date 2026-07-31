@@ -18,6 +18,7 @@
     <Description>Nester extensions — the MvvmTk layer: the component-model bases, the built-in dialog sessions, the notice contracts, the route-sync contracts and the policy-based authorization engine.</Description>
     <PackageTags>Navigation;Dialog;Auth;Mvvm;Avalonia;WPF</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/omrzh/Everlong.Nester</RepositoryUrl>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 

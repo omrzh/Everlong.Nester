@@ -24,6 +24,7 @@
     <Description>Nester extensions for Avalonia — the default views of the built-in dialog sessions and notice entries, the notice tenant and engine, the route-sync chrome controls, the authorization gating controls and the scene-transition kit.</Description>
     <PackageTags>Avalonia;Navigation;Dialogs;Auth</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/omrzh/Everlong.Nester</RepositoryUrl>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
