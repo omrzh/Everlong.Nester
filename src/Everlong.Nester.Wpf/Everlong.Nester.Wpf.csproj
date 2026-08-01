@@ -19,6 +19,7 @@
     <Copyright>Copyright © 2026 Everlong Technology</Copyright>
     <Description>Nester for WPF — the platform surface: the routing stages, the layout and layer plumbing, the presentation protocol and the tree primitives.</Description>
     <PackageTags>Wpf;Navigation;Frame</PackageTags>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/omrzh/Everlong.Nester</RepositoryUrl>
     <IsPackable>true</IsPackable>
@@ -53,6 +54,12 @@
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\TransitionKind.cs" Link="Presentation\TransitionKind.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\TransitionContext.cs" Link="Presentation\TransitionContext.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\ILayoutControl.cs" Link="Presentation\ILayoutControl.cs" />
+  </ItemGroup>
+
+  <!-- The package readme is the repository's own readme.md, packed at the root of
+       the package — the same file both platform packages point at. -->
+  <ItemGroup>
+    <None Include="..\..\readme.md" Pack="true" PackagePath="\" Link="readme.md" />
   </ItemGroup>
 
 </Project>

@@ -23,6 +23,7 @@
     <Copyright>Copyright © 2026 Everlong Technology</Copyright>
     <Description>Nester for Avalonia — the platform surface: the routing stages, the layout and layer plumbing, the presentation protocol and the tree primitives.</Description>
     <PackageTags>Avalonia;Navigation;Dialogs</PackageTags>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/omrzh/Everlong.Nester</RepositoryUrl>
     <IsPackable>true</IsPackable>
@@ -38,6 +39,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Everlong.Nester\Everlong.Nester.csproj" />
+  </ItemGroup>
+
+  <!-- The package readme is the repository's own readme.md, packed at the root of
+       the package — the same file both platform packages point at. -->
+  <ItemGroup>
+    <None Include="..\..\readme.md" Pack="true" PackagePath="\" Link="readme.md" />
   </ItemGroup>
 
 </Project>
