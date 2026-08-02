@@ -10,6 +10,8 @@ Nester is a compile-time-first UI infrastructure. Its axiom is `state' = f(impul
 4. Projects under `src/` and `tests/` write their imports per file: no global usings without a hard reason, because a global using hides where a file's dependencies come from. One reason qualifies: a single-source file compiled into two platform packages has to resolve the same name on both sides, so the platform projects declare the aliases that name their UI framework globally (`src/Everlong.Nester.Avalonia/GlobalUsings.avalonia.cs`). Aliases only — never a namespace.
 5. Tests under `tests/` are filed under the domain they test: directory `tests/Everlong.Nester.Tests/<Domain>/` and namespace `Everlong.Nester.Tests.<Domain>`.
 6. `docs/design/*.md` states the domain's design intent and what the code cannot express — never a restatement of the code, and never a reference to a type, word or document of a domain the code does not depend on.
+7. The analyzers ride in `Everlong.Nester` alone: it packs the generator and code-fix DLLs into `analyzers/dotnet/cs`, and every other package reaches them through the core. A second copy would deliver each diagnostic twice.
+8. A file compiled into two platform packages lives in the Avalonia one and is linked by the WPF one (`<Compile Include>` + `Link`), never copied: `src/Everlong.Nester.Avalonia/` for the core chrome, `src/Everlong.Nester.Extensions.Avalonia/` for the extension chrome and the animation kit.
 
 ## Commit Gate
 
