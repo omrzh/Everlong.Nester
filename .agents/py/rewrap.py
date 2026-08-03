@@ -3,7 +3,7 @@
 
 The gate counts characters and hand-wrapping drifts, so this keeps it honest.
 
-    python .agents/py/rewrap.py artifacts/msg.txt [--width 70]
+    python .agents/py/rewrap.py .agents/tmp/msg.txt [--width 70]
 """
 import argparse, sys, textwrap
 from pathlib import Path

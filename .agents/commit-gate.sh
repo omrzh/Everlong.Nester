@@ -49,7 +49,7 @@
 # suffix, and a commit that adds a directory would look like it touches nothing.
 #
 # Read-only: it never formats in place, never stages, never commits.  Logs land
-# in artifacts/commit-gate/.  `--self-test` plants one violation per half and
+# in .agents/tmp/commit-gate/.  `--self-test` plants one violation per half and
 # proves both still refuse it — including that the rule behind it is enabled.
 #
 # Usage: .agents/commit-gate.sh [options]
@@ -75,7 +75,7 @@ BODY_MAX=72
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SOLUTION="Everlong.Nester.slnx"
-LOG_DIR="$REPO_ROOT/artifacts/commit-gate"
+LOG_DIR="$REPO_ROOT/.agents/tmp/commit-gate"
 
 DO_BUILD=1 DO_FORMAT=1 DO_TEST=1 QUIET=0 SCOPED=0 SELF_TEST=0 ALL=0 MESSAGE=""
 
@@ -351,7 +351,7 @@ fi
 if [ "$DO_TEST" = 1 ]; then
   head_line "test (MTP: no --nologo / -clp / -tl)"
   LOG="$LOG_DIR/test.log"
-  dotnet test --solution "$SOLUTION" --results-directory artifacts/TestResults >"$LOG" 2>&1
+  dotnet test --solution "$SOLUTION" --results-directory .agents/tmp/TestResults >"$LOG" 2>&1
   CODE=$?
   TOTAL="$(grep -oE '(总计|Total)[[:space:]]*:[[:space:]]*[0-9]+' "$LOG" | grep -oE '[0-9]+$' | tail -1)"
   FAILS="$(grep -oE '(失败|Failed)[[:space:]]*:[[:space:]]*[0-9]+' "$LOG" | grep -oE '[0-9]+$' | tail -1)"
