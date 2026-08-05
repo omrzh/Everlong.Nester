@@ -4,25 +4,16 @@ Nester is a compile-time-first UI infrastructure. Its axiom is `state' = f(impul
 
 ## Solution layout
 
-The tree is the source of truth; this section fixes the map and the seams the tree cannot
-state — not a second copy of the projects.
+The tree is the source of truth; this section is the map.
 
-**Repository root.** `NesterVersion.props` is the product version: every `src/` project
-imports it, and no test or example does — a test reports the version of what it references.
-`Directory.Packages.props` is central package management.
+**Repository root.**
 
-Off Windows, the root `Directory.Build.props` turns on `EnableWindowsTargeting` for the
-two WPF projects. An import stops at the nearest file, so `examples/Directory.Build.props`
-shadows this one — which is how the examples come to carry a copy of that property of
-their own.
+- `readme.md` is the product's landing page, and the NuGet readme that `Everlong.Nester.Avalonia` and `Everlong.Nester.Wpf` pack through `PackageReadmeFile`.
+- `NesterVersion.props` is the product version; every `src/` project imports it, and no test or example does.
+- `Directory.Packages.props` is central package management.
+- `Directory.Build.props` turns on `EnableWindowsTargeting` for the two WPF projects off Windows. An import stops at the nearest file, so `examples/Directory.Build.props` shadows this one.
 
-The other root files need no introduction: `global.json` (the test runner),
-`Everlong.Nester.slnx`, `.editorconfig`, `LICENSE`, `ThirdPartyNotices.txt`. `readme.md` is
-the exception: it is the product's landing page, and the NuGet readme that
-`Everlong.Nester.Avalonia` and `Everlong.Nester.Wpf` pack through `PackageReadmeFile`.
-
-**Packages.** Ten projects under `src/`. Seven own a package; three declare no package id and do not
-ship.
+**Packages.** Ten projects under `src/`. Seven own a package; three declare no package id and do not ship.
 
 | project | TFM | what it is |
 |---|---|---|
@@ -37,39 +28,21 @@ ship.
 | `Everlong.Nester.Generators` | netstandard2.0 | the generators and analyzers |
 | `Everlong.Nester.CodeFixers` | netstandard2.0 | the code fixes |
 
-**Boundaries.** `Abstractions` is contracts alone and carries no package reference of its
-own: `Everlong.DI` belongs to the package whose code uses it. The core carries no MVVM
-toolkit and none of the dialog, notice, route-sync or auth domains. The platform packages
-carry no dialog or notice surface.
-
 **tests/.** Five heads, all `net8.0` and xunit v3.
 
-- `Everlong.Nester.Tests` — the platform-free runtime suite, and the home of the test kit
-  the Avalonia head links from.
-- `Everlong.Nester.Avalonia.Tests` — the only head with a UI framework (Avalonia
-  headless): shell assembly, chrome, view resolution. It also compiles the template's
-  shared sources and the Avalonia partials, and generates its own `Lang` set from the
-  template's i18n.
-- `Everlong.Nester.Generators.Tests` — the generator and analyzer surface, platform-neutral
-  because generators emit text.
+- `Everlong.Nester.Tests` — the platform-free runtime suite, and the source of the shared fixtures the Avalonia head links in.
+- `Everlong.Nester.Avalonia.Tests` — the only head with a UI framework (Avalonia headless): shell assembly, chrome, view resolution.
+- `Everlong.Nester.Generators.Tests` — the generator and analyzer surface, platform-neutral because generators emit text.
 - `Everlong.Nester.Extensions.Tests` — dialog sessions and the auth engine.
 - `Everlong.Nester.CodeFixers.Tests` — the code fixes.
 
-`Everlong.Nester.Avalonia.Tests` pins its root namespace to `Everlong.Nester.Tests`.
+**examples/.** Every project here is a development project: it references `src/` through `ProjectReference` and is what you build and run. Nothing in this folder ships.
 
-**examples/.** Every project here is a development project: it references `src/` through
-`ProjectReference` and is what you build and run. Nothing in this folder ships.
+- `Template.Shared/` has no csproj of its own: each template compiles its sources and links its `Properties/**/*.json*`.
+- `Template.Avalonia/` is the shared app body, with `…Desktop/`, `…Browser/` and `…Android/` as hosts over it; `Template.Wpf/` and `Template.TerminalGui/` are the other two bodies.
+- `Template.Avalonia/Assets/Fonts/` keeps the embedded CJK subset together with the collection that registers it: the Browser and Android hosts have no system CJK font to fall back on.
 
-- `Template.Shared/` has no csproj of its own: each template compiles its sources and links
-  its `Properties/**/*.json*`.
-- `Template.Avalonia/` is the shared app body, with `…Desktop/`, `…Browser/` and
-  `…Android/` as hosts over it; `Template.Wpf/` and `Template.TerminalGui/` are the other
-  two bodies.
-- `Template.Avalonia/Assets/Fonts/` keeps the embedded CJK subset together with the
-  collection that registers it: the Browser and Android hosts have no system CJK font to
-  fall back on.
-
-**docs/.** `docs/design/` holds the domain specs, and this file governs what may go in them.
+**docs/.** `docs/design/` holds the domain specs; HARD RULE 6 governs what goes in them.
 
 ## ⛔ HARD RULES
 
@@ -81,6 +54,7 @@ carry no dialog or notice surface.
 6. `docs/design/*.md` states the domain's design intent and what the code cannot express — never a restatement of the code, and never a reference to a type, word or document of a domain the code does not depend on.
 7. The analyzers ride in `Everlong.Nester` alone: it packs the generator and code-fix DLLs into `analyzers/dotnet/cs`, and every other package reaches them through the core. A second copy would deliver each diagnostic twice.
 8. A file compiled into two platform packages lives in the Avalonia one and is linked by the WPF one (`<Compile Include>` + `Link`), never copied: `src/Everlong.Nester.Avalonia/` for the core chrome, `src/Everlong.Nester.Extensions.Avalonia/` for the extension chrome and the animation kit.
+9. Template content must not contain `#if`/`#endif`: the dotnet-new engine evaluates them against template symbols and silently strips the guarded block. A file one platform must drop is excluded in the consuming csproj (`<Compile Remove>`), never guarded in the source.
 
 ## Commit Gate
 
