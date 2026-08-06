@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>_build</RootNamespace>
+    <NukeTelemetryVersion>1</NukeTelemetryVersion>
+    <!-- Audit direct packages only. The transitive advisories belong to the Nuke toolchain
+         (Nuke.Common 9.0.4 → Microsoft.Build* 17.12.6, System.Security.Cryptography.Xml 8.0.0,
+         NuGet.Packaging 6.12.1) and reach only this build host, which is never shipped.  Accepted
+         as-is: the 10.x bump is not clean (Nuke.Tooling still carries the old NuGet.Packaging). -->
+    <NuGetAuditMode>direct</NuGetAuditMode>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Nuke.Common" Version="9.0.4" />
+    <!-- Pinned to the version the installed SDK's targets expect.  Nuke's Microsoft.Build
+         brings 6.12.1, and the .NET 10 SDK's TargetFrameworkInference calls into
+         NuGet.Frameworks 7.9.0.0 from `[MSBuild]::GetTargetFrameworkIdentifier`, so the
+         mismatch throws inside Nuke's own project evaluation (caught, reported as
+         "Exception was suppressed"). -->
+    <PackageReference Include="NuGet.Frameworks" Version="7.9.0" />
+  </ItemGroup>
+</Project>

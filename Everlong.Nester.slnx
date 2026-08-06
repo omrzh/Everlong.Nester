@@ -1,5 +1,8 @@
 <Solution>
-  <Folder Name="/items/" />
+  <Folder Name="/items/">
+    <File Path="build.cmd" />
+    <File Path="build.sh" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Everlong.Nester.Abstractions/Everlong.Nester.Abstractions.csproj" />
     <Project Path="src/Everlong.Nester/Everlong.Nester.csproj" Id="6d91e27e-dcef-45cb-b8c8-f24d49ac9322" />
