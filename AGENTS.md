@@ -12,6 +12,7 @@ The tree is the source of truth; this section is the map.
 - `NesterVersion.props` is the product version; every `src/` project imports it, and no test or example does.
 - `Directory.Packages.props` is central package management.
 - `Directory.Build.props` turns on `EnableWindowsTargeting` for the two WPF projects off Windows. An import stops at the nearest file, so `examples/Directory.Build.props` shadows this one.
+- `build.cmd` and `build.sh` enter `_build/`, the Nuke host: `Publish`, its default target, packs the packages and the templates into `artifacts/`. Run it after any change there — the gate never compiles or formats `_build/`, which is not in the solution. Keep its package versions literal: `_build/Directory.Packages.props` opts that folder out of central package management.
 
 **Packages.** Ten projects under `src/`. Seven own a package; three declare no package id and do not ship.
 
