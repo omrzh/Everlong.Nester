@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>NesterApp</RootNamespace>
+    <Elg>true</Elg>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+    <PackageReference Include="Emoji.Wpf" Version="0.3.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
+    <PackageReference Include="Everlong.Nester.Wpf" Version="__NESTER_VERSION__"/>
+    <PackageReference Include="Everlong.Nester.Extensions.Wpf" Version="__NESTER_VERSION__"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\AppIcons\*"/>
+  </ItemGroup>
+</Project>

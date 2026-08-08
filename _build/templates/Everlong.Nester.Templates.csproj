@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Template packaging project. Nuke's PackTemplates target stages a self-contained
+    copy of this project (content/ + readme.md) into the build temp directory and
+    runs `dotnet pack` there, producing Everlong.Nester.Templates.<version>.nupkg.
+  -->
+  <PropertyGroup>
+    <PackageType>Template</PackageType>
+    <PackageId>Everlong.Nester.Templates</PackageId>
+    <Title>Nester Project Templates</Title>
+    <Authors>Richard Zheng</Authors>
+    <Copyright>Copyright © 2026 Everlong Technology</Copyright>
+    <Company>Everlong Technology</Company>
+    <Description>Project templates for Nester — quickly scaffold Avalonia or WPF applications with Nester navigation.</Description>
+    <PackageTags>dotnet-new;templates;nester;avalonia;wpf;navigation</PackageTags>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <TargetFramework>net10.0</TargetFramework>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <IsPackable>true</IsPackable>
+    <DefaultItemExcludes>$(DefaultItemExcludes);content\**\*</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="readme.md" Pack="true" PackagePath="\" />
+    <None Include="content\**\*" Pack="true" PackagePath="content" />
+  </ItemGroup>
+</Project>

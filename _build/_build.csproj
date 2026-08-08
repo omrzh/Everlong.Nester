@@ -22,4 +22,8 @@
          "Exception was suppressed"). -->
     <PackageReference Include="NuGet.Frameworks" Version="7.9.0" />
   </ItemGroup>
+  <!-- Template assets are staged by the PackTemplates target, never compiled into the build project. -->
+  <ItemGroup>
+    <Compile Remove="templates/**" />
+  </ItemGroup>
 </Project>

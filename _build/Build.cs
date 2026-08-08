@@ -75,6 +75,82 @@ partial class Build : NukeBuild
         }
       });
 
+  Target PackTemplates => _ => _
+      .DependsOn(CleanOutput, PrepareAnalyzerArtifacts, ValidateTemplates, VerifyFontCoverage)
+      .Executes(() =>
+      {
+        var stage = BuildTempRoot / "templates";
+        stage.CreateOrCleanDirectory();
+
+        var contentRoot = stage / "content";
+        var avalonia = contentRoot / "NesterApp.Avalonia";
+        var wpf = contentRoot / "NesterApp.Wpf";
+
+        Log.Information("Staging Avalonia template content...");
+        (RootDirectory / "examples" / "Template.Shared").Copy(avalonia, ExistsPolicy.MergeAndOverwrite);
+        // `Assets/Fonts` is excluded with its `CjkFontCollection`: the generated app is the desktop
+        // host, which resolves CJK through the platform, so the class would register an empty
+        // collection and the face would be 0.33 MB nothing loads.  The examples keep both for the
+        // Browser and Android hosts.
+        (RootDirectory / "examples" / "Template.Avalonia").Copy(avalonia, ExistsPolicy.MergeAndOverwrite,
+            excludeDirectory: d => d.Name is "bin" or "obj" or "nester-topology" or "Fonts",
+            excludeFile: f => f.Name is "Template.Avalonia.csproj");
+        File.Copy(RootDirectory / "_build" / "templates" / "avalonia" / "NesterApp.csproj", avalonia / "NesterApp.csproj");
+        File.Copy(RootDirectory / "_build" / "templates" / "avalonia" / "app.manifest", avalonia / "app.manifest");
+        File.Copy(RootDirectory / "_build" / "templates" / "avalonia" / "Program.cs", avalonia / "Program.cs");
+
+        Log.Information("Staging WPF template content...");
+        (RootDirectory / "examples" / "Template.Shared").Copy(wpf, ExistsPolicy.MergeAndOverwrite);
+        (RootDirectory / "examples" / "Template.Wpf").Copy(wpf, ExistsPolicy.MergeAndOverwrite,
+            excludeDirectory: d => d.Name is "bin" or "obj" or "nester-topology",
+            excludeFile: f => f.Name is "Template.Wpf.csproj");
+        File.Copy(RootDirectory / "_build" / "templates" / "wpf" / "NesterApp.csproj", wpf / "NesterApp.csproj");
+
+        File.Copy(RootDirectory / "readme.md", stage / "readme.md");
+        File.Copy(RootDirectory / "_build" / "templates" / "Everlong.Nester.Templates.csproj", stage / "Everlong.Nester.Templates.csproj");
+
+        // The staged content keeps literal package versions (a generated project has no
+        // central package management of its own), so the staging tree opts out of the
+        // repo's.  It sits above `content/`, never inside it: nothing reaches the
+        // template package.
+        File.WriteAllText(stage / "Directory.Packages.props",
+                          """
+                          <Project>
+                            <PropertyGroup>
+                              <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+                            </PropertyGroup>
+                          </Project>
+
+                          """);
+
+        // The dotnet-new template engine evaluates `#if`/`#endif` in file content
+        // against template symbols; an unknown symbol silently strips the block
+        // (a whole guarded file becomes empty).  Fail the pack instead of shipping
+        // a corrupt template.
+        foreach (var file in stage.GlobFiles("content/**/*.cs"))
+        {
+          if (Regex.IsMatch(File.ReadAllText(file), @"^\s*#(if|elif|else|endif)\b", RegexOptions.Multiline))
+          {
+            throw new InvalidOperationException(
+                $"Template content must not contain preprocessor conditionals — the template engine would strip the block: {file}");
+          }
+        }
+
+        var version = GetAppVersion();
+        Log.Information("Injecting version {Version} into template projects...", version);
+        (avalonia / "NesterApp.csproj").UpdateText(x => x.Replace("__NESTER_VERSION__", version));
+        (wpf / "NesterApp.csproj").UpdateText(x => x.Replace("__NESTER_VERSION__", version));
+
+        Log.Information("Packing Everlong.Nester.Templates v{Version}...", version);
+        DotNetPack(s => s
+            .SetProject(stage / "Everlong.Nester.Templates.csproj")
+            .SetConfiguration("Release")
+            .SetOutputDirectory(ArtifactsDir)
+            .SetVerbosity(DotNetVerbosity.minimal)
+            .SetProperty("Version", version)
+            .SetProperty("PackageVersion", version));
+      });
+
   Target PrepareAnalyzerArtifacts => _ => _
       .Executes(() =>
       {
@@ -159,7 +235,7 @@ partial class Build : NukeBuild
       });
 
   Target Publish => _ => _
-      .DependsOn(PackProjects, VerifyGeneratedLang)
+      .DependsOn(PackProjects, PackTemplates, VerifyGeneratedLang)
       .Executes(() =>
       {
         if (Directory.Exists(BuildTempRoot))

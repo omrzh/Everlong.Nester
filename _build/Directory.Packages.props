@@ -1,7 +1,9 @@
 <Project>
 
   <PropertyGroup>
-    <!-- The build host is not shipped, so it does not take the root's versions. -->
+    <!-- The build host is not shipped, and `templates/` is staged verbatim into the
+         template package (a generated project has no central package management of
+         its own), so neither takes the root's versions. -->
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
