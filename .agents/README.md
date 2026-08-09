@@ -17,6 +17,7 @@ This repository's local agent workspace:
 | `py/dep.py` | declaration-dependency layers of a project directory |
 | `py/shared_refs.py` | which platform halves a single-source file needs before it can be linked |
 | `py/rename_aliases.py` | rewrite platform alias spellings to the `P` prefix, comments left readable |
+| `py/template_smoke.py` | install the packed templates, generate and build one project per template, uninstall again |
 
 ## Conventions
 
