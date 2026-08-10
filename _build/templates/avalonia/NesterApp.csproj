@@ -18,6 +18,8 @@
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+    <!-- The `[Settings]`/`[Setting]` generator the shared settings files compile against. -->
+    <PackageReference Include="Everlong.Settings" Version="0.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
     <PackageReference Include="Everlong.Nester.Avalonia" Version="__NESTER_VERSION__"/>

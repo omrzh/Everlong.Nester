@@ -13,11 +13,20 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.1" />
+    <!-- The `[Settings]`/`[Setting]` generator the shared settings files compile against. -->
+    <PackageReference Include="Everlong.Settings" Version="0.1.0" />
     <PackageReference Include="Emoji.Wpf" Version="0.3.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
     <PackageReference Include="Everlong.Nester.Wpf" Version="__NESTER_VERSION__"/>
     <PackageReference Include="Everlong.Nester.Extensions.Wpf" Version="__NESTER_VERSION__"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The desktop SDK's implicit set replaces the base one, and `System.IO` and
+         `System.Net.Http` are not in it, while the shared sources use both. -->
+    <Using Include="System.IO" />
+    <Using Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup>
