@@ -43,7 +43,7 @@ The tree is the source of truth; this section is the map.
 - `Template.Avalonia/` is the shared app body, with `…Desktop/`, `…Browser/` and `…Android/` as hosts over it; `Template.Wpf/` and `Template.TerminalGui/` are the other two bodies.
 - `Template.Avalonia/Assets/Fonts/` keeps the embedded CJK subset together with the collection that registers it: the Browser and Android hosts have no system CJK font to fall back on.
 
-**docs/.** `docs/design/` holds the domain specs; HARD RULE 6 governs what goes in them.
+**docs/.** `docs/design/` holds the domain specs (HARD RULE 6 governs what goes in them); `docs/guide/` holds the consumer guides.
 
 ## ⛔ HARD RULES
 
