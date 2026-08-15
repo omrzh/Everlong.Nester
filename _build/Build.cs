@@ -235,7 +235,7 @@ partial class Build : NukeBuild
       });
 
   Target Publish => _ => _
-      .DependsOn(PackProjects, PackTemplates, VerifyGeneratedLang)
+      .DependsOn(PackProjects, PackTemplates, VerifyTemplateDocs, VerifyGeneratedLang)
       .Executes(() =>
       {
         if (Directory.Exists(BuildTempRoot))
