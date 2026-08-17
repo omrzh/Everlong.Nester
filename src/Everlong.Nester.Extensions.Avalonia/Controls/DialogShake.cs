@@ -24,6 +24,6 @@ public static class DialogShake
   {
     // TODO: the blocked-interaction sound has no Avalonia playback path yet
     // (the WPF twin plays SystemSounds.Beep).  The method is public API — keep
-    // it, fill the body when the feedback is wired (docs/TODO.md).
+    // it, fill the body when the feedback is wired (docs/backlog.md).
   }
 }

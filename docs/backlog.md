@@ -1,0 +1,100 @@
+# Backlog
+
+Known work, none of it scheduled. An entry carries its evidence — a path, a command, a number — or it does
+not belong here, and an entry is deleted when it is done, never struck through. `## Release` is the
+exception: those items block the first publication.
+
+## Decided, unscheduled
+
+- **The generic `IntentCommand` posts nothing.** `src/Everlong.Nester.Wpf/Shell/IntentCommands.cs:28` has no
+  `CommandBinding` anywhere; `RegisterCommandBindings` binds the five shell-state commands only.
+  `PostIntent(control, intent)` is the static path a binding would call. Bind it or drop it.
+- **`DialogShake.PlayBlockedSound` is an empty body on Avalonia**
+  (`src/Everlong.Nester.Extensions.Avalonia/Controls/DialogShake.cs:23`), where the WPF twin plays
+  `SystemSounds.Beep`. Public API whose caller is a consumer, so not dead code: wire a playback path.
+- **WPF's view-resolution order is measured, not pinned** — `docs/design/shell.md` §4; the Avalonia half is
+  pinned by `tests/Everlong.Nester.Avalonia.Tests/Controls/DataTemplatePrecedenceTests.cs`. A
+  `net8.0-windows` head or a shared probe closes it.
+- **Analyzer release tracking is weaker than it reads.** `Microsoft.CodeAnalysis.Analyzers 3.3.4` arrives
+  transitively and nothing pins it; `.editorconfig` sets no `RS*` severity, so `RS2000`–`RS2008` cannot fail a
+  build (they do fire when provoked); `Generators.csproj:25-26` removes `AdditionalFiles` the package's targets
+  include first, so the pair removes nothing.
+- **Absorption at package level is untested.** The absorbed-revision flow, the transfer's two moving sides and
+  the re-armed `IArriving` case run from HEAD source only, and the moving sides have never run on TerminalGui
+  (`tests/Everlong.Nester.Tests/Routing/`).
+- **Two absorption shapes have no consumer-facing page.** Layout args are generated and pinned
+  (`GeneratesRouteWithParameterProjection`) but absent from `docs/guide/navigation.md`; a page that consumes
+  `BackIntent` and re-engages itself is written down nowhere. `docs/design/absorption.md` §1 has both shapes.
+- **Three threads were never written down**: the focus-declared-by-the-view intent behind `FocusPolicy`
+  (`StagePanel` maps it by stack position); the release-accounting numbers behind `PinChain` / `InstancePins`
+  (`docs/design/routing.md` §9 has the shape, the `StackShapes` drill was dropped); the RouteSync matcher audit
+  and performance numbers (`docs/design/routesync.md` §3 has the mechanism).
+- **The templates' `author` says `Nolon Technology`** while every package and csproj says `Everlong
+  Technology`. Two lines.
+- **`CleanOutput` wipes `artifacts/`**, so a single target run leaves a partial output directory
+  (`.\build.cmd PackTemplates` leaves only the template package). `Publish` is unaffected.
+- **The template smoke test's cleanup is best-effort** — an IDE build host holds a freshly generated project
+  open, so a run leaves it behind and the next one sweeps it (`min_age=900`).
+- **`AGENTS.md` overstates one property**: the layout says `Directory.Build.props` turns the switch on "for the
+  two WPF projects", while its condition tests the OS only.
+- **`tests/Everlong.Nester.Extensions.Tests` pins its root namespace without a reason** — the Avalonia head's
+  csproj carries the full CS0234 explanation, this one carries none.
+
+## Open verdicts
+
+- **`dialog.md`'s chrome contract** — the theme-key table (`Nester.DialogChrome.*`, `Nester.Dialog.Width.*`,
+  `Nester.ImagePreview.*`) went when the spec was reduced. Consumer contract, or platform chrome restating the
+  code?
+- **Who owns the platform packages' chrome.** `Extensions.*` took the animation kit; the platform packages
+  still ship `TreeControl` / `TreeItem`, their themes and three palette keys nothing consumes. Measure
+  consumer impact first: WPF resolves a control's default template from its own assembly, and the palette is
+  shared. Payoff: `Everlong.Nester.Wpf` would need no `InternalsVisibleTo`.
+- **Whether to make the test tiers explicit** — parallelization is off in three heads, 27
+  `[Collection("RealShell")]`, no `Trait`. Three options with their costs; landing it means a HARD RULE.
+- **What `AGENTS.md` still owes.** Reviewed once: the `.agents/` pointer and a rule that documentation follows
+  the change are the two genuine gaps — the CPM and "readme is the package page" candidates are already
+  expressed by `Directory.Packages.props` and `AGENTS.md` itself. The bar for a line there, given once: no
+  description nobody would ask for, and where code already expresses the intent, one mechanism sentence and a
+  pointer.
+- **The Linux / macOS build has never run.** `wsl -l -v` lists `rubuntu` (Ubuntu 26.04, .NET SDK 10.0.112) and
+  `global.json` pins no SDK, so one build there closes it.
+
+## Considering
+
+Undecided. An entry states what would decide it; one that cannot is dropped rather than parked.
+
+- **Warm pool — do not raise it unless the user does.** Preheating part of a page's first frame during a
+  splash: the stages already exist (resolve / ensure-views / present / reveal), so it is one extra state plus
+  a promote. If picked up: never touch the history stack or fire navigation lifecycle, a real navigation
+  always wins, reclaim under memory pressure. Levels: resolve-only → ensure-views → attach-hidden.
+  *Decided by: the user asking for it.*
+- **xunit v4.** Tried against `xunit.v3 4.0.1`: three suites pass, and `Everlong.Nester.Avalonia.Tests` loses
+  all 189 `[AvaloniaFact]` / `[AvaloniaTheory]` cases because `Avalonia.Headless.XUnit` 12.1.2 binds
+  `xunit.v3.extensibility.core 3.2.2`. `Verify` stays at 32.x.
+  *Decided by: `Avalonia.Headless.XUnit` moving to `4.x`.*
+
+## Not doing
+
+Decided against, recorded so the question is not opened twice.
+
+- **Wording drift in `IShell.cs` / `ShellBase.Startup.cs`** — "presentation anchor", "chain".
+- **Tests for `Primitives` / `Helpers`** — deliberately uncovered for now.
+- **Package dependencies in `ThirdPartyNotices.txt`** — it records incorporated source alone.
+- **A clickable link in the readme** — a package page resolves no relative path, and the documentation gate
+  reads an inline link as a reference without a definition.
+
+## Release
+
+The first publication. Everything above is unscheduled; these items block it.
+
+- **Version `0.2.0`**, bumped from `0.1.7` when pushing, no suffix — and the header the eleven `NSTR*` rules
+  move under (`AnalyzerReleases.Unshipped.md` → `Shipped.md`, verbatim).
+- **Published set**: the seven packages plus `Everlong.Nester.Templates`; TerminalGui, Generators and
+  CodeFixers stay unpackable, which `IsPackable` already decides.
+- **Pack through Nuke.** `PackProjects` / `PackTemplates` stage the template, inject `__NESTER_VERSION__` and
+  put the analyzers in the package; `dotnet pack` on one csproj is not the same thing.
+- **A Linux run needs `everlong.globalization.tools`** (`VerifyGeneratedLang`). nuget.org carries `0.3.0` and
+  this repository was developed against `0.3.1`; the output is byte-identical for every checked-in file.
+- **Write the changelog entry** (`docs/changelog.md`).
+- **Measured, not assumed**: no `Everlong.Nester` package on nuget.org, `omrzh/Everlong.Nester` answers 404,
+  and there is no CI. The author's other packages release on a `v*` tag whose name equals the props version.
