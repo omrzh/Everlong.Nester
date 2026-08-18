@@ -14,6 +14,14 @@ namespace Everlong.Nester.Tests.Controls;
 ///   change in either silently reorders the chain — the extension locator, the
 ///   generated mappings and the consumer hook — without breaking any other test.
 /// </summary>
+/// <remarks>
+///   The WPF half is fixed here without an assertion of its own: its composite
+///   walks the same list last entry first, mirroring the platform, which resolves
+///   an implicit template out of the merged resource dictionaries that way — the
+///   order was measured on a live WPF host.  This repository has no WPF headless
+///   test host, so the order stays a stated fact rather than a test, and adding a
+///   head for it is decided against.
+/// </remarks>
 public class DataTemplatePrecedenceTests
 {
   private sealed class Model;

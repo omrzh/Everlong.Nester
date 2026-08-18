@@ -12,9 +12,6 @@ exception: those items block the first publication.
 - **`DialogShake.PlayBlockedSound` is an empty body on Avalonia**
   (`src/Everlong.Nester.Extensions.Avalonia/Controls/DialogShake.cs:23`), where the WPF twin plays
   `SystemSounds.Beep`. Public API whose caller is a consumer, so not dead code: wire a playback path.
-- **WPF's view-resolution order is measured, not pinned** — `docs/design/shell.md` §4; the Avalonia half is
-  pinned by `tests/Everlong.Nester.Avalonia.Tests/Controls/DataTemplatePrecedenceTests.cs`. A
-  `net8.0-windows` head or a shared probe closes it.
 - **Analyzer release tracking is weaker than it reads.** `Microsoft.CodeAnalysis.Analyzers 3.3.4` arrives
   transitively and nothing pins it; `.editorconfig` sets no `RS*` severity, so `RS2000`–`RS2008` cannot fail a
   build (they do fire when provoked); `Generators.csproj:25-26` removes `AdditionalFiles` the package's targets
@@ -82,6 +79,9 @@ Decided against, recorded so the question is not opened twice.
 - **Package dependencies in `ThirdPartyNotices.txt`** — it records incorporated source alone.
 - **A clickable link in the readme** — a package page resolves no relative path, and the documentation gate
   reads an inline link as a reference without a definition.
+- **A WPF view-resolution test head** — WPF has no headless host in this repository, so the order the WPF
+  composite walks is fixed by the remark on `…/Controls/DataTemplatePrecedenceTests.cs`, not by an assertion;
+  the platform rule itself is `docs/design/shell.md` §4.
 
 ## Release
 
