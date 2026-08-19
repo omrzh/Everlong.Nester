@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <!-- The tests are filed under the domain they cover, so the files declare
+         `Everlong.Nester.Tests.<Domain>` rather than the assembly name's namespace;
+         the root namespace is what `dotnet_style_namespace_match_folder` measures
+         those declarations against. -->
     <RootNamespace>Everlong.Nester.Tests</RootNamespace>
   </PropertyGroup>
 

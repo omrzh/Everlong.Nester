@@ -26,16 +26,10 @@ exception: those items block the first publication.
   (`StagePanel` maps it by stack position); the release-accounting numbers behind `PinChain` / `InstancePins`
   (`docs/design/routing.md` §9 has the shape, the `StackShapes` drill was dropped); the RouteSync matcher audit
   and performance numbers (`docs/design/routesync.md` §3 has the mechanism).
-- **The templates' `author` says `Nolon Technology`** while every package and csproj says `Everlong
-  Technology`. Two lines.
 - **`CleanOutput` wipes `artifacts/`**, so a single target run leaves a partial output directory
   (`.\build.cmd PackTemplates` leaves only the template package). `Publish` is unaffected.
 - **The template smoke test's cleanup is best-effort** — an IDE build host holds a freshly generated project
   open, so a run leaves it behind and the next one sweeps it (`min_age=900`).
-- **`AGENTS.md` overstates one property**: the layout says `Directory.Build.props` turns the switch on "for the
-  two WPF projects", while its condition tests the OS only.
-- **`tests/Everlong.Nester.Extensions.Tests` pins its root namespace without a reason** — the Avalonia head's
-  csproj carries the full CS0234 explanation, this one carries none.
 
 ## Open verdicts
 

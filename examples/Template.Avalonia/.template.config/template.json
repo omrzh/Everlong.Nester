@@ -1,6 +1,6 @@
 {
   "$schema": "http://json.schemastore.org/template",
-  "author": "Nolon Technology",
+  "author": "Everlong Technology",
   "classifications": [ "Desktop", "Avalonia", "Nester" ],
   "identity": "Everlong.Nester.App.Avalonia.CSharp",
   "name": "Nester Avalonia Application",

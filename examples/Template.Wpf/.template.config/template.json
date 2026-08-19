@@ -1,6 +1,6 @@
 {
   "$schema": "http://json.schemastore.org/template",
-  "author": "Nolon Technology",
+  "author": "Everlong Technology",
   "classifications": [ "Desktop", "WPF", "Nester", "Windows" ],
   "identity": "Everlong.Nester.App.Wpf.CSharp",
   "name": "Nester WPF Application",
