@@ -90,5 +90,6 @@ The first publication. Everything above is unscheduled; these items block it.
 - **A Linux run needs `everlong.globalization.tools`** (`VerifyGeneratedLang`). nuget.org carries `0.3.0` and
   this repository was developed against `0.3.1`; the output is byte-identical for every checked-in file.
 - **Write the changelog entry** (`docs/changelog.md`).
-- **Measured, not assumed**: no `Everlong.Nester` package on nuget.org, `omrzh/Everlong.Nester` answers 404,
-  and there is no CI. The author's other packages release on a `v*` tag whose name equals the props version.
+- **Measured, not assumed**: no `Everlong.Nester` package on nuget.org, `omrzh/Everlong.Nester` now carries
+  this history on `main` (anonymous HTTPS still answers 404), and there is no CI. The author's other packages
+  release on a `v*` tag whose name equals the props version.
