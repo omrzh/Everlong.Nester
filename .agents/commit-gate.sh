@@ -353,11 +353,14 @@ if [ "$DO_TEST" = 1 ]; then
   LOG="$LOG_DIR/test.log"
   dotnet test --solution "$SOLUTION" --results-directory .agents/tmp/TestResults >"$LOG" 2>&1
   CODE=$?
-  TOTAL="$(grep -oE '(总计|Total)[[:space:]]*:[[:space:]]*[0-9]+' "$LOG" | grep -oE '[0-9]+$' | tail -1)"
-  FAILS="$(grep -oE '(失败|Failed)[[:space:]]*:[[:space:]]*[0-9]+' "$LOG" | grep -oE '[0-9]+$' | tail -1)"
+  # The summary line is localized: a zh-CN machine renders it `总计: 723`, an
+  # English one `total: 723`.  Both are matched, case-insensitively; another
+  # locale would need its own word here.
+  TOTAL="$(grep -oiE '(总计|total)[[:space:]]*:[[:space:]]*[0-9]+' "$LOG" | grep -oE '[0-9]+$' | tail -1)"
+  FAILS="$(grep -oiE '(失败|failed)[[:space:]]*:[[:space:]]*[0-9]+' "$LOG" | grep -oE '[0-9]+$' | tail -1)"
   if [ "$CODE" -ne 0 ]; then
     bad "tests failed (exit $CODE)"
-    grep -E "^[[:space:]]*(失败|Failed|错误)" "$LOG" | head -n 20 | sed 's/^/         /'
+    grep -iE "^[[:space:]]*(失败|failed|错误|error)" "$LOG" | head -n 20 | sed 's/^/         /'
     note "log: ${LOG#"$REPO_ROOT"/}"
     record test fail "exit $CODE"; FAILED=1
   elif [ -z "${TOTAL:-}" ] || [ "$TOTAL" = 0 ]; then

@@ -13,7 +13,7 @@ When pack to Template, this csproj file is not packed
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>NesterApp</RootNamespace>
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <Elg>..\Template.Shared\Properties\i18n\i18n.jsonc</Elg>
+    <Elg>../Template.Shared/Properties/i18n/i18n.jsonc</Elg>
   </PropertyGroup>
 
   <ItemGroup>
