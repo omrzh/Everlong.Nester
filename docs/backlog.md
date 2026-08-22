@@ -30,6 +30,12 @@ exception: those items block the first publication.
   (`.\build.cmd PackTemplates` leaves only the template package). `Publish` is unaffected.
 - **The template smoke test's cleanup is best-effort** — an IDE build host holds a freshly generated project
   open, so a run leaves it behind and the next one sweeps it (`min_age=900`).
+- **Without an Android SDK the Android example host is skipped, silently.** MSBuild reports
+  `Skipping Template.Avalonia.Android: no Android SDK found` and exits 0 — so neither the build nor `dotnet
+  format` judges it, and a green run says nothing about that host. Closing it costs ~50s and ~800 MB:
+  `dotnet build examples/Template.Avalonia.Android/Template.Avalonia.Android.csproj` with
+  `-t:InstallAndroidDependencies -f net10.0-android`, `AndroidSdkDirectory` and `JavaSdkDirectory` set and
+  `AcceptAndroidSDKLicenses=true`, then both paths exported so MSBuild reads them.
 
 ## Open verdicts
 

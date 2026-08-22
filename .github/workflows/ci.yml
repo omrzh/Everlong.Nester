@@ -1,0 +1,63 @@
+name: ci
+
+# The repository's own gate, run where the packages will be released from.
+# The three halves are not re-implemented here: a hand-written `dotnet build` /
+# `dotnet test` pair would be a second policy beside `.editorconfig`, and the
+# two would drift until only one of them is ever the truth.
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          # 8.0.x is not decoration.  The five test heads are net8.0, and the
+          # apphost pack ships with the SDK: the runtime alone fails the build
+          # with MSB3030 and the run with "8.0 not found".
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      # The solution carries a net10.0-android and a net10.0-browser example
+      # host; without these two the solution does not evaluate at all.
+      - name: Workloads for the example hosts
+        run: dotnet workload install android wasm-tools
+
+      - name: Commit gate, every project (build, format, test)
+        run: ./.agents/commit-gate.sh --all
+
+  templates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      # `VerifyGeneratedLang` shells out to a global tool and the repository
+      # declares no manifest, so CI pins the version nuget.org carries.
+      - name: The i18n generator
+        run: |
+          dotnet tool install -g everlong.globalization.tools --version 0.3.0
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      # The release chain short of publishing: the freshness, font and
+      # documentation checks, the analyzers into the package, the template
+      # staged and packed.
+      - name: Pack (Nuke Publish)
+        run: ./build.sh
+
+      # The template package's only proof: install it, generate a project from
+      # it, restore and build that project.  The WPF case is Windows-only and
+      # skips itself here.
+      - name: Smoke the template package
+        run: python3 .agents/py/template_smoke.py
