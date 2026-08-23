@@ -53,8 +53,9 @@ exception: those items block the first publication.
   expressed by `Directory.Packages.props` and `AGENTS.md` itself. The bar for a line there, given once: no
   description nobody would ask for, and where code already expresses the intent, one mechanism sentence and a
   pointer.
-- **The Linux / macOS build has never run.** `wsl -l -v` lists `rubuntu` (Ubuntu 26.04, .NET SDK 10.0.112) and
-  `global.json` pins no SDK, so one build there closes it.
+- **macOS has never built this tree.** `ci.yml` verifies Linux on every push and the Windows gate runs locally,
+  so what remains unrun is a Mac. `build.sh` and the workloads are the parts that could differ.
+  *Decided by: someone running it, or dropping the claim.*
 
 ## Considering
 
