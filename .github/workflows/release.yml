@@ -1,0 +1,85 @@
+name: release
+
+# A release is a tag: `git tag v0.1.7 && git push origin v0.1.7`.  The version
+# lives in `NesterVersion.props`, the tag must be that version, and the first
+# step refuses to publish anything when the two disagree — a package whose
+# number and tag diverge is a version nobody can name again.
+#
+# Branch policy, enforced in the same step:
+#   stable (no `-` suffix)        → the tag must point into `main`
+#   prerelease (e.g. `0.2.0-rc.1`) → any branch will do
+# (A prerelease needs `--prerelease` to install, so it never reaches a stable
+# consumer — that is the escape hatch for publishing from an experiment.)
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write   # the OIDC token `NuGet/login` exchanges for a short-lived key
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: production   # must match the Environment in the nuget.org trust policy
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # the stable check walks the tag's ancestry into origin/main
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          # Same pair as `ci.yml`, for the same reason: the test heads are
+          # net8.0 and the apphost pack comes with the SDK.
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: The tag must be the version the props declare
+        run: |
+          V=$(sed -n 's:.*<AppVersion>\(.*\)</AppVersion>.*:\1:p' NesterVersion.props)
+          [ -n "$V" ] || { echo "::error::no AppVersion in NesterVersion.props"; exit 1; }
+          [ "$GITHUB_REF_NAME" = "v$V" ] || {
+            echo "::error::tag '$GITHUB_REF_NAME' is not the props version 'v$V' — bump NesterVersion.props or move the tag"
+            exit 1
+          }
+          case "$V" in
+            *-*) echo "prerelease $V — any branch may carry it" ;;
+            *)   git merge-base --is-ancestor "$GITHUB_SHA" origin/main \
+                   || { echo "::error::stable $V must point to a commit on main"; exit 1; }
+                 echo "stable $V on main — OK" ;;
+          esac
+
+      # `VerifyGeneratedLang` shells out to a global tool and the repository
+      # declares no manifest, so CI pins the version nuget.org carries.
+      - name: The i18n generator
+        run: |
+          dotnet tool install -g everlong.globalization.tools --version 0.3.0
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      # The same chain `ci.yml` runs: the freshness, font and documentation
+      # checks, the analyzers into the package, the template staged and packed.
+      # `dotnet pack` on a csproj is not the same thing.
+      - name: Pack (Nuke Publish)
+        run: ./build.sh
+
+      # The template package's proof, run before anything reaches nuget.org.
+      # The WPF case is Windows-only and skips itself here.
+      - name: Smoke the template package
+        run: python3 .agents/py/template_smoke.py
+
+      - name: NuGet login (OIDC → short-lived API key)
+        id: login
+        uses: NuGet/login@v1
+        with:
+          # The nuget.org account that CREATED the trust policy (not the
+          # package owner).  Public info, not a credential; it comes from the
+          # repository's Actions variable.
+          user: ${{ vars.NUGET_USER }}
+
+      - name: Push to nuget.org
+        run: |
+          dotnet nuget push artifacts/*.nupkg \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
