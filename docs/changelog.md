@@ -4,6 +4,9 @@ An entry is written per release, newest first, and says what a consumer has to a
 migration, a renamed package, a raised framework floor — not what the commit log did. The version is
 `AppVersion` in `NesterVersion.props`, and the seven packages and the template package carry it.
 
+Below 1.0 nothing is promised stable: a minor version may rename a type or change a contract, and an
+entry says so when it does. That is the one thing a consumer should assume rather than read here.
+
 ## 0.1.7 — 2026-09-20
 
 The first release, seven packages at one version plus the template package:

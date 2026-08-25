@@ -1,8 +1,7 @@
 # Backlog
 
 Known work, none of it scheduled. An entry carries its evidence — a path, a command, a number — or it does
-not belong here, and an entry is deleted when it is done, never struck through. `## Release` is the
-exception: those items block the first publication.
+not belong here, and an entry is deleted when it is done, never struck through.
 
 ## Decided, unscheduled
 
@@ -83,20 +82,3 @@ Decided against, recorded so the question is not opened twice.
 - **A WPF view-resolution test head** — WPF has no headless host in this repository, so the order the WPF
   composite walks is fixed by the remark on `…/Controls/DataTemplatePrecedenceTests.cs`, not by an assertion;
   the platform rule itself is `docs/design/shell.md` §4.
-
-## Release
-
-The first publication. Everything above is unscheduled; these items block it.
-
-- **Version `0.2.0`**, bumped from `0.1.7` when pushing, no suffix — and the header the eleven `NSTR*` rules
-  move under (`AnalyzerReleases.Unshipped.md` → `Shipped.md`, verbatim).
-- **Published set**: the seven packages plus `Everlong.Nester.Templates`; TerminalGui, Generators and
-  CodeFixers stay unpackable, which `IsPackable` already decides.
-- **Pack through Nuke.** `PackProjects` / `PackTemplates` stage the template, inject `__NESTER_VERSION__` and
-  put the analyzers in the package; `dotnet pack` on one csproj is not the same thing.
-- **A Linux run needs `everlong.globalization.tools`** (`VerifyGeneratedLang`). nuget.org carries `0.3.0` and
-  this repository was developed against `0.3.1`; the output is byte-identical for every checked-in file.
-- **Write the changelog entry** (`docs/changelog.md`).
-- **Measured, not assumed**: no `Everlong.Nester` package on nuget.org, `omrzh/Everlong.Nester` now carries
-  this history on `main` (anonymous HTTPS still answers 404), and there is no CI. The author's other packages
-  release on a `v*` tag whose name equals the props version.

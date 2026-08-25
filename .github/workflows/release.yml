@@ -5,6 +5,10 @@ name: release
 # step refuses to publish anything when the two disagree — a package whose
 # number and tag diverge is a version nobody can name again.
 #
+# Releasing the next version: bump `AppVersion` in `NesterVersion.props`, write
+# the entry in `docs/changelog.md`, commit both, then tag that commit and push
+# the tag.  Everything else is this workflow's job.
+#
 # Branch policy, enforced in the same step:
 #   stable (no `-` suffix)        → the tag must point into `main`
 #   prerelease (e.g. `0.2.0-rc.1`) → any branch will do
