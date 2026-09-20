@@ -82,3 +82,15 @@ Decided against, recorded so the question is not opened twice.
 - **A WPF view-resolution test head** — WPF has no headless host in this repository, so the order the WPF
   composite walks is fixed by the remark on `…/Controls/DataTemplatePrecedenceTests.cs`, not by an assertion;
   the platform rule itself is `docs/design/shell.md` §4.
+- **Runtime test heads for the Android and Browser example hosts** — either needs a device or a browser
+  runner, and what the repository owes an example host is that it compiles, which is what the two workloads
+  in `ci.yml` check.
+- **A test head for `Everlong.Nester.TerminalGui`** — the surface is experimental and unpackable, so a head
+  would pin behaviour the API is explicitly free to change before 1.0.
+- **A post-publish consumption check in `release.yml`** — the job already installs and builds the packed
+  template before it pushes, so a step that ran after the push could only report what had already shipped.
+- **A `windows-latest` job for the WPF template case** — `template_smoke.py` skips it off Windows, and this
+  machine runs it; a runner would re-prove a case that is not the one that breaks.
+- **Caching NuGet packages in CI** — the restore is not where the minutes are; the workload install is.
+- **Restating the design-document ruler in `AGENTS.md`** — HARD RULE 6 states its scope and the fourteen specs
+  are the shape samples a fifteenth is written from; the mechanical half has never been the thing that broke.
