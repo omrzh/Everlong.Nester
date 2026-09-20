@@ -5,8 +5,12 @@ name: ci
 # `dotnet test` pair would be a second policy beside `.editorconfig`, and the
 # two would drift until only one of them is ever the truth.
 on:
+  # A pull request is where the work is checked.  A push to `dev` would check
+  # the same tree a second time, at about five minutes a run, and nothing reads
+  # that second run.  `main` keeps one of its own: it is what a release is cut
+  # from, and its pushes are the ones no pull request precedes.
   push:
-    branches: ['**']
+    branches: ['main']
   pull_request:
 
 jobs:
