@@ -57,6 +57,10 @@ The tree is the source of truth; this section is the map.
 8. A file compiled into two platform packages lives in the Avalonia one and is linked by the WPF one (`<Compile Include>` + `Link`), never copied: `src/Everlong.Nester.Avalonia/` for the core chrome, `src/Everlong.Nester.Extensions.Avalonia/` for the extension chrome and the animation kit.
 9. Template content must not contain `#if`/`#endif`: the dotnet-new engine evaluates them against template symbols and silently strips the guarded block. A file one platform must drop is excluded in the consuming csproj (`<Compile Remove>`), never guarded in the source.
 
+## Branches
+
+Day-to-day work lands on `dev`; `main` is what a release is cut from, and it advances by merging rather than by committing. The release workflow enforces the second half: a stable `v*` tag must be an ancestor of `origin/main`, so a tag placed on a `dev` commit is refused before anything is packed.
+
 ## Commit Gate
 
 1. Run `./.agents/commit-gate.sh` (usage: `--help`) before a commit, and only before a commit: it checks the pending change, so with nothing pending it refuses, and it is not a build runner — `dotnet build` and `dotnet test` are. `--all` checks every project, for a push or a release.
