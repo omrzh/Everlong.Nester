@@ -27,11 +27,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: production   # must match the Environment in the nuget.org trust policy
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0   # the stable check walks the tag's ancestry into origin/main
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           # Same pair as `ci.yml`, for the same reason: the test heads are
           # net8.0 and the apphost pack comes with the SDK.
