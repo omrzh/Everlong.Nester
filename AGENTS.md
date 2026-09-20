@@ -61,6 +61,8 @@ The tree is the source of truth; this section is the map.
 
 Day-to-day work lands on `dev`; `main` is what a release is cut from, and it advances by merging rather than by committing. The release workflow enforces the second half: a stable `v*` tag must be an ancestor of `origin/main`, so a tag placed on a `dev` commit is refused before anything is packed.
 
+`main` carries a ruleset: no deletion, no force push, and every change through a pull request whose `gate` and `templates` checks are green. A pull request is merged by squash, which makes its title the subject of the one commit it contributes and its body that commit's body — both are read as a commit message, and the Commit Gate's rules apply to them. `dev` is reset onto `main` after each merge, so the next pull request carries only its own work.
+
 ## Commit Gate
 
 1. Run `./.agents/commit-gate.sh` (usage: `--help`) before a commit, and only before a commit: it checks the pending change, so with nothing pending it refuses, and it is not a build runner — `dotnet build` and `dotnet test` are. `--all` checks every project, for a push or a release.
