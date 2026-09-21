@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <!-- The product version, declared once.  Bump AppVersion; the three below follow. -->
-    <AppVersion>0.1.8</AppVersion>
+    <AppVersion>0.1.9</AppVersion>
     <Version>$(AppVersion)</Version>
     <FileVersion>$(AppVersion)</FileVersion>
     <AssemblyVersion>$(AppVersion)</AssemblyVersion>
