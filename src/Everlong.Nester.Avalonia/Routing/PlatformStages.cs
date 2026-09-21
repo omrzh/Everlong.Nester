@@ -190,10 +190,9 @@ internal sealed class PlatformRevealStage
     }
 
     // ── The director's contract: the arriving view is laid out when it runs.
-    //    The wait cannot be gated on the host's own attachment — a derived
-    //    router's host joins the tree in this very turn, and the arriving
-    //    view is exactly what the director was handed.  The stage is the
-    //    signal that layout is possible at all. ──
+    //    The subject is the arriving view, not the host — a derived router's
+    //    host joins the tree in this very turn — and the gate is the stage,
+    //    the signal that layout is possible at all. ──
     if (arrivingView is { } arrivingHead &&
         _host.GetStage() is { } stage && stage.IsInVisualTree())
       await UIDispatcher.WaitForLayoutAsync(arrivingHead, convergence.Lifetime);

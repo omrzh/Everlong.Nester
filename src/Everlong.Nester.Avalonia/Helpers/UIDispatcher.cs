@@ -1,5 +1,4 @@
 using Avalonia.Threading;
-using Avalonia.VisualTree;
 
 namespace Everlong.Nester.Helpers;
 
@@ -52,32 +51,39 @@ internal static class UIDispatcher
   public static void VerifyAccess() => Dispatcher.UIThread.VerifyAccess();
 
   // ── Private helpers ──
-  internal static async Task WaitForLoadedAsync()
-  {
-    await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
-  }
-
-  /// <summary>The dispatcher turns <see cref="WaitForLayoutAsync" /> gives back before giving up.</summary>
-  private const int LayoutTurnBudget = 8;
 
   /// <summary>
-  ///   Yields to the dispatcher until <paramref name="view" /> is attached to
-  ///   the visual tree and measured.  Bounded: a view that never joins the
-  ///   tree costs the turn budget and no more.
+  ///   Gives the dispatcher the pass that drains everything queued above
+  ///   <see cref="DispatcherPriority.Background" /> — the layout and render
+  ///   work included.  It checks no condition: the caller owns the predicate.
   /// </summary>
+  internal static Task WaitForLoadedAsync()
+  {
+    return Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background).GetTask();
+  }
+
+  /// <summary>
+  ///   Gives the dispatcher the pass that lays <paramref name="view" /> out,
+  ///   and waits for the view's Loaded event when one pass was not enough.
+  /// </summary>
+  /// <remarks>
+  ///   One pass realizes the layer the view was mounted into and measures the
+  ///   cascade inside it; the event is the fallback for a cascade that takes
+  ///   more than that.  Loaded is raised after arrange, so both paths return a
+  ///   laid-out view.  The post-pass guard tests arrangement alone on purpose:
+  ///   a view the pass did lay out must never wait on an event that a detached
+  ///   or already-consumed attachment may not raise.
+  /// </remarks>
   internal static async Task WaitForLayoutAsync(PControl view, CancellationToken token)
   {
-    for (var turn = 0; turn < LayoutTurnBudget && !view.IsAttachedToVisualTree(); turn++)
-    {
-      if (token.IsCancellationRequested)
-        return;
+    if (view.IsLoaded && view.IsArrangeValid)
+      return;
 
-      await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
-    }
+    await WaitForLoadedAsync();
 
-    // Attached is not measured: a view added to an attached parent joins the
-    // tree at once and is measured by the pass this turn gives back.
-    if (view.IsAttachedToVisualTree() && view.Bounds is not { Width: > 0, Height: > 0 })
-      await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
+    if (view.IsArrangeValid)
+      return;
+
+    await view.EnsureLoadedAsync(token);
   }
 }

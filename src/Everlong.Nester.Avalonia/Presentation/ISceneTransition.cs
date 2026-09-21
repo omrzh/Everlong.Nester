@@ -16,9 +16,11 @@ namespace Everlong.Nester.Presentation;
 ///   visible: it never left the presentation.  The framework restores final
 ///   visibility after the method returns.
 ///
-///   The wait for that layout is bounded, and it runs only while the stage
-///   has joined the visual tree: a view whose stack never does reaches the
-///   method unmeasured, and a director that reads geometry must tolerate it.
+///   The framework gives the dispatcher one pass to lay that view out and,
+///   when that was not enough, waits for the view's <c>Loaded</c> event — both
+///   only while the stage has joined the visual tree.  A view whose stack
+///   never does reaches the method unmeasured, and a director that reads
+///   geometry must tolerate it.
 /// </remarks>
 public interface ISceneTransition
 {

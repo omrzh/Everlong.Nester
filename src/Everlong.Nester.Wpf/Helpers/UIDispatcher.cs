@@ -61,35 +61,43 @@ internal static class UIDispatcher
     => System.Windows.Application.Current?.Dispatcher.VerifyAccess();
 
   // ── Private helpers ──
-  internal static async Task WaitForLoadedAsync()
-  {
-    var d = System.Windows.Application.Current?.Dispatcher;
-    if (d is not null)
-      await d.InvokeAsync(static () => { }, System.Windows.Threading.DispatcherPriority.Background);
-  }
-
-  /// <summary>The dispatcher turns <see cref="WaitForLayoutAsync" /> gives back before giving up.</summary>
-  private const int LayoutTurnBudget = 8;
 
   /// <summary>
-  ///   Yields to the dispatcher until <paramref name="view" /> is laid out.
-  ///   Bounded: a view that never joins the tree costs the turn budget and no
-  ///   more.
+  ///   Gives the dispatcher the pass that drains everything queued above
+  ///   <see cref="System.Windows.Threading.DispatcherPriority.Background" />
+  ///   — the layout and render work included.  It checks no condition: the
+  ///   caller owns the predicate.
   /// </summary>
-  internal static async Task WaitForLayoutAsync(PControl view, CancellationToken token)
+  internal static Task WaitForLoadedAsync()
   {
     var dispatcher = System.Windows.Application.Current?.Dispatcher;
-    if (dispatcher is null)
+    return dispatcher is null
+             ? Task.CompletedTask
+             : dispatcher.InvokeAsync(static () => { }, System.Windows.Threading.DispatcherPriority.Background).Task;
+  }
+
+  /// <summary>
+  ///   Gives the dispatcher the pass that lays <paramref name="view" /> out,
+  ///   and waits for the element's Loaded event when one pass was not enough.
+  /// </summary>
+  /// <remarks>
+  ///   One pass realizes the layer the view was mounted into and measures the
+  ///   cascade inside it; the event is the fallback for a cascade that takes
+  ///   more than that.  Loaded is raised after layout, so both paths return a
+  ///   laid-out element.  The post-pass guard tests arrangement alone on
+  ///   purpose: an element the pass did lay out must never wait on an event
+  ///   that a detached or already-consumed attachment may not raise.
+  /// </remarks>
+  internal static async Task WaitForLayoutAsync(PControl view, CancellationToken token)
+  {
+    if (view.IsLoaded && view.IsArrangeValid)
       return;
 
-    // Loaded is raised once the element is laid out — the predicate already
-    // means measured.
-    for (var turn = 0; turn < LayoutTurnBudget && !view.IsLoaded; turn++)
-    {
-      if (token.IsCancellationRequested)
-        return;
+    await WaitForLoadedAsync();
 
-      await dispatcher.InvokeAsync(static () => { }, System.Windows.Threading.DispatcherPriority.Background);
-    }
+    if (view.IsArrangeValid)
+      return;
+
+    await view.EnsureLoadedAsync(token);
   }
 }
