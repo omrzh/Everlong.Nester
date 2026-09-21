@@ -39,14 +39,15 @@
     <Compile Include="..\Everlong.Nester.Avalonia\DI\ServiceCollectionExtensions.cs" Link="DI\ServiceCollectionExtensions.cs" />
     <!-- Controls -->
     <Compile Include="..\Everlong.Nester.Avalonia\Controls\StagePanel.cs" Link="Controls\StagePanel.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Controls\NavigationHost.cs" Link="Controls\NavigationHost.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Controls\RoutingView.cs" Link="Controls\RoutingView.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Controls\RoutingView.Reveal.cs" Link="Controls\RoutingView.Reveal.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Controls\RoutingView.Body.cs" Link="Controls\RoutingView.Body.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Controls\ContentLayerLease.cs" Link="Controls\ContentLayerLease.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Controls\TreeControl.shared.cs" Link="Controls\TreeControl.shared.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Controls\TreeItem.shared.cs" Link="Controls\TreeItem.shared.cs" />
     <!-- Routing -->
     <Compile Include="..\Everlong.Nester.Avalonia\Routing\Router.cs" Link="Routing\Router.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Routing\PlatformStackModel.cs" Link="Routing\PlatformStackModel.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Routing\PlatformStages.cs" Link="Routing\PlatformStages.cs" />
     <!-- Presentation -->
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\SharedAttributes.cs" Link="Presentation\SharedAttributes.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\FlyingCanvas.cs" Link="Presentation\FlyingCanvas.cs" />

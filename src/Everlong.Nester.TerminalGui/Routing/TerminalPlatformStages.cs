@@ -14,9 +14,9 @@ internal sealed class TerminalAssembleStage(IServiceProvider services)
 {
   internal void Assemble(IReadOnlyList<Location> chain)
   {
-    IViewLocator<View> viewLocator = services.GetService<IViewLocator<View>>()
+    IViewLocator viewLocator = services.GetService<IViewLocator>()
       ?? throw new InvalidOperationException(
-        "The window container provides no view locator — register IViewLocator<View> " +
+        "The window container provides no view locator — register IViewLocator " +
         "(a Terminal.Gui locator over the platform's view type).");
 
     foreach (Location node in chain)
@@ -24,7 +24,7 @@ internal sealed class TerminalAssembleStage(IServiceProvider services)
       if (node.Presenter is not null)
         continue;
       var location = (TerminalLocation)node;
-      View? view = viewLocator.Build(location.Instance);
+      View? view = viewLocator.Match(location.Instance) ? viewLocator.Build(location.Instance) : null;
       if (view is null)
         continue;
       if (view is NesterView nesterView)

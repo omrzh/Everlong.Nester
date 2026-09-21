@@ -38,7 +38,7 @@ public class RouteLinkTests
   private static (RouteLink Link, Window Window, TestRouter Router) Mount(IRouteItem item)
   {
     var shell = new FakeShell();
-    var host = new NavigationHost();
+    var host = new RoutingView();
     var router = new TestRouter(shell, host);
     var link = new RouteLink { DataContext = item };
     host.Children.Add(link);

@@ -2,25 +2,24 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Headless.XUnit;
-using Everlong.Nester.Presentation;
 using Xunit;
 
 namespace Everlong.Nester.Tests.Controls;
 
 /// <summary>
-///   Pins how the application's locator list is read: Avalonia's own lookup takes
-///   the first entry first and walks the logical tree before the application
-///   collection, and the shell's composite reads that same list the same way.  A
-///   change in either silently reorders the chain — the extension locator, the
-///   generated mappings and the consumer hook — without breaking any other test.
+///   Pins how the template list is read: Avalonia's own lookup takes the first
+///   entry first and walks the logical tree before the application collection,
+///   and the framework resolves through that same lookup.  A change in either
+///   silently reorders the chain — the extension locator, the generated
+///   mappings and the consumer hook — without breaking any other test.
 /// </summary>
 /// <remarks>
-///   The WPF half is fixed here without an assertion of its own: its composite
-///   walks the same list last entry first, mirroring the platform, which resolves
-///   an implicit template out of the merged resource dictionaries that way — the
-///   order was measured on a live WPF host.  This repository has no WPF headless
-///   test host, so the order stays a stated fact rather than a test, and adding a
-///   head for it is decided against.
+///   The WPF half is fixed here without an assertion of its own: its locator
+///   walks the same declared list last entry first, mirroring the platform,
+///   which resolves an implicit template out of the merged resource
+///   dictionaries that way — the order was measured on a live WPF host.  This
+///   repository has no WPF headless test host, so the order stays a stated fact
+///   rather than a test, and adding a head for it is decided against.
 /// </remarks>
 public class DataTemplatePrecedenceTests
 {
@@ -59,19 +58,6 @@ public class DataTemplatePrecedenceTests
     parent.Content = host;
 
     Assert.Same(nearer, host.FindDataTemplate(new Model()));
-  }
-
-  [AvaloniaFact]
-  public void Shell_Composite_Should_Read_The_List_First_First()
-  {
-    var first = new Probe("first");
-    var last = new Probe("last");
-    var templates = new DataTemplates();
-    templates.Add(first);
-    templates.Add(last);
-    var composite = new CompositeViewLocator(templates);
-
-    Assert.Equal("first", (composite.Build(new Model()) as TextBlock)?.Text);
   }
 
   [AvaloniaFact]

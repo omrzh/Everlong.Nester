@@ -28,6 +28,19 @@ public abstract class ViewLocatorBase : ResourceDictionary, IViewLocator
     return this[key] is DataTemplate t ? t.LoadContent() as FrameworkElement : null;
   }
 
+  /// <inheritdoc/>
+  /// <remarks>
+  ///   Claims exactly the data types this dictionary holds a
+  ///   <see cref="DataTemplate"/> for, so <see cref="Match(object?)"/> and
+  ///   <see cref="Build(object?)"/> agree on the default path.
+  /// </remarks>
+  public virtual bool Match(object? data)
+  {
+    if (data is null)
+      return false;
+    return this[new DataTemplateKey(data.GetType())] is DataTemplate;
+  }
+
   /// <summary>
   ///   Registers a static <see cref="DataTemplate"/> that maps <typeparamref name="TData"/>
   ///   to <typeparamref name="TView"/> into this locator's resource dictionary.

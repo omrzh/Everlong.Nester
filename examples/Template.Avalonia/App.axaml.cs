@@ -40,10 +40,9 @@ public partial class App : Application, IErrorHandler
     // Nester does not invent its own mapping mechanism: the App's
     // DataTemplates collection IS the translator.  Every view — framework or
     // user — is resolved by falling through this list, and there is no other
-    // registration path — the shell's host window resolves the same way
-    // ([ViewFor<T>] on the window class) unless the shell overrides
-    // PrepareHost (direct creation takes over the framework's resolution).
-    // Each entry is a DataTemplate:
+    // registration path.  The shell's own host surface is NOT resolved here:
+    // a shell declares its window by overriding PrepareHost.  Each entry is a
+    // DataTemplate:
     //
     //   NesterExtendedViewLocator → the extension packages' framework
     //                       views: notices (toast/snackbar/notification),
@@ -55,9 +54,9 @@ public partial class App : Application, IErrorHandler
     //   ViewLocatorHook   → hand-written custom resolution (example:
     //                       PostDetailPage, shape subtypes)
     //
-    // This order is priority order, and it is declared highest first: the shell
-    // mounts every route, dialog and notice view through the application's own
-    // locator, and Avalonia resolves a template the same way — the first entry
+    // This order is priority order, and it is declared highest first: the
+    // framework mounts every route, dialog and notice view through the tree's
+    // own lookup, and Avalonia resolves a template the same way — the first entry
     // that matches wins (Controls/DataTemplatePrecedenceTests pins both).  The
     // extension locator therefore sits last: framework views are what is left
     // when nothing more specific matched, and a locator declared ahead of it

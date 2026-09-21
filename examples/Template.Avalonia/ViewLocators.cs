@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Media;
 using Everlong.Nester.Presentation;
 using NesterApp.Models;
@@ -30,11 +31,11 @@ namespace NesterApp;
 public partial class ViewLocator;
 
 /// <summary>
-/// To customize the view resolution logic.  A locator builds: Build returns a new
+/// To customize the view resolution logic.  A template builds: Build returns a new
 /// control for the data it is given, so a presenter re-pointed at other data shows
 /// that data's view — never the one it showed before.
 /// </summary>
-public class ViewLocatorHook : IViewLocator
+public class ViewLocatorHook : IDataTemplate
 {
   public bool Match(object? data) => data is PostDetailPageModel or IShape or List<IShape> or EmojiIcon;
 

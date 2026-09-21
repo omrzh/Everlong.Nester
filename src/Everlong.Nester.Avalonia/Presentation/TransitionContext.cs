@@ -20,8 +20,10 @@ public sealed partial record TransitionContext(
   TransitionKind Kind)
 {
   /// <summary>
-  ///   The arriving views, outermost first — the fresh part of the change.
-  ///   Laid out and invisible when the director runs.  Empty on dismiss.
+  ///   The arriving views, outermost first — the fresh part of the change plus
+  ///   the views it re-engages in place.  An entering view is laid out and
+  ///   invisible when the director runs; a re-engaged view is visible — it never
+  ///   left the presentation.  Empty on dismiss.
   /// </summary>
   public IReadOnlyList<PControl> ArrivingChain { get; init; } = [];
 

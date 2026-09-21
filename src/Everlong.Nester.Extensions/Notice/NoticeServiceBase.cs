@@ -119,6 +119,21 @@ public abstract class NoticeServiceBase(ILayerBroker broker, INoticeEngine engin
 
     _noticeHost = CreateHost();
     broker.Acquire(this, _noticeHost, KnownLayers.Notice, LayerPolicy.Floor);
+    OnHostMounted(_noticeHost);
+  }
+
+  /// <summary>
+  ///   The mounted notice host — the control the notice views are installed
+  ///   into; <see langword="null" /> until the first show mounts it.
+  /// </summary>
+  protected object? NoticeHost => _noticeHost;
+
+  /// <summary>
+  ///   Platform hook: the host is mounted — the moment a view resolver has a
+  ///   control in the tree to resolve from.
+  /// </summary>
+  protected virtual void OnHostMounted(object host)
+  {
   }
 
   /// <summary>

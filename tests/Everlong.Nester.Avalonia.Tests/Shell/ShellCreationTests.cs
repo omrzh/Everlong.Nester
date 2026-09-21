@@ -1,6 +1,4 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Templates;
 using Avalonia.Headless.XUnit;
 using Everlong.DI;
 using Everlong.Nester.Hosting;
@@ -374,70 +372,6 @@ public class ShellCreationTests
     await shell.Lifetime.Startup;
 
     Assert.Same(((AvaloniaShell)shell).StagePanel, view.ContentLayer.Content);
-  }
-
-  // ── The root-view contract: not assigned = the view locator rules ──
-
-  /// <summary>Registers view templates for the Director on the headless app (restored on dispose).</summary>
-  private sealed class TemplateScope : IDisposable
-  {
-    private readonly DataTemplates _templates;
-    private readonly IDataTemplate[] _added;
-
-    public TemplateScope(params IDataTemplate[] added)
-    {
-      _templates = Application.Current!.DataTemplates;
-      _added = added;
-      foreach (var template in added)
-        _templates.Add(template);
-    }
-
-    public void Dispose()
-    {
-      foreach (var template in _added)
-        _templates.Remove(template);
-    }
-  }
-
-  [AvaloniaFact]
-  public async Task Host_NotOverridden_ResolvesViaViewLocator()
-  {
-    using var templates = new TemplateScope(new FuncDataTemplate<TestContext>((_, _) => new TestHostView()));
-
-    // No CreateHost override = the locator default: the view locator
-    // resolves the host from the Director ([ViewFor<T>] — the same
-    // end-to-end contract as pages), the framework wires DataContext at
-    // mount.
-    IShell shell = TestHost.CreateShell<TestContext>(AddTestRegistrations, rootViewFromLocator: true);
-    shell.Start();
-    await shell.Lifetime.Startup;
-
-    var shellImpl = Assert.IsType<TestShell<TestContext>>(shell);
-    var holderView = Assert.IsType<TestHostView>(shellImpl.HostView);
-    Assert.Same(shellImpl.Director, holderView.DataContext);
-  }
-
-  [AvaloniaFact]
-  public async Task Host_NotOverridden_NoMapping_DesktopFailsFast()
-  {
-    // No template matches the Director: the locator misses, the host
-    // stays null — desktop has NO unambiguous fallback (a shell without a
-    // host cannot present): fail fast with a message pointing at both
-    // routes (override CreateHost / provide a [ViewFor<T>] mapping).
-    var templates = Application.Current!.DataTemplates;
-    var saved = templates.ToList();
-    templates.Clear();
-    try
-    {
-      IShell shell = TestHost.CreateShell<TestContext>(AddTestRegistrations, rootViewFromLocator: true);
-      Assert.Throws<InvalidOperationException>(() => shell.Start());
-    }
-    finally
-    {
-      templates.Clear();
-      foreach (var template in saved)
-        templates.Add(template);
-    }
   }
 
   [AvaloniaFact]

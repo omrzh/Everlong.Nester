@@ -37,7 +37,7 @@ public class RouteTreeRenderingTests
   private static (RouteTreeControl Control, Window Window, TestRouter Router) Mount(params IRouteItem[] roots)
   {
     var shell = new FakeShell();
-    var host = new NavigationHost();
+    var host = new RoutingView();
     var router = new TestRouter(shell, host);
     var control = new RouteTreeControl { ItemsSource = roots };
     host.Children.Add(control);

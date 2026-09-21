@@ -74,12 +74,11 @@ public class ViewResolutionTests
   }
 
   [Fact]
-  public void No_Locator_Is_A_Recycling_Template()
+  public void No_Shipped_Locator_Is_A_Recycling_Template()
   {
-    // The contract: Avalonia is never offered a previous child to recycle.
-    Assert.False(typeof(IViewLocator).IsAssignableTo(typeof(IRecyclingDataTemplate)));
-
-    // ...and neither shipped locator opts back into the recycling template.
+    // The contract: Avalonia is never offered a previous child to recycle — a
+    // locator claims the whole mapping set, so it cannot answer whether the
+    // child it built is still applicable.
     Assert.False(typeof(TestViewLocator).IsAssignableTo(typeof(IRecyclingDataTemplate)));
     Assert.False(typeof(NesterExtendedViewLocator).IsAssignableTo(typeof(IRecyclingDataTemplate)));
   }

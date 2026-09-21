@@ -52,15 +52,10 @@ public abstract partial class AvaloniaShell : ShellBase
 
   /// <summary>
   ///   Platform services: Avalonia native services pass through as-is
-  ///   (the probe type IS the contract); the view locator is a framework-built
-  ///   capability — the shell scans the application's global template
-  ///   collection (the platform singleton's knowledge) and wraps it;
-  ///   anything unknown is null.
+  ///   (the probe type IS the contract); anything unknown is null.
   /// </summary>
   public override T? GetPlatformService<T>() where T : class
   {
-    if (typeof(T) == typeof(IViewLocator<PControl>))
-      return (T?)GetOrCreateViewLocator();
     if (typeof(T) == typeof(IClipboard))
       return (T?)TopLevel?.Clipboard;
     if (typeof(T) == typeof(IStorageProvider))
@@ -69,31 +64,6 @@ public abstract partial class AvaloniaShell : ShellBase
       return (T?)TopLevel?.Launcher;
 
     return null;
-  }
-
-  private IViewLocator<PControl>? _viewLocator;
-
-  private PApp? _locatorAppSnapshot;
-
-  /// <summary>
-  ///   The shell's view locator — a thin translator over the application's
-  ///   global template collection, rebuilt when the application instance
-  ///   changes (tests rebuild it per test; a stale snapshot would pin a dead
-  ///   template collection).  Views themselves are always <c>new</c>'d by
-  ///   the locator — the container never instantiates views.
-  /// </summary>
-  private IViewLocator<PControl>? GetOrCreateViewLocator()
-  {
-    PApp? app = PApp.Current;
-    if (app is null)
-      return null;
-    if (!ReferenceEquals(_locatorAppSnapshot, app))
-    {
-      _locatorAppSnapshot = app;
-      _viewLocator = new CompositeViewLocator(app.DataTemplates);
-    }
-
-    return _viewLocator;
   }
 
   // ── ILayerBroker (the shell is the broker of its own stage) ──
@@ -118,19 +88,13 @@ public abstract partial class AvaloniaShell : ShellBase
   }
 
   /// <summary>
-  ///   Resolves the host surface from the Director via the view locator
-  ///   (the <c>[ViewFor&lt;T&gt;]</c> contract).  Single-view with no mapping
-  ///   = direct mount (the stage itself becomes the MainView); desktop
-  ///   without a host fails fast.
+  ///   The host surface is the concrete shell's to declare — override this
+  ///   and assign <see cref="ShellHost" /> (the window, or the single-view
+  ///   host view).  The default declares none: single-view direct-mounts the
+  ///   stage as the MainView, desktop fails fast.
   /// </summary>
   protected override void PrepareHost()
   {
-    ShellHost = GetPlatformService<IViewLocator<PControl>>()?.Build(Director!) as PContentControl;
-    if (ShellHost is IAvaloniaShellHost)
-      return;
-
-    // No usable host: single-view direct-mounts (the framework connects the
-    // stage as the MainView); desktop has no fallback — fail fast.
     ShellHost = null;
     EnsureDesktopHost();
   }
@@ -144,8 +108,8 @@ public abstract partial class AvaloniaShell : ShellBase
     if (ShellHost is null && !SingleViewLifetime.IsSingleView(PApp.Current?.ApplicationLifetime))
     {
       throw new InvalidOperationException(
-        "Desktop shell requires a host: override PrepareHost (e.g. HostSurface = new MainWindow { Shell = this };)" +
-        " or provide a [ViewFor<DirectorType>] mapping the view locator resolves — the host must " +
+        "Desktop shell requires a host: override PrepareHost and assign ShellHost " +
+        "(e.g. ShellHost = new MainWindow { Shell = this };) — the host must " +
         "implement IAvaloniaShellHost (a Window).  The window presents itself via OnAssembled — " +
         "the framework never falls back for uncooperative views.");
     }

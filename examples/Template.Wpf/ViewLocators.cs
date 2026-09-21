@@ -35,6 +35,9 @@ internal sealed class DynamicViewLocator : ViewLocatorBase
     AddDynamicTemplate<List<IShape>>();
   }
 
+  public override bool Match(object? data)
+    => data is PostDetailPageModel or Circle or Rectangle or List<IShape>;
+
   public override FrameworkElement? Build(object? data)
   {
     return data switch

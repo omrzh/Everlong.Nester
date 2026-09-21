@@ -95,8 +95,8 @@ Decided against, recorded so the question is not opened twice.
 - **A clickable link in the readme** — a package page resolves no relative path, and the documentation gate
   reads an inline link as a reference without a definition.
 - **A WPF view-resolution test head** — WPF has no headless host in this repository, so the order the WPF
-  composite walks is fixed by the remark on `…/Controls/DataTemplatePrecedenceTests.cs`, not by an assertion;
-  the platform rule itself is `docs/design/shell.md` §4.
+  chain walks is fixed by the remark on `…/Controls/DataTemplatePrecedenceTests.cs`, not by an assertion;
+  the platform rule itself is `docs/design/view-resolution.md` §6.
 - **Runtime test heads for the Android and Browser example hosts** — either needs a device or a browser
   runner, and what the repository owes an example host is that it compiles, which is what the two workloads
   in `ci.yml` check.

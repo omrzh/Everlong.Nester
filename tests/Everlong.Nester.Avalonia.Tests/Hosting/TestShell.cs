@@ -25,17 +25,15 @@ internal class TestShell<TDirector> : AvaloniaShell where TDirector : class, ISh
   private ContentControl? _rootView;
   private readonly bool _directMount;
   private readonly bool _manualDirector;
-  private readonly bool _rootViewFromLocator;
   private bool _noHost;
 
-  public TestShell(Action<IServiceCollection>? extraRegistrations = null, ContentControl? rootView = null, bool directMount = false, bool manualDirector = false, bool rootViewFromLocator = false, bool noHost = false, IActivationIntent? startupIntent = null)
+  public TestShell(Action<IServiceCollection>? extraRegistrations = null, ContentControl? rootView = null, bool directMount = false, bool manualDirector = false, bool noHost = false, IActivationIntent? startupIntent = null)
     : base(startupIntent)
   {
     _extraRegistrations = extraRegistrations;
     _rootView = rootView;
     _directMount = directMount;
     _manualDirector = manualDirector;
-    _rootViewFromLocator = rootViewFromLocator;
     _noHost = noHost;
     if (!manualDirector)
       DirectorType = typeof(TDirector);   // declarative: resolved via the injector at start (member injection included)
@@ -69,10 +67,10 @@ internal class TestShell<TDirector> : AvaloniaShell where TDirector : class, ISh
     return root;
   }
 
-  /// <summary>Host production: direct mount / from-locator → the locator default; noHost → none (single-view direct mount); else the passed view or the harness's <see cref="TestHostView"/>.</summary>
+  /// <summary>Host production: direct mount → no host declared (single-view direct-mounts the stage); noHost → none (desktop fails fast); else the passed view or the harness's <see cref="TestHostView"/>.</summary>
   protected override void PrepareHost()
   {
-    if (_directMount || _rootViewFromLocator)
+    if (_directMount)
     {
       base.PrepareHost();
       return;

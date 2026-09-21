@@ -1,4 +1,5 @@
 using System.Collections.Frozen;
+using Avalonia.Controls.Templates;
 using Everlong.Nester.Controls;
 using Everlong.Nester.Dialog;
 using Everlong.Nester.Notice;
@@ -21,7 +22,7 @@ namespace Everlong.Nester.Presentation;
 ///   stays the fallback; types outside this set map to their own views via
 ///   <c>[ViewFor]</c> / <c>[Mapping]</c>.
 /// </remarks>
-public sealed class NesterExtendedViewLocator : IViewLocator
+public sealed class NesterExtendedViewLocator : IDataTemplate
 {
   private readonly FrozenSet<Type> _supportedTypes = new HashSet<Type>()
   {

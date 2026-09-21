@@ -91,19 +91,6 @@ The framework never presents the window: the host presents itself in the ready a
 invisible-presentation convention), which is also where pre-flight assembly belongs. The UI thread must
 not block there.
 
-The view locator is the application's table, not the framework's. The shell wraps the application's
-locator list in its own composite, and the order that composite reads it with is its platform's:
-**first entry first** on Avalonia — the same reading the platform applies to the collection, so the
-shell and any presenter resolving a view model on its own agree — and **last entry first** on WPF,
-where the composite scans merged resource dictionaries and the platform itself resolves an implicit
-template that way. One rule per platform, and the declared order is the mirror of the other's to
-express the same precedence.
-
-A locator is a builder, not a recycler: it declares a single-argument `Build` and does not implement
-the platform's recycling template, so every mount is a fresh view — a presenter whose content changes
-type shows the view the new data maps to, never the child it had before. The reasoning behind that
-choice is the view-resolution domain's.
-
 ## 5. The intent chain
 
 The shell's pipeline folds four stages: **layers → Director → host → fallback**. Layers are asked

@@ -279,6 +279,8 @@ namespace Everlong.Nester.Presentation
 {
     public interface IViewLocator
     {
+        bool Match(object? data);
+        System.Windows.FrameworkElement? Build(object? data);
     }
 }
 

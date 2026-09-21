@@ -90,11 +90,11 @@ public class DialogTenantTests
     return (shell, shell.Panel, shell.Shell, shell.Services);
   }
 
-  private static NavigationHost SingleCapsule(StagePanel panel)
+  private static RoutingView SingleCapsule(StagePanel panel)
     => Assert.Single(panel.DerivedHosts());
 
   /// <summary>The dimmer view inside the overlay (the default dimmer chrome).</summary>
-  private static DimmerLayout SingleDimmer(NavigationHost host)
+  private static DimmerLayout SingleDimmer(RoutingView host)
     => Assert.IsType<DimmerLayout>(Assert.Single(host.Children));
 
   /// <summary>The dialog domain's active sessions (open order).</summary>

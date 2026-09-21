@@ -19,10 +19,9 @@ internal static class TestHost
                                                    ContentControl? rootView = null,
                                                    bool directMount = false,
                                                    bool manualDirector = false,
-                                                   bool rootViewFromLocator = false,
                                                    bool noHost = false)
     where TDirector : class, IShellDirector, new()
-    => CreateShell<TDirector>(register, out _, rootView, directMount, manualDirector, rootViewFromLocator, noHost);
+    => CreateShell<TDirector>(register, out _, rootView, directMount, manualDirector, noHost);
 
   /// <summary>Assembles a shell and hands back the shell's own container root (test/observer channel).</summary>
   public static AvaloniaShell CreateShell<TDirector>(Action<IServiceCollection>? register,
@@ -30,14 +29,13 @@ internal static class TestHost
                                                    ContentControl? rootView = null,
                                                    bool directMount = false,
                                                    bool manualDirector = false,
-                                                   bool rootViewFromLocator = false,
                                                    bool noHost = false)
     where TDirector : class, IShellDirector, new()
   {
     var shell = new TestShell<TDirector>(s =>
     {
       register?.Invoke(s);
-    }, rootView, directMount, manualDirector, rootViewFromLocator, noHost);
+    }, rootView, directMount, manualDirector, noHost);
     root = shell.RootProvider!;
     return shell;
   }

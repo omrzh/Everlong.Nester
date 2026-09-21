@@ -64,7 +64,7 @@ public class RouteTreeFoldTests
     var root = new CountingItem("Root", RouteTo(typeof(PageRoot), typeof(MainLayout)), child, three);
 
     var shell = new FakeShell();
-    var host = new NavigationHost();
+    var host = new RoutingView();
     var router = new TestRouter(shell, host);
     var control = new RouteTreeControl { ItemsSource = new IRouteItem[] { root } };
     host.Children.Add(control);

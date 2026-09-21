@@ -28,8 +28,8 @@ internal sealed class AvaloniaViewProviderBranch : IExecutionBranch
 
     return new BranchResult(
       ImmutableArray.CreateRange(members),
-      ImmutableArray.Create<BaseTypeSyntax>(SimpleBaseType(ParseTypeName("IViewLocator"))),
-      ImmutableArray.Create(Ns.AvaloniaControls, Ns.NesterPresentation,
+      ImmutableArray.Create<BaseTypeSyntax>(SimpleBaseType(ParseTypeName("IDataTemplate"))),
+      ImmutableArray.Create(Ns.AvaloniaControls, Ns.AvaloniaTemplates,
                             "System", "System.Collections.Frozen", "System.Linq"));
   }
 

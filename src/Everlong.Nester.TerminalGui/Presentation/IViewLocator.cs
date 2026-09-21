@@ -1,10 +1,10 @@
-using System.Windows;
+using Terminal.Gui.ViewBase;
 
 namespace Everlong.Nester.Presentation;
 
 /// <summary>
-///   WPF view-resolution contract: a locator claims the data it maps and
-///   builds the view for it.
+///   Terminal.Gui view-resolution contract: a locator claims the data it maps
+///   and builds the view for it.
 /// </summary>
 /// <remarks>
 ///   <see cref="Match" /> is a claim, not a precondition of
@@ -22,5 +22,5 @@ public interface IViewLocator
   /// </summary>
   /// <param name="data">A view-model instance.</param>
   /// <returns>A new view instance, or <c>null</c> if no view is registered for the given data.</returns>
-  FrameworkElement? Build(object? data);
+  View? Build(object? data);
 }

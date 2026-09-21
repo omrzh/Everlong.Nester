@@ -12,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using NesterApp.Properties;
 using Terminal.Gui.Drivers;
 using Terminal.Gui.Input;
-using Terminal.Gui.ViewBase;
 
 namespace NesterApp;
 
@@ -31,7 +30,7 @@ public sealed class UiShell(IActivationIntent? startupIntent = null) : TuiShell(
     services.AddNesterCore();         // logging / injector / routing dimension
     services.AddNesterNotice();       // the notice surface (toast/snackbar/notification)
     services.AddNesterDialog();       // the dialog domain (dimmer chrome model)
-    services.AddSingleton<IViewLocator<View>>(new PageViewLocator());
+    services.AddSingleton<IViewLocator>(new PageViewLocator());
     services.BridgeSingleton<IAuthService>(); // cross-surface shared login state (bridged from the process container)
     services.BridgeSingleton<IMessageHub>();  // cross-surface shared broadcast hub (bridged from the process container)
     services.AddServices(new AppServices());

@@ -77,7 +77,7 @@ public sealed partial class UiShell(IActivationIntent? startupIntent = null)
     });
   }
 
-  protected override void PrepareHost()      // the window (default: resolved by the view locator)
+  protected override void PrepareHost()      // the window — the shell declares it (default: none; fail-fast)
   {
     ShellHost = Director switch
     {
@@ -175,9 +175,9 @@ DataTemplates.Add(new NesterExtendedViewLocator());   // extension views — onl
 ```
 
 The order above is priority order, highest first — the same reading Avalonia applies to the collection
-itself, so the shell's locator and any `ContentPresenter` resolving a view model on its own agree: the
-first entry that matches wins, the logical tree is consulted before the collection, and the extension
-views are what remains when nothing more specific matched. WPF resolves a merged resource dictionary
+itself, so the framework's own resolution and any `ContentPresenter` resolving a view model on its own
+agree: the first entry that matches wins, the logical tree is consulted before the collection, and the
+extension views are what remains when nothing more specific matched. WPF resolves a merged resource dictionary
 last entry first, so its declaration is the mirror of this one and its template merges the same three
 in the opposite order.
 
@@ -193,7 +193,7 @@ Resources.MergedDictionaries.Add(new ViewLocator());
 Resources.MergedDictionaries.Add(new DynamicViewLocator());   // optional: hand-written custom resolution
 ```
 
-`docs/design/shell.md` §4 states the rule; the shells' composites follow their own platform.
+`docs/design/view-resolution.md` §1 states the rule; each platform's lookup follows its own reading.
 
 ```xml
 <!-- Avalonia — App.axaml: the styles, in this order -->

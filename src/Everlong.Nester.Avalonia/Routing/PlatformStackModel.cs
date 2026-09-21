@@ -10,7 +10,7 @@ namespace Everlong.Nester.Routing;
 internal sealed class PlatformStackModel : RouterStack
 {
   /// <inheritdoc />
-  protected override IRoutingView View { get; } = new NavigationHost();
+  protected override IRoutingView View { get; } = new RoutingView();
 
   /// <inheritdoc />
   protected override Location CreateLocation(Type type, object instance, IArgs? args)

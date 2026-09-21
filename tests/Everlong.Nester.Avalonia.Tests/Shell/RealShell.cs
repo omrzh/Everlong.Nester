@@ -65,8 +65,8 @@ internal sealed record RealShell(
     where TDirector : class, IShellDirector, new()
   {
     // Rebuild the chain deterministically (serialized by the RealShell
-    // collection).  CompositeViewLocator scans FORWARDS (first wins), so
-    // the catch-all fake must be LAST: framework views → test template →
+    // collection).  The DataTemplates collection is read FORWARDS (first
+    // wins), so the catch-all fake must be LAST: framework views → test template →
     // fake, i.e. index 0 is checked first.
     // The extension framework views — notices, dialog sessions and the
     // dimmer chrome — all live in the Extensions platform packages; their

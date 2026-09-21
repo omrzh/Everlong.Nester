@@ -29,8 +29,8 @@ namespace NesterApp;
 ///   Single-view (Android / WASM): no host — the framework direct-mounts the
 ///   stage as the MainView.  Desktop: the host window is created directly
 ///   per Director kind in <see cref="ShellBase.PrepareHost" /> (wired with
-///   this shell) — the platform default resolves it via the view locator
-///   when not overridden.  Platform-specific: this copy derives from the
+///   this shell) — the host is the concrete shell's to declare.
+///   Platform-specific: this copy derives from the
 ///   Avalonia shell (the WPF project carries its own WpfShell-derived copy
 ///   — the class lives per platform, no conditional compilation).
 /// </summary>

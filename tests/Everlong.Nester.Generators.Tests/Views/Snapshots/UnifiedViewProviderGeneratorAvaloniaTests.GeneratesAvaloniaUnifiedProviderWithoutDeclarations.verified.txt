@@ -3,14 +3,14 @@
 #pragma warning disable
 #nullable enable
 using Avalonia.Controls;
-using Everlong.Nester.Presentation;
+using Avalonia.Controls.Templates;
 using System;
 using System.Collections.Frozen;
 using System.Linq;
 
 namespace TestApp;
 /// <inheritdoc/>
-partial class AppViewProvider : IViewLocator
+partial class AppViewProvider : IDataTemplate
 {
   [global::System.CodeDom.Compiler.GeneratedCode("Everlong.Nester.Generators", <ASSEMBLY_VERSION>)]
   private readonly FrozenSet<Type> _supportedTypes;

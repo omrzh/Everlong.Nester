@@ -77,10 +77,11 @@ public class LayoutBody : Panel, ILayoutBody
 
   // ── Change-set application ───────────────────────────────────────────────
   //
-  // LayoutBody does not manage visibility/opacity/hit-test.
-  // SetActiveChild only updates the Active pointer; the visible/hidden state
-  // is owned by ShellSlotHost (Phase 2 = prepare arriving,
-  // Phase 4 = final cleanup) and by the user's ISceneTransition director.
+  // LayoutBody never touches opacity, hit-test, transform or z-index, and it
+  // does not decide visibility on its own: SetActiveChild only updates the
+  // Active pointer, and the visible/hidden state is written by SettleActive
+  // when the platform reveal asks for it (per-body mount/activate/settle) —
+  // plus whatever the user's ISceneTransition director does.
 
   private void ApplyChangeSet(LayoutBodyChangeSet<IViewLocation<PControl>> cs)
   {

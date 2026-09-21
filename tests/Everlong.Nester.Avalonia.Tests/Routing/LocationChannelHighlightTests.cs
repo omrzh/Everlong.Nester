@@ -13,7 +13,7 @@ namespace Everlong.Nester.Tests.Routing;
 
 /// <summary>
 ///   The nav chrome highlight channel: a RouteLink / RouteTreeItem under a
-///   routing surface (the NavigationHost) binds to the surface's router at
+///   routing surface (the RoutingView) binds to the surface's router at
 ///   attach and follows the router stack's site notifications — the chrome
 ///   lights up and dims as the surface navigates, without any tree-wide
 ///   property broadcast.
@@ -48,7 +48,7 @@ public class NavChromeHighlightTests
   public async Task LinkUnderSurface_FollowsRouterStack_OnNavigation()
   {
     var shell = new FakeShell();
-    var host = new NavigationHost();
+    var host = new RoutingView();
     var router = new TestRouter(shell, host);
 
     var link = new RouteLink { DataContext = PostsItem() };
@@ -84,7 +84,7 @@ public class NavChromeHighlightTests
   public async Task LinkUnderSurface_ActiveViaParticipantVote()
   {
     var shell = new FakeShell();
-    var host = new NavigationHost();
+    var host = new RoutingView();
     var router = new TestRouter(shell, host);
 
     var link = new RouteLink { DataContext = PostsItem() };
@@ -113,7 +113,7 @@ public class NavChromeHighlightTests
   public async Task TreeItem_Group_IsSelfActiveOnItsOwnPage()
   {
     var shell = new FakeShell();
-    var host = new NavigationHost();
+    var host = new RoutingView();
     var router = new TestRouter(shell, host);
 
     var item = new RouteTreeItem
@@ -155,7 +155,7 @@ public class NavChromeHighlightTests
   public async Task TreeItem_Group_HasHighlightedDescendant_WhileAChildIsPresented()
   {
     var shell = new FakeShell();
-    var host = new NavigationHost();
+    var host = new RoutingView();
     var router = new TestRouter(shell, host);
 
     var child = PostsItem();

@@ -127,13 +127,13 @@ public class DialogOverlayBehaviorTests
     return (shell, shell.Panel, shell.Shell, shell.Services);
   }
 
-  private static NavigationHost SingleCapsule(StagePanel panel)
+  private static RoutingView SingleCapsule(StagePanel panel)
     => Assert.Single(panel.DerivedHosts());
 
   private static ContentLayer? CapsuleLayerOf(StagePanel panel, object session)
     => panel.DerivedLayers()
             .FirstOrDefault(layer =>
-              ReferenceEquals(((NavigationHost)layer.Content!).Location!.Instance, session));
+              ReferenceEquals(((RoutingView)layer.Content!).Location!.Instance, session));
 
   // ── ConfirmAsync's countdown runs the real pipeline — the button is disabled while it counts, enabled after ──
 
@@ -233,7 +233,7 @@ public class DialogOverlayBehaviorTests
     LaidOutDialogView? view = null;
     await WaitUntilAsync(() =>
     {
-      NavigationHost? host = panel.DerivedHosts().FirstOrDefault();
+      RoutingView? host = panel.DerivedHosts().FirstOrDefault();
       DimmerLayout? dimmer = host?.Children.OfType<DimmerLayout>().FirstOrDefault();
       view = dimmer is null
         ? null
