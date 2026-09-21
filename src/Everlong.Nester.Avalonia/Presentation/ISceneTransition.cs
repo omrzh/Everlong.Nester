@@ -15,6 +15,10 @@ namespace Everlong.Nester.Presentation;
 ///   transfer a <see cref="TransitionKind.Refresh" /> — is laid out and
 ///   visible: it never left the presentation.  The framework restores final
 ///   visibility after the method returns.
+///
+///   The wait for that layout is bounded, and it runs only while the stage
+///   has joined the visual tree: a view whose stack never does reaches the
+///   method unmeasured, and a director that reads geometry must tolerate it.
 /// </remarks>
 public interface ISceneTransition
 {

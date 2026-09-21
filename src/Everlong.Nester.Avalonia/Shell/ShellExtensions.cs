@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.VisualTree;
 using Everlong.Nester.Controls;
 using Everlong.Nester.Intent;
 using Everlong.Nester.Presentation;
@@ -65,26 +66,34 @@ public static class ShellOperatorExtensions
   }
 
   /// <summary>
-  ///   Resolves the flying layer's plane figure from any control under a
-  ///   shell's stage — the nearest stage ancestor, by a logical-tree walk.
-  ///   <see langword="null"/> outside a stage subtree, and while the stage's
-  ///   shell provides no flying layer.
+  ///   Resolves the stage owning any control below it — the nearest
+  ///   <see cref="StagePanel" /> ancestor, by a logical-tree walk.
+  ///   <see langword="null"/> outside a stage subtree.
   /// </summary>
-  public static FlyingCanvas? GetFlyingCanvas(this PControl control)
+  internal static StagePanel? GetStage(this PControl control)
   {
     StyledElement? node = control;
     while (node is not null)
     {
       if (node is StagePanel stage)
-      {
-        return stage.FlyingCanvas;
-      }
+        return stage;
 
       node = node.Parent;
     }
 
     return null;
   }
+
+  /// <summary>Whether <paramref name="control" /> has joined the visual tree.</summary>
+  internal static bool IsInVisualTree(this PControl control) => control.IsAttachedToVisualTree();
+
+  /// <summary>
+  ///   Resolves the flying layer's plane figure from any control under a
+  ///   shell's stage.  <see langword="null"/> outside a stage subtree, and
+  ///   while the stage's shell provides no flying layer.
+  /// </summary>
+  public static FlyingCanvas? GetFlyingCanvas(this PControl control)
+    => control.GetStage()?.FlyingCanvas;
 
   /// <summary>
   ///   Dispatches an intent from any control under a shell's stage — to the

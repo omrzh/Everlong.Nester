@@ -67,4 +67,29 @@ internal static class UIDispatcher
     if (d is not null)
       await d.InvokeAsync(static () => { }, System.Windows.Threading.DispatcherPriority.Background);
   }
+
+  /// <summary>The dispatcher turns <see cref="WaitForLayoutAsync" /> gives back before giving up.</summary>
+  private const int LayoutTurnBudget = 8;
+
+  /// <summary>
+  ///   Yields to the dispatcher until <paramref name="view" /> is laid out.
+  ///   Bounded: a view that never joins the tree costs the turn budget and no
+  ///   more.
+  /// </summary>
+  internal static async Task WaitForLayoutAsync(PControl view, CancellationToken token)
+  {
+    var dispatcher = System.Windows.Application.Current?.Dispatcher;
+    if (dispatcher is null)
+      return;
+
+    // Loaded is raised once the element is laid out — the predicate already
+    // means measured.
+    for (var turn = 0; turn < LayoutTurnBudget && !view.IsLoaded; turn++)
+    {
+      if (token.IsCancellationRequested)
+        return;
+
+      await dispatcher.InvokeAsync(static () => { }, System.Windows.Threading.DispatcherPriority.Background);
+    }
+  }
 }

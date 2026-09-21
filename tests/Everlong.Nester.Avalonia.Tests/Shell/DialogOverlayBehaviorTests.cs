@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Headless.XUnit;
 using Avalonia.Media;
+using Avalonia.VisualTree;
 using Everlong.Nester.Controls;
 using Everlong.Nester.Dialog;
 using Everlong.Nester.Intent;
@@ -52,13 +53,51 @@ public class DialogOverlayBehaviorTests
   {
   }
 
+  /// <summary>A sized dialog view that records its layout state when the director runs.</summary>
+  public sealed class LaidOutDialogView : ContentControl, ISceneTransition
+  {
+    public LaidOutDialogView()
+    {
+      Width = 200;
+      Height = 120;
+    }
+
+    /// <summary>Whether <see cref="AnimateEnterAsync" /> has been entered.</summary>
+    public bool EnterRan { get; private set; }
+
+    /// <summary>Whether the view was attached when <see cref="AnimateEnterAsync" /> ran.</summary>
+    public bool AttachedAtEnter { get; private set; }
+
+    /// <summary>The view's measured width when <see cref="AnimateEnterAsync" /> ran.</summary>
+    public double WidthAtEnter { get; private set; }
+
+    /// <summary>The view's measured height when <see cref="AnimateEnterAsync" /> ran.</summary>
+    public double HeightAtEnter { get; private set; }
+
+    public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
+    {
+      EnterRan = true;
+      AttachedAtEnter = this.IsAttachedToVisualTree();
+      WidthAtEnter = Bounds.Width;
+      HeightAtEnter = Bounds.Height;
+      return Task.CompletedTask;
+    }
+
+    public Task AnimateExitAsync(TransitionContext context, CancellationToken token) => Task.CompletedTask;
+  }
+
+  public sealed class LaidOutDialog : DialogSessionBase<object?>
+  {
+  }
+
   private sealed class ViewLocator : IDataTemplate
   {
-    public bool Match(object? data) => data is ProbeDialog or ExitingDialog or ConfirmDialogSession;
+    public bool Match(object? data) => data is ProbeDialog or ExitingDialog or LaidOutDialog or ConfirmDialogSession;
 
     public Control? Build(object? data) => data switch
     {
       ExitingDialog => new ExitingDialogView(),
+      LaidOutDialog => new LaidOutDialogView(),
       _ => new ContentControl()
     };
   }
@@ -68,6 +107,23 @@ public class DialogOverlayBehaviorTests
     var shell = RealShell.Create<RealShell.RealTestContext>(
       register: s => { },
       template: new ViewLocator());
+    return (shell, shell.Panel, shell.Shell, shell.Services);
+  }
+
+  /// <summary>A real host window — the stage joins a visual root, so the
+  /// arriving view's layout is observable at all.</summary>
+  private sealed class HostWindow : Window, IAvaloniaShellHost
+  {
+    public void HostShell(IAvaloniaShell shell, Control stage) => Content = stage;
+  }
+
+  private static (RealShell Stage, StagePanel Panel, AvaloniaShell Shell, IServiceProvider Sp) CreateWindowedShell()
+  {
+    var window = new HostWindow { Width = 900, Height = 600 };
+    var shell = RealShell.Create<RealShell.RealTestContext>(
+      register: s => { },
+      template: new ViewLocator(),
+      rootView: window);
     return (shell, shell.Panel, shell.Shell, shell.Services);
   }
 
@@ -161,6 +217,42 @@ public class DialogOverlayBehaviorTests
     await showTask;
     Assert.Equal(1, view.ExitCount);
     Assert.Empty(panel.DerivedHosts());
+  }
+
+  // ── the arriving view is laid out when the director runs (ISceneTransition's contract) ──
+
+  [AvaloniaFact]
+  public async Task DialogEnter_DirectorSeesLaidOutArrivingView()
+  {
+    var (_, panel, _, sp) = CreateWindowedShell();
+    var dialogs = sp.GetRequiredService<IRouter>();
+    var session = new LaidOutDialog();
+
+    Task showTask = dialogs.ShowAsync(session);
+
+    LaidOutDialogView? view = null;
+    await WaitUntilAsync(() =>
+    {
+      NavigationHost? host = panel.DerivedHosts().FirstOrDefault();
+      DimmerLayout? dimmer = host?.Children.OfType<DimmerLayout>().FirstOrDefault();
+      view = dimmer is null
+        ? null
+        : ((LayoutBody)dimmer.GetLayoutBody()).Children
+            .OfType<LaidOutDialogView>().FirstOrDefault();
+      return view is { EnterRan: true };
+    });
+
+    Assert.NotNull(view);
+
+    // ISceneTransition: "an entering view is mounted, laid out and invisible
+    // when the method runs".  A derived (dialog) router mounts its host in
+    // the same turn the director runs, so this is where the guarantee bites.
+    Assert.True(view.AttachedAtEnter, "the arriving view was not attached when the director ran");
+    Assert.True(view.WidthAtEnter > 0, "the arriving view had no measured width when the director ran");
+    Assert.True(view.HeightAtEnter > 0, "the arriving view had no measured height when the director ran");
+
+    session.Close();
+    await showTask.WaitAsync(TimeSpan.FromSeconds(5));
   }
 
   // ── a close lower in the stack — the lower session settles itself and closes only its own overlay; the top is untouched ──

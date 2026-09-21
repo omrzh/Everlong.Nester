@@ -64,25 +64,34 @@ public static class OperatorExtensions
   }
 
   /// <summary>
-  ///   Resolves the flying layer's plane figure from any element under a
-  ///   shell's stage.  <see langword="null"/> outside a stage subtree, and
-  ///   while the stage's shell provides no flying layer.
+  ///   Resolves the stage owning any element below it — the nearest
+  ///   <see cref="StagePanel" /> ancestor.  <see langword="null"/> outside
+  ///   a stage subtree.
   /// </summary>
-  public static FlyingCanvas? GetFlyingCanvas(this DependencyObject control)
+  internal static StagePanel? GetStage(this DependencyObject control)
   {
     DependencyObject? node = control;
     while (node is not null)
     {
       if (node is StagePanel stage)
-      {
-        return stage.FlyingCanvas;
-      }
+        return stage;
 
       node = StepUp(node);
     }
 
     return null;
   }
+
+  /// <summary>Whether <paramref name="control" /> has joined the visual tree.</summary>
+  internal static bool IsInVisualTree(this PControl control) => control.IsLoaded;
+
+  /// <summary>
+  ///   Resolves the flying layer's plane figure from any element under a
+  ///   shell's stage.  <see langword="null"/> outside a stage subtree, and
+  ///   while the stage's shell provides no flying layer.
+  /// </summary>
+  public static FlyingCanvas? GetFlyingCanvas(this DependencyObject control)
+    => control.GetStage()?.FlyingCanvas;
 
   /// <summary>
   ///   Dispatches an intent from any control under a shell's stage — to the

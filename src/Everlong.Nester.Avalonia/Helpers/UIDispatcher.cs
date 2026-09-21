@@ -1,4 +1,5 @@
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 
 namespace Everlong.Nester.Helpers;
 
@@ -54,5 +55,29 @@ internal static class UIDispatcher
   internal static async Task WaitForLoadedAsync()
   {
     await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
+  }
+
+  /// <summary>The dispatcher turns <see cref="WaitForLayoutAsync" /> gives back before giving up.</summary>
+  private const int LayoutTurnBudget = 8;
+
+  /// <summary>
+  ///   Yields to the dispatcher until <paramref name="view" /> is attached to
+  ///   the visual tree and measured.  Bounded: a view that never joins the
+  ///   tree costs the turn budget and no more.
+  /// </summary>
+  internal static async Task WaitForLayoutAsync(PControl view, CancellationToken token)
+  {
+    for (var turn = 0; turn < LayoutTurnBudget && !view.IsAttachedToVisualTree(); turn++)
+    {
+      if (token.IsCancellationRequested)
+        return;
+
+      await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
+    }
+
+    // Attached is not measured: a view added to an attached parent joins the
+    // tree at once and is measured by the pass this turn gives back.
+    if (view.IsAttachedToVisualTree() && view.Bounds is not { Width: > 0, Height: > 0 })
+      await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
   }
 }

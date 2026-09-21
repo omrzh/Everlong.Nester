@@ -189,9 +189,14 @@ internal sealed class PlatformRevealStage
       view.IsHitTestVisible = false;
     }
 
-    if (_host is ILayoutBody<PControl> { IsAttachedToVisualTree: true } &&
-        arrivingView is { IsLoaded: false })
-      await UIDispatcher.WaitForLoadedAsync();
+    // ── The director's contract: the arriving view is laid out when it runs.
+    //    The wait cannot be gated on the host's own attachment — a derived
+    //    router's host joins the tree in this very turn, and the arriving
+    //    view is exactly what the director was handed.  The stage is the
+    //    signal that layout is possible at all. ──
+    if (arrivingView is { } arrivingHead &&
+        _host.GetStage() is { } stage && stage.IsInVisualTree())
+      await UIDispatcher.WaitForLayoutAsync(arrivingHead, convergence.Lifetime);
 
     // ── Director animation (failure-isolated — a throwing director must
     // not block the final visibility or the entry-release) ──
