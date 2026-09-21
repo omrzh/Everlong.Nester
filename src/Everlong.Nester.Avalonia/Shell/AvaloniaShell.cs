@@ -102,11 +102,11 @@ public abstract partial class AvaloniaShell : ShellBase
   protected override ILayerLease CreateLease(ILayerLedger ledger, int z)
     => new ContentLayerLease(new ContentLayer(), ledger, z);
 
-  /// <summary>Creates the stage panel, hands it its owner and connects the broker ledger to it.</summary>
+  /// <summary>Creates the stage panel, binds it to its owner and the shell's flying layer, and connects the broker ledger to it.</summary>
   protected override void PrepareStage()
   {
     StagePanel ??= new StagePanel();
-    StagePanel.Shell = this;
+    StagePanel.BindShell(this, ShellServiceScope?.ServiceProvider.GetService<IFlyingLayer>());
     ConnectLedger(StagePanel);
   }
 

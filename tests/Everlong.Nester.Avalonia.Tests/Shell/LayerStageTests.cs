@@ -161,24 +161,27 @@ public class LayerStageTests
 }
 
 /// <summary>
-///   The flying layer contract (2026-08): the transition common area is a
-///   window-scoped service that rents the top band
-///   (<see cref="KnownLayers.Flying" />) from the shell — one canvas per
-///   window, above every floor (navigation, dialog, notice).
+///   The flying layer contract (2026-09): the window-scoped tenant rents the
+///   top band (<see cref="KnownLayers.Flying" />) from the shell; the same
+///   plane figure is the stage's <see cref="StagePanel.FlyingCanvas" /> and
+///   the container's <see cref="IFlyingLayer" />.
 /// </summary>
 [Collection("RealShell")]
 public class FlyingLayerServiceTests
 {
   [AvaloniaFact]
-  public async Task RentsTopBand_CanvasIsPlaneFigure()
+  public async Task ContainerResolvesTheStagePlane()
   {
     var shell = RealShell.Create<RealShell.RealTestContext>();
     try
     {
-      var flying = shell.Services.GetRequiredService<ShellFlyingLayer>();
+      var flying = shell.Services.GetRequiredService<IFlyingLayer>();
       Assert.NotNull(flying.Canvas);
 
-      // The canvas is pulled into the top-band slot mounted on the shell stage.
+      // The stage and the container hand out the same plane.
+      Assert.Same(flying.Canvas, shell.Panel.FlyingCanvas);
+
+      // It is pulled into the top-band slot mounted on the shell stage.
       var slot = shell.Panel.Children.OfType<ContentControl>()
         .Single(c => KnownLayers.Flying.Contains(ZOrder.Get(c)));
       Assert.Same(flying.Canvas, slot.Content);
@@ -187,5 +190,18 @@ public class FlyingLayerServiceTests
     {
       await shell.Shell.DisposeAsync();
     }
+  }
+
+  [AvaloniaFact]
+  public void UnassembledStage_BindsNoPlane()
+  {
+    // A shell that never assembled has no container — the bind degrades to
+    // no plane instead of reading the shell's throwing Services face.
+    var shell = new BareShell();
+    var panel = new StagePanel();
+
+    shell.ConnectStage(panel);
+
+    Assert.Null(panel.FlyingCanvas);
   }
 }

@@ -6,7 +6,6 @@ using Everlong.Nester.Controls;
 using Everlong.Nester.Helpers;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Shell;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Everlong.Nester.Routing;
 
@@ -66,13 +65,8 @@ internal sealed class AssembleViewsStage
 internal sealed class PlatformRevealStage
 {
   private readonly NavigationHost _host;
-  private readonly Lazy<PCanvas?> _flyingCanvas;
 
-  internal PlatformRevealStage(NavigationHost host)
-  {
-    _host = host;
-    _flyingCanvas = new(() => _host.GetShell()?.Services?.GetService<ShellFlyingLayer>()?.Canvas);
-  }
+  internal PlatformRevealStage(NavigationHost host) => _host = host;
 
   internal async Task RevealAsync(IConvergenceScene convergence)
   {
@@ -201,7 +195,7 @@ internal sealed class PlatformRevealStage
 
     // ── Director animation (failure-isolated — a throwing director must
     // not block the final visibility or the entry-release) ──
-    if (directorView is ISceneTransition director && _flyingCanvas.Value is { } canvas)
+    if (directorView is ISceneTransition director && _host.GetFlyingCanvas() is { } canvas)
     {
       var transition = new TransitionContext(canvas, kind)
       {

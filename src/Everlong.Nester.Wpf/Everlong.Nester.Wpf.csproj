@@ -49,6 +49,8 @@
     <Compile Include="..\Everlong.Nester.Avalonia\Routing\PlatformStages.cs" Link="Routing\PlatformStages.cs" />
     <!-- Presentation -->
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\SharedAttributes.cs" Link="Presentation\SharedAttributes.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\FlyingCanvas.cs" Link="Presentation\FlyingCanvas.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\IFlyingLayer.cs" Link="Presentation\IFlyingLayer.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\ShellFlyingLayer.cs" Link="Presentation\ShellFlyingLayer.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\ISceneTransition.cs" Link="Presentation\ISceneTransition.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\TransitionKind.cs" Link="Presentation\TransitionKind.cs" />

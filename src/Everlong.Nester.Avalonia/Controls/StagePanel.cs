@@ -15,7 +15,24 @@ namespace Everlong.Nester.Controls;
 internal class StagePanel : PPanel, IShellStage, ILayerStage
 {
   /// <inheritdoc />
-  public IShell Shell { get; internal set; } = null!;
+  public IShell Shell { get; private set; } = null!;
+
+  /// <summary>
+  ///   The flying layer's plane figure, or <see langword="null" /> while no
+  ///   shell container provides one.
+  /// </summary>
+  /// <remarks>
+  ///   Assigned at <see cref="BindShell" />; the plane enters the visual
+  ///   tree when its lease is mounted on this stage.
+  /// </remarks>
+  public FlyingCanvas? FlyingCanvas { get; private set; }
+
+  /// <summary>Binds the stage to its owning shell and to the shell's flying layer.</summary>
+  internal void BindShell(IShell shell, IFlyingLayer? flying)
+  {
+    Shell = shell;
+    FlyingCanvas = flying?.Canvas;
+  }
 
   private readonly Dictionary<ContentLayer, LayerListener> _listeners = [];
 

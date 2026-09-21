@@ -79,11 +79,11 @@ public abstract partial class WpfShell : ShellBase
   protected override ILayerLease CreateLease(ILayerLedger ledger, int z)
     => new ContentLayerLease(new ContentLayer(), ledger, z);
 
-  /// <summary>Creates the stage panel, hands it its owner and connects the broker ledger to it.</summary>
+  /// <summary>Creates the stage panel, binds it to its owner and the shell's flying layer, and connects the broker ledger to it.</summary>
   protected override void PrepareStage()
   {
     _stagePanel ??= new StagePanel();
-    _stagePanel.Shell = this;
+    _stagePanel.BindShell(this, ShellServiceScope?.ServiceProvider.GetService<IFlyingLayer>());
     ConnectLedger(_stagePanel);
   }
 

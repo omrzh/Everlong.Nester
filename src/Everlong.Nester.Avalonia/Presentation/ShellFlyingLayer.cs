@@ -7,14 +7,11 @@ using Everlong.Nester.Layer;
 namespace Everlong.Nester.Presentation;
 
 /// <summary>
-///   The transition common area — a window-scoped service that rents the
-///   flying layer (the top z band) from the shell and delivers its canvas
-///   as the plane figure.  Any domain that animates above the floors
-///   (navigation ghosts, dialog ghosts) injects this service and draws on
-///   <see cref="Canvas" />: one canvas per window, no per-domain
-///   duplication, no stage dependency.
+///   The flying layer's tenant — rents the top band
+///   (<see cref="KnownLayers.Flying" />) from the shell and delivers its
+///   plane figure.
 /// </summary>
-internal sealed class ShellFlyingLayer : ILayerTenant
+internal sealed class ShellFlyingLayer : ILayerTenant, IFlyingLayer
 {
   private readonly ILayerLease _lease;
 
@@ -27,8 +24,8 @@ internal sealed class ShellFlyingLayer : ILayerTenant
     _lease = broker.Acquire(this, Canvas, KnownLayers.Flying, LayerPolicy.Floor);
   }
 
-  /// <summary>The flying canvas — the plane figure filling the flying layer's slot.</summary>
-  public PCanvas Canvas { get; } = new();
+  /// <inheritdoc />
+  public FlyingCanvas Canvas { get; } = new();
 
   ValueTask ILayerTenant.OnEvictedAsync(ILayerLease lease)
   {

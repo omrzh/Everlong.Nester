@@ -1,5 +1,7 @@
 using Avalonia;
+using Everlong.Nester.Controls;
 using Everlong.Nester.Intent;
+using Everlong.Nester.Presentation;
 using Everlong.Nester.Primitives;
 
 namespace Everlong.Nester.Shell;
@@ -54,6 +56,28 @@ public static class ShellOperatorExtensions
       if (node is IShellStage stage)
       {
         return stage.Shell;
+      }
+
+      node = node.Parent;
+    }
+
+    return null;
+  }
+
+  /// <summary>
+  ///   Resolves the flying layer's plane figure from any control under a
+  ///   shell's stage — the nearest stage ancestor, by a logical-tree walk.
+  ///   <see langword="null"/> outside a stage subtree, and while the stage's
+  ///   shell provides no flying layer.
+  /// </summary>
+  public static FlyingCanvas? GetFlyingCanvas(this PControl control)
+  {
+    StyledElement? node = control;
+    while (node is not null)
+    {
+      if (node is StagePanel stage)
+      {
+        return stage.FlyingCanvas;
       }
 
       node = node.Parent;

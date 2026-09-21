@@ -1,7 +1,9 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using Everlong.Nester.Controls;
 using Everlong.Nester.Intent;
+using Everlong.Nester.Presentation;
 using Everlong.Nester.Primitives;
 
 namespace Everlong.Nester.Shell;
@@ -53,6 +55,27 @@ public static class OperatorExtensions
       if (node is IShellStage stage)
       {
         return stage.Shell;
+      }
+
+      node = StepUp(node);
+    }
+
+    return null;
+  }
+
+  /// <summary>
+  ///   Resolves the flying layer's plane figure from any element under a
+  ///   shell's stage.  <see langword="null"/> outside a stage subtree, and
+  ///   while the stage's shell provides no flying layer.
+  /// </summary>
+  public static FlyingCanvas? GetFlyingCanvas(this DependencyObject control)
+  {
+    DependencyObject? node = control;
+    while (node is not null)
+    {
+      if (node is StagePanel stage)
+      {
+        return stage.FlyingCanvas;
       }
 
       node = StepUp(node);
