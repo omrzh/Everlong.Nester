@@ -13,13 +13,17 @@ public partial class PostDetailPage : UserControl, ISceneTransition
 
   public async Task AnimateEnterAsync(TransitionContext ctx, CancellationToken token)
   {
+    // The view parked what it wants flown — the card this button sits in;
+    // taking it, checking it belongs to this post, and emptying the slot
+    // are this director's own.
+    FrameworkElement? anchor = ctx.FlyingCanvas?.Anchor as FrameworkElement;
+    if (ctx.FlyingCanvas is { } plane)
+      plane.Anchor = null;
+
     Rect? sourceRect = null;
-    if (DataContext is PostDetailPageModel { Post: { } post } &&
-        ctx.DepartingHead is PostsPage { PostList: { } postsList } &&
-        postsList.ItemContainerGenerator.ContainerFromItem(post) is FrameworkElement container)
-    {
-      sourceRect = ctx.CaptureRelativeRect(container);
-    }
+    if (DataContext is PostDetailPageModel { Post: { } post }
+        && anchor is Border card && ReferenceEquals(card.DataContext, post))
+      sourceRect = ctx.CaptureRelativeRect(card);
 
     const int durationMs = 600;
     const int stagger = 80;
@@ -53,4 +57,5 @@ public partial class PostDetailPage : UserControl, ISceneTransition
     await new GhostFlyItem(sourceRect, ctx.CaptureRelativeRect(container)).FlyAsync(ctx, token);
     container.Opacity = 1;
   }
+
 }

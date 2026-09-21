@@ -1,0 +1,9 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:n="https://nester.dev">
+  <Border x:Name="Card">
+    <Grid>
+      <Button n:Transition.Anchor="{Binding #Card}" />
+    </Grid>
+  </Border>
+</UserControl>

@@ -43,6 +43,12 @@ tap and the arriving director needs afterwards — a shared-element origin, for 
 with the surface, by `FlyingCanvas.Clear()` and when the plane's lease is reclaimed, and reading it does
 not take it.  Child visuals go on `Children` as before.
 
+**Feature.** The extensions mark a control as the anchor of a transition: `n:Transition.Anchor` parks
+the annotation's value — the card to fly, handed over by the view — in its window's plane, and the park
+lands before the button's own command runs.  `FlyingCanvas.Anchor` is a plain slot: a read hands the
+value back and does not take it, so emptying the slot is the reader's own.  Both templates do exactly
+that on the post list (`PostsPage` → `PostDetailPage`).
+
 ## 0.1.7 — 2026-09-20
 
 The first release, seven packages at one version plus the template package:
