@@ -35,8 +35,12 @@ public partial class ImagePreviewDialogView : UserControl, IArriving, ISceneTran
   {
     // FlyingCanvas covers the entire content area — fix Chrome size now so
     // images never resize the dialog.
-    ChromeBorder.Width = Math.Clamp(context.FlyingCanvas.Bounds.Width * 0.85, 800, 1280);
-    ChromeBorder.Height = Math.Clamp(context.FlyingCanvas.Bounds.Height * 0.78, 600, 900);
+    if (context.FlyingCanvas is { } plane)
+    {
+      ChromeBorder.Width = Math.Clamp(plane.Bounds.Width * 0.85, 800, 1280);
+      ChromeBorder.Height = Math.Clamp(plane.Bounds.Height * 0.78, 600, 900);
+    }
+
     return Task.CompletedTask;
   }
 

@@ -29,10 +29,11 @@ internal sealed class ShellFlyingLayer : ILayerTenant, IFlyingLayer
 
   ValueTask ILayerTenant.OnEvictedAsync(ILayerLease lease)
   {
-    // The shell is tearing down — the scope dies with it; just drop the ghosts.
+    // The shell is tearing down — the scope dies with it; drop the ghosts
+    // and whatever the surface was still carrying.
     if (_lease == lease)
     {
-      Canvas.Children.Clear();
+      Canvas.Clear();
     }
 
     return ValueTask.CompletedTask;

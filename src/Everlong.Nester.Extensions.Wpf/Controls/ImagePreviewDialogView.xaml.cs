@@ -37,9 +37,12 @@ public partial class ImagePreviewDialogView : UserControl, IArriving, ISceneTran
   {
     // FlyingCanvas covers the entire content area — fix Chrome size now so
     // images never resize the dialog.
-    ChromeBorder.Width = Math.Clamp(context.FlyingCanvas.ActualWidth * 0.85, 800, 1280);
-    ChromeBorder.Height = Math.Clamp(context.FlyingCanvas.ActualHeight * 0.78, 600, 900);
-    context.FlyingCanvas.UpdateLayout();
+    if (context.FlyingCanvas is { } plane)
+    {
+      ChromeBorder.Width = Math.Clamp(plane.ActualWidth * 0.85, 800, 1280);
+      ChromeBorder.Height = Math.Clamp(plane.ActualHeight * 0.78, 600, 900);
+      plane.UpdateLayout();
+    }
 
     // WPF's Border.ClipToBounds does NOT clip to CornerRadius — the top bar
     // Grid (at VerticalAlignment="Top") bleeds into rounded corners without

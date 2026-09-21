@@ -50,8 +50,12 @@ public record GhostFlyItem(PRect SourceRect, PRect DestRect, TimeSpan? Duration 
   });
 
   /// <summary>Adds the ghost to <paramref name="canvas" />, flies it to <see cref="DestRect" /> and removes it — also when the flight is cancelled.</summary>
-  public async Task FlyAsync(PCanvas canvas, CancellationToken token)
+  /// <remarks>With no canvas there is no surface to fly on, and nothing happens.</remarks>
+  public async Task FlyAsync(PCanvas? canvas, CancellationToken token)
   {
+    if (canvas is null)
+      return;
+
     TimeSpan dur = Duration ?? DefaultDuration;
 
     double srcW = Math.Max(1d, SourceRect.Width);

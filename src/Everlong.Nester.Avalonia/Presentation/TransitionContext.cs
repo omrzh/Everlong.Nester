@@ -9,13 +9,14 @@ namespace Everlong.Nester.Presentation;
 ///   the transition's kind.
 /// </summary>
 /// <param name="FlyingCanvas">
-///   The overlay canvas for ghost visuals; the coordinate reference for
-///   <c>CaptureRelativeRect</c> and <c>TranslatePoint</c>.
+///   The window's flying plane — where ghost visuals land, the frame
+///   <c>CaptureRelativeRect</c> and <c>TranslatePoint</c> measure in, and
+///   the carrier of whatever the view layer parked in its anchor.
 ///   <see langword="null"/> outside page composition (notices).
 /// </param>
 /// <param name="Kind">The kind of this transition.</param>
 public sealed partial record TransitionContext(
-  PCanvas FlyingCanvas,
+  FlyingCanvas? FlyingCanvas,
   TransitionKind Kind)
 {
   /// <summary>

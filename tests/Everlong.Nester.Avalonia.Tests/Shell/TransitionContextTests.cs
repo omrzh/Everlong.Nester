@@ -20,7 +20,7 @@ public sealed class TransitionContextTests
   private sealed class PlainView : ContentControl;
 
   private static TransitionContext Ctx(TransitionKind change, Control[] arriving, Control[] departing)
-    => new(new Canvas(), change)
+    => new(new FlyingCanvas(), change)
     {
       ArrivingChain = arriving,
       DepartingChain = departing,

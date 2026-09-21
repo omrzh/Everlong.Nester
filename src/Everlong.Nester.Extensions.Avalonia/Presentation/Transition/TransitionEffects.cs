@@ -86,8 +86,12 @@ public static class TransitionEffects
   // ── Element-level flight helpers ──
 
   /// <summary>Places <paramref name="element" /> at <paramref name="sourceRect" /> — measured against <paramref name="rootBody" /> — and makes it invisible.</summary>
-  public static void PrepareFromRect(PVisual element, PRect sourceRect, PVisual rootBody)
+  /// <remarks>Without a frame the element is left untouched.</remarks>
+  public static void PrepareFromRect(PVisual element, PRect sourceRect, PVisual? rootBody)
   {
+    if (rootBody is null)
+      return;
+
     var pos = element.TranslatePoint(default, rootBody) ?? default;
     element.RenderTransform = new TranslateTransform(
       sourceRect.X - pos.X,
