@@ -146,11 +146,11 @@ public abstract partial class WpfShell : ShellBase
   {
     await next(context);
     if (context.IsTerminated
-      || context.Intent is not IShellIntent intent
+      || context.Intent is not IWindowIntent and not IShellIntent
       || HostWindow is not { } window)
       return;
 
-    switch (intent)
+    switch (context.Intent)
     {
       case TryCloseIntent:
       case CloseIntent:

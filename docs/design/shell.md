@@ -83,8 +83,8 @@ signal; they never await `Start()`.
 
 `ShellBase` fixes the order and never references host or stage types. The platform supplies the leaves:
 the provider, the lease, the stage, the host surface and its wiring, the window or view that
-participates in the intent chain (a pass-through stands in when there is none), the platform
-window-intent family as the chain's last link, the ready / startup / terminal-error hooks, the native
+participates in the intent chain (a pass-through stands in when there is none), the platform's own
+intent families as the chain's last link, the ready / startup / terminal-error hooks, the native
 handle and the platform services. Each leaf states its own role.
 
 The framework never presents the window: the host presents itself in the ready anchor (the
@@ -108,12 +108,15 @@ choice is the view-resolution domain's.
 
 The shell's pipeline folds four stages: **layers → Director → host → fallback**. Layers are asked
 topmost first (the stacking order the layer domain fixes); the Director is the application's decision
-surface; the host optionally participates; the fallback is the platform's window-intent family,
-reached only when nothing upstream settled.
+surface; the host optionally participates; the fallback is the platform's own families — the window
+intents and the shell-lifecycle pair — reached only when nothing upstream settled.
 
-Two shell-side facts belong here. The layers stage reports a throwing handler and lets the dispatch
+Three shell-side facts belong here. The layers stage reports a throwing handler and lets the dispatch
 continue. The Director stage arbitrates a throw through `HandleError`: accepted settles as `Pass`,
-declined rethrows to the dispatch caller.
+declined rethrows to the dispatch caller. The third is the two families themselves. A window intent is
+answered where a window exists, so a surface without one leaves it `Pass` — consuming it would report a
+window operation as performed on a surface that has no window. The shell-lifecycle pair is the other
+way round: ending the shell is a fact about every surface, so every platform answers it.
 
 ## 6. The Director
 

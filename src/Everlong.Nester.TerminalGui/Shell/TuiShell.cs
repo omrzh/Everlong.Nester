@@ -63,6 +63,9 @@ public abstract class TuiShell : ShellBase
     if (context.IsTerminated)
       return;
 
+    // The terminal surface has no window, so no IWindowIntent is answered
+    // here — the guard below leaves one unanswered (Pass).  Only ending the
+    // shell is this surface's own business.
     if (context.Intent is not IShellIntent)
       return;
 
@@ -74,16 +77,6 @@ public abstract class TuiShell : ShellBase
         // shell, then end the app session.
         await DisposeAsync();
         TerminalRuntime.App?.RequestStop();
-        context.Handle(this);
-        break;
-      case HideIntent:
-      case ShowIntent:
-      case MutateShellStateIntent:
-      case RestoreShellStateIntent:
-      case TopmostIntent:
-      case CenterOnScreenIntent:
-      case CenterOnOwnerIntent:
-        // The terminal surface has no window chrome — the family is consumed.
         context.Handle(this);
         break;
     }

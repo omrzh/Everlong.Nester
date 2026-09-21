@@ -55,6 +55,21 @@ not belong here, and an entry is deleted when it is done, never struck through.
 - **macOS has never built this tree.** `ci.yml` verifies Linux on every push and the Windows gate runs locally,
   so what remains unrun is a Mac. `build.sh` and the workloads are the parts that could differ.
   *Decided by: someone running it, or dropping the claim.*
+- **`CloseIntent` is not as uncancellable as its old doc promised.** The pair differs only in which handler
+  probes it: the app Director's guard is keyed on `TryCloseIntent`
+  (`examples/Template.Shared/Pages/Shell/MainViewModel.cs:119`), while any presented page vetoes either one
+  through the chain consultation `RouterBase.HandleAsync` runs first
+  (`src/Everlong.Nester/Routing/RouterBase.cs:592`). The claim the doc used to make is a property of the
+  sender, not of the record. Either the teardown leaves the intent path for a direct shell-teardown entry,
+  or one record is enough and `TryCloseIntent`'s `Try` is the whole difference.
+  *Decided by: a caller that needs a close nothing can refuse.*
+- **`HostState` names one thing three ways.** Its doc says "Window state for the shell"
+  (`src/Everlong.Nester/Primitives/HostState.cs:4`), its dispatch site is `MutateShellStateIntent`, and the
+  snapshot that carries it is `HostPropertyBase` — whose own members say "shell-state" and "shell title".
+  The honest name is out of reach at the moment: `src/Everlong.Nester.Wpf/Shell/ShellExtensions.cs`
+  imports both `System.Windows` and `Everlong.Nester.Primitives`, so a Nester `WindowState` would be
+  ambiguous there — the `PWindowState` alias adds a name and removes none.
+  *Decided by: moving the platform alias out of the way, or accepting a third name.*
 
 ## Considering
 

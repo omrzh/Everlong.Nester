@@ -245,14 +245,17 @@ public abstract partial class AvaloniaShell : ShellBase
     return HandleDesktopIntent(context, next);
   }
 
-  /// <summary>The desktop branch — walks the tunnel, then handles the window-intent family.</summary>
+  /// <summary>
+  ///   The desktop branch — walks the tunnel, then handles the window intents
+  ///   and the shell-lifecycle pair.
+  /// </summary>
   protected virtual async ValueTask HandleDesktopIntent(IntentContext context, IntentDelegate next)
   {
     await next(context);
     if (context.IsTerminated)
       return;
 
-    if (context.Intent is not IShellIntent)
+    if (context.Intent is not IWindowIntent and not IShellIntent)
       return;
 
     if (Window is not { } window)

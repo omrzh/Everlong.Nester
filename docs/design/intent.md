@@ -70,7 +70,11 @@ The order is the dispatcher's business, not the context's; nothing in the protoc
 
 An intent is a record whose payload is the request data. A family is a grouping interface over such
 records, **not a base class**: members stay independent records, and the family exists so a handler can
-answer a whole set of them with one type test.
+answer a whole set of them with one type test. A family is named after its **subject** — what its
+members are about — and never after the handler that answers the set: one handler may answer several
+families without merging them, and a member whose subject differs from its family's belongs in another
+one. A responder-named family states a fact about the chain instead of about the requests it carries,
+and the two part company as soon as a second handler answers the same subject.
 
 ```csharp
 internal interface IEditIntent : IIntent;                  // the family
