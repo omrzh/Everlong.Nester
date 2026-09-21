@@ -1,4 +1,6 @@
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using Everlong.Nester.Intent;
 using Everlong.Nester.Primitives;
 
@@ -40,9 +42,8 @@ public static class OperatorExtensions
   /// <summary>
   ///   Resolves the owning <see cref="IShell"/> from any control under a
   ///   shell's stage — the nearest <see cref="IShellStage"/> ancestor's
-  ///   owner, by a logical-tree walk.  <see langword="null"/> outside a
-  ///   stage subtree (host code above the stage holds its shell from the
-  ///   host contract).
+  ///   owner.  <see langword="null"/> outside a stage subtree (host code
+  ///   above the stage holds its shell from the host contract).
   /// </summary>
   public static IShell? GetShell(this DependencyObject control)
   {
@@ -54,12 +55,7 @@ public static class OperatorExtensions
         return stage.Shell;
       }
 
-      node = node switch
-      {
-        FrameworkElement fe => fe.Parent,
-        FrameworkContentElement fce => fce.Parent,
-        _ => null,
-      };
+      node = StepUp(node);
     }
 
     return null;
@@ -87,5 +83,30 @@ public static class OperatorExtensions
 
     _ = ctx.DispatchIntent(control, intent);
     return true;
+  }
+
+  /// <summary>
+  ///   Steps one level up an element's ancestry: the logical parent, or the
+  ///   visual parent where a template boundary leaves the logical tree.
+  /// </summary>
+  /// <remarks>
+  ///   WPF's <c>ContentPresenter</c> never joins the logical tree, so
+  ///   <c>DataTemplate</c> content and <c>ControlTemplate</c> children have
+  ///   no logical parent — a walk that reads <c>Parent</c> alone dead-ends
+  ///   there, short of the stage.  The visual parent carries it across.
+  /// </remarks>
+  private static DependencyObject? StepUp(DependencyObject node)
+  {
+    DependencyObject? logical = node switch
+    {
+      FrameworkElement fe => fe.Parent,
+      FrameworkContentElement fce => fce.Parent,
+      _ => null,
+    };
+
+    if (logical is not null)
+      return logical;
+
+    return node is Visual or Visual3D ? VisualTreeHelper.GetParent(node) : null;
   }
 }
