@@ -19,7 +19,7 @@ internal sealed class ContentLayerLease : LayerLeaseBase
 #if AVALONIA
     surface.ZIndex = z;
 #else
-    System.Windows.Controls.Canvas.SetZIndex(surface, z);
+    System.Windows.Controls.Panel.SetZIndex(surface, z);
 #endif
   }
 

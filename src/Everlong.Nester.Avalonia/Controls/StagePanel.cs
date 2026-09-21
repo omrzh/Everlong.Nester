@@ -12,7 +12,7 @@ namespace Everlong.Nester.Controls;
 ///   their content slots, and carries the owning shell's identity.  Its
 ///   public face is <see cref="IShellStage" />.
 /// </summary>
-internal class StagePanel : PGrid, IShellStage, ILayerStage
+internal class StagePanel : PPanel, IShellStage, ILayerStage
 {
   /// <inheritdoc />
   public IShell Shell { get; internal set; } = null!;
@@ -95,9 +95,38 @@ internal class StagePanel : PGrid, IShellStage, ILayerStage
 #if AVALONIA
     return layer.ZIndex;
 #else
-    return System.Windows.Controls.Canvas.GetZIndex(layer);
+    return System.Windows.Controls.Panel.GetZIndex(layer);
 #endif
   }
+
+#if !AVALONIA
+  // WPF's Panel lays out nothing on its own: these two overrides are what give
+  // the stage the platform's single-cell semantics.  Avalonia's Panel is
+  // already that, so the file carries the override for WPF alone.
+  /// <summary>Measures every layer at the full constraint; the stage desires the largest of them.</summary>
+  protected override System.Windows.Size MeasureOverride(System.Windows.Size availableSize)
+  {
+    double width = 0;
+    double height = 0;
+    foreach (System.Windows.UIElement layer in InternalChildren)
+    {
+      layer.Measure(availableSize);
+      width = Math.Max(width, layer.DesiredSize.Width);
+      height = Math.Max(height, layer.DesiredSize.Height);
+    }
+
+    return new System.Windows.Size(width, height);
+  }
+
+  /// <summary>Arranges every layer across the whole stage; alignment stays the layer's own.</summary>
+  protected override System.Windows.Size ArrangeOverride(System.Windows.Size finalSize)
+  {
+    var rect = new System.Windows.Rect(finalSize);
+    foreach (System.Windows.UIElement layer in InternalChildren)
+      layer.Arrange(rect);
+    return finalSize;
+  }
+#endif
 
   /// <summary>
   ///   The per-layer event wiring: content replacement and the content's
