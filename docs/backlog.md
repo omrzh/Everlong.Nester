@@ -35,6 +35,11 @@ not belong here, and an entry is deleted when it is done, never struck through.
   `dotnet build examples/Template.Avalonia.Android/Template.Avalonia.Android.csproj` with
   `-t:InstallAndroidDependencies -f net10.0-android`, `AndroidSdkDirectory` and `JavaSdkDirectory` set and
   `AcceptAndroidSDKLicenses=true`, then both paths exported so MSBuild reads them.
+- **The template's layout views are compile-verified only.** The Avalonia test head links `UiShell.cs`,
+  `MainViewModel.Avalonia.cs` and `Lang*.g.cs`
+  (`tests/Everlong.Nester.Avalonia.Tests/Everlong.Nester.Avalonia.Tests.csproj:54-59`), not the layout views,
+  so its `MainLayout` is a stub routing participant. `.agents/py/template_smoke.py` — CI's `templates` job —
+  is what exercises the real ones.
 
 ## Open verdicts
 
@@ -109,3 +114,10 @@ Decided against, recorded so the question is not opened twice.
 - **Caching NuGet packages in CI** — the restore is not where the minutes are; the workload install is.
 - **Restating the design-document ruler in `AGENTS.md`** — HARD RULE 6 states its scope and the fourteen specs
   are the shape samples a fifteenth is written from; the mechanical half has never been the thing that broke.
+- **A compile-time check that a layout model's view implements `IBodyHolder`.** The rule reads as mechanical —
+  a model referenced by `[Layout<T>]` is refused a locator
+  (`src/Everlong.Nester.Generators/Routes/RouteGenerator.cs:141`), so its view always needs the contract — and
+  both halves already exist (`Analyzers/MappingAnalyzer.cs:23` pairs `[ViewFor]` / `[Mapping]`;
+  `RouteGenerator.cs:24` collects the `[Layout<T>]` targets). Not built: a `[Layout<T>]`-referenced model can
+  also carry `[Routable]`, and the reference is compilation-local, so the premise holds only inside one
+  assembly. The runtime reports a blank page instead (`RoutingView.Body.cs`, `BodyOf`).
