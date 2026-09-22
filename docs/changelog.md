@@ -7,9 +7,11 @@ migration, a renamed package, a raised framework floor — not what the commit l
 Below 1.0 nothing is promised stable: a minor version may rename a type or change a contract, and an
 entry says so when it does. That is the one thing a consumer should assume rather than read here.
 
-## 0.1.9 — 2026-09-21
+## 0.1.10 — 2026-09-22
 
-The shell's intent family is split in two, one intent is gone, and the flying plane gains an anchor.
+Nothing between 0.1.7 and this one shipped — the only tag is `v0.1.7` — so this entry carries the whole
+span: the shell's intent family is split in two, one intent is gone, the flying plane gains an anchor, a
+view declares its mount point one way, and the family that names it is renamed.
 
 **Migrate.** `IShellIntent` carried two subjects under one name — the window's chrome and the shell's own
 end. Six records move to the new `IWindowIntent`: `ShowIntent`, `HideIntent`, `TopmostIntent`,
@@ -48,6 +50,34 @@ the annotation's value — the card to fly, handed over by the view — in its w
 lands before the button's own command runs.  `FlyingCanvas.Anchor` is a plain slot: a read hands the
 value back and does not take it, so emptying the slot is the reader's own.  Both templates do exactly
 that on the post list (`PostsPage` → `PostDetailPage`).
+
+**Migrate.** A view that can sit above another chain node must now declare its mount point: it
+implements `IBodyHolder` and returns the panel from `GetBodyPanel()`. The framework no longer searches
+the view's logical tree for a `LayoutBody` — the one named `Body`, or the only one. That search had no
+scoping rule, so a panel belonging to a layout the host composes declaratively was as much a candidate
+as the view's own, and it was invisible inside a `ControlTemplate`; a view that relied on the
+convention adds the contract and returns the panel from the code-behind.
+
+**Migrate.** The family is renamed around what the thing is — the body below the node — rather than
+the kind of host that carries it:
+
+| before | after |
+|---|---|
+| `ILayoutControl` | `IBodyHolder` |
+| `GetLayoutBody()` | `GetBodyPanel()` |
+| `ILayoutBody<TView>`, `ILayoutBody` | `IBodyPanel<TView>`, `IBodyPanel` |
+| `LayoutBody`, `<n:LayoutBody/>` | `BodyPanel`, `<n:BodyPanel/>` |
+| `TuiLayoutBody` | `TuiBodyPanel` |
+| `LayoutBodyController`, `LayoutBodyChangeSet` | `BodyPanelController`, `BodyPanelChangeSet` |
+
+The XAML element is the one name a consumer types, so every `<n:LayoutBody/>` becomes `<n:BodyPanel/>`.
+`Panel` is Nester's word here, not the platform's: Avalonia's `Panel` is a single-cell container,
+WPF's is not, and Terminal.Gui has no panel at all.
+
+**Behaviour.** A convergence no moving-side view directs now completes with the commit that landed it
+instead of a dispatcher pass later — the entry was made visible-but-transparent and laid out for a
+director that never ran. `ISceneTransition` still owes a laid-out view; the wait now sits in the branch
+that consumes it.
 
 ## 0.1.7 — 2026-09-20
 
