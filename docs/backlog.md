@@ -9,12 +9,14 @@ not belong here, and an entry is deleted when it is done, never struck through.
   `CommandBinding` names it, and `RegisterCommandBindings` binds the five shell-state commands only.
   `PostIntent(control, intent)` is the static path a binding would call. Bind it or drop it.
 - **`DialogShake.PlayBlockedSound` is an empty body on Avalonia**
-  (`src/Everlong.Nester.Extensions.Avalonia/Controls/DialogShake.cs`), where the WPF twin plays
-  `SystemSounds.Beep`. Public API whose caller is a consumer, so not dead code: wire a playback path.
+  (`src/Everlong.Nester.Extensions.Avalonia/Presentation/Controls/DialogShake.cs`), where the WPF twin
+  plays `SystemSounds.Beep`. Public API whose caller is a consumer, so not dead code: wire a playback
+  path.
 - **Analyzer release tracking is weaker than it reads.** `Microsoft.CodeAnalysis.Analyzers 3.3.4` arrives
   transitively and nothing pins it; `.editorconfig` sets no `RS*` severity, so `RS2000`–`RS2008` cannot fail a
-  build (they do fire when provoked); `Generators.csproj` removes the two `AnalyzerReleases.*.md` from
-  `AdditionalFiles`, which the package's targets include first, so the pair removes nothing.
+  build (they do fire when provoked); `src/Everlong.Nester.Generators/Everlong.Nester.Generators.csproj`
+  removes the two `AnalyzerReleases.*.md` from `AdditionalFiles`, which the package's targets include
+  first, so the pair removes nothing.
 - **Absorption at package level is untested.** The absorbed-revision flow, the transfer's two moving sides and
   the re-armed `IArriving` case run from HEAD source only, and the moving sides have never run on TerminalGui
   (`tests/Everlong.Nester.Tests/Routing/`).
@@ -24,9 +26,9 @@ not belong here, and an entry is deleted when it is done, never struck through.
   `docs/design/absorption.md` has both shapes.
 - **Three threads were never written down**: the focus-declared-by-the-view intent behind `FocusPolicy`
   (`StagePanel` maps it by stack position); the release-accounting numbers behind `PinChain` / `InstancePins`
-  (the identity-and-retention section of `docs/design/routing.md` has the shape, the `StackShapes` drill was
-  dropped); the RouteSync matcher audit and performance numbers (the section of `docs/design/routesync.md`
-  on how a highlight is derived has the mechanism).
+  (the identity-and-retention section of `docs/design/routing.md` has the shape, and the drill that measured
+  them was dropped); the RouteSync matcher audit and performance numbers (the section of
+  `docs/design/routesync.md` on how a highlight is derived has the mechanism).
 - **`CleanOutput` wipes `artifacts/`**, so a single target run leaves a partial output directory
   (`.\build.cmd PackTemplates` leaves only the template package). `Publish` is unaffected.
 - **The template smoke test's cleanup is best-effort** — an IDE build host holds a freshly generated project
