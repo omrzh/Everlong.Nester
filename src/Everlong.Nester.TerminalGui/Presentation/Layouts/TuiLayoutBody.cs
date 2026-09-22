@@ -7,7 +7,7 @@ namespace Everlong.Nester.Presentation;
 ///   routing stages mount chain views into; only the active child is
 ///   visible.
 /// </summary>
-public class TuiLayoutBody : View, ILayoutBody<View>
+public class TuiLayoutBody : View, ILayoutBody
 {
   private readonly LayoutBodyController<IViewLocation<View>> _controller = new();
 

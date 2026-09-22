@@ -9,7 +9,7 @@ namespace NesterApp.Pages.Shell;
 ///   The main layout — the chrome (title + nav buttons) around the layout's
 ///   <c>Body</c> slot, which hosts the inner chain.
 /// </summary>
-public sealed class MainLayoutView : NesterView, ITerminalBodyHost
+public sealed class MainLayoutView : NesterView, ILayoutControl
 {
   private readonly Button _backButton;
   private readonly Button _forwardButton;
@@ -42,7 +42,7 @@ public sealed class MainLayoutView : NesterView, ITerminalBodyHost
   }
 
   /// <inheritdoc />
-  public TuiLayoutBody Body => _body;
+  public ILayoutBody GetLayoutBody() => _body;
 
   private void Act(Action<MainLayoutModel> action)
   {

@@ -35,7 +35,7 @@ internal sealed class TerminalAssembleStage(IServiceProvider services)
 
   /// <summary>The node's inner mount point — its layout's declared Body slot.</summary>
   private static ILayoutBody<View>? ResolveBody(View view)
-    => view is ITerminalBodyHost host ? host.Body : null;
+    => view is ILayoutControl layoutControl ? layoutControl.GetLayoutBody() : null;
 }
 
 /// <summary>
