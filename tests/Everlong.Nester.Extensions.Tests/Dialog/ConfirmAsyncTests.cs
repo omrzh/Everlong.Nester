@@ -23,7 +23,7 @@ public class ConfirmAsyncTests
     public event PropertyChangedEventHandler? PropertyChanged;
 #pragma warning restore CS0067
 
-    Everlong.Nester.Routing.ILocation? IRouterStack.Location => null;
+    ILocation? IRouterStack.Location => null;
 
     public bool CanGoBack => false;
 
@@ -33,15 +33,15 @@ public class ConfirmAsyncTests
 
     public int? MaxDepth { get; set; }
 
-    public Everlong.Nester.Routing.ILocation? PeekPrevious() => null;
+    public ILocation? PeekPrevious() => null;
 
-    public Everlong.Nester.Routing.ILocation? PeekNext() => null;
+    public ILocation? PeekNext() => null;
 
-    public IReadOnlyList<Everlong.Nester.Routing.ILocation> BackStack() => [];
+    public IReadOnlyList<ILocation> BackStack() => [];
 
-    public IReadOnlyList<Everlong.Nester.Routing.ILocation> ForwardStack() => [];
+    public IReadOnlyList<ILocation> ForwardStack() => [];
 
-    public IReadOnlyList<Everlong.Nester.Routing.ILocation> Snapshot() => [];
+    public IReadOnlyList<ILocation> Snapshot() => [];
 
     public bool TrimBackward() => false;
 
