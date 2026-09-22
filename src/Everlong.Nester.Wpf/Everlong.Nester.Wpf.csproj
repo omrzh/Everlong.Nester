@@ -38,25 +38,25 @@
     <!-- DI -->
     <Compile Include="..\Everlong.Nester.Avalonia\DI\ServiceCollectionExtensions.cs" Link="DI\ServiceCollectionExtensions.cs" />
     <!-- Controls -->
-    <Compile Include="..\Everlong.Nester.Avalonia\Controls\StagePanel.cs" Link="Controls\StagePanel.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Controls\RoutingView.cs" Link="Controls\RoutingView.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Controls\RoutingView.Reveal.cs" Link="Controls\RoutingView.Reveal.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Controls\RoutingView.Body.cs" Link="Controls\RoutingView.Body.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Controls\ContentLayerLease.cs" Link="Controls\ContentLayerLease.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Controls\TreeControl.shared.cs" Link="Controls\TreeControl.shared.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Controls\TreeItem.shared.cs" Link="Controls\TreeItem.shared.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\StagePanel.cs" Link="Presentation\Controls\StagePanel.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\RoutingView.cs" Link="Presentation\Controls\RoutingView.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\RoutingView.Reveal.cs" Link="Presentation\Controls\RoutingView.Reveal.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\RoutingView.Body.cs" Link="Presentation\Controls\RoutingView.Body.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\ContentLayerLease.cs" Link="Presentation\Controls\ContentLayerLease.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\TreeControl.shared.cs" Link="Presentation\Controls\TreeControl.shared.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\TreeItem.shared.cs" Link="Presentation\Controls\TreeItem.shared.cs" />
     <!-- Routing -->
     <Compile Include="..\Everlong.Nester.Avalonia\Routing\Router.cs" Link="Routing\Router.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Routing\PlatformStackModel.cs" Link="Routing\PlatformStackModel.cs" />
     <!-- Presentation -->
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\SharedAttributes.cs" Link="Presentation\SharedAttributes.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\FlyingCanvas.cs" Link="Presentation\FlyingCanvas.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\IFlyingLayer.cs" Link="Presentation\IFlyingLayer.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\ShellFlyingLayer.cs" Link="Presentation\ShellFlyingLayer.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\ISceneTransition.cs" Link="Presentation\ISceneTransition.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\TransitionKind.cs" Link="Presentation\TransitionKind.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\TransitionContext.cs" Link="Presentation\TransitionContext.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\ILayoutControl.cs" Link="Presentation\ILayoutControl.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\FlyingCanvas.cs" Link="Presentation\Transitions\FlyingCanvas.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\IFlyingLayer.cs" Link="Presentation\Transitions\IFlyingLayer.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\ShellFlyingLayer.cs" Link="Presentation\Transitions\ShellFlyingLayer.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\ISceneTransition.cs" Link="Presentation\Transitions\ISceneTransition.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\TransitionKind.cs" Link="Presentation\Transitions\TransitionKind.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\TransitionContext.cs" Link="Presentation\Transitions\TransitionContext.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Layouts\ILayoutControl.cs" Link="Presentation\Layouts\ILayoutControl.cs" />
   </ItemGroup>
 
   <!-- The package readme is the repository's own readme.md, packed at the root of

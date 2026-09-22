@@ -1,0 +1,87 @@
+<local:FeedbackItemViewBase xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:n="using:Everlong.Nester.Notice"
+                    xmlns:local="using:Everlong.Nester.Presentation"
+                    xmlns:conv="using:Everlong.Nester.Converters"
+                    mc:Ignorable="d"
+                    x:Class="Everlong.Nester.Presentation.NotificationItemView"
+                    x:DataType="n:NotificationEntry"
+                    Background="Transparent"
+                    Width="350"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,0,10">
+
+  <local:FeedbackItemViewBase.Resources>
+    <conv:TypeToIconConverter x:Key="TypeToIconConverter" />
+    <conv:TypeToBrushConverter x:Key="TypeToBrushConverter" />
+  </local:FeedbackItemViewBase.Resources>
+
+  <local:FeedbackItemViewBase.Styles>
+    <Style Selector="Button.banner-close">
+      <Setter Property="Width" Value="24" />
+      <Setter Property="Height" Value="24" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Margin" Value="4,0,0,0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="12" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+    <Style Selector="Button.banner-close:pointerover">
+      <Setter Property="Background" Value="{DynamicResource Nester.Notice.Hover}" />
+    </Style>
+    <Style Selector="Button.banner-close:pressed">
+      <Setter Property="Opacity" Value="0.85" />
+    </Style>
+  </local:FeedbackItemViewBase.Styles>
+
+  <Design.DataContext>
+    <n:NotificationEntry />
+  </Design.DataContext>
+
+  <Border Background="{DynamicResource Nester.Toast.Background}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.CornerRadius.Medium}"
+          Padding="{DynamicResource Nester.Padding.Medium}"
+          TextElement.Foreground="{DynamicResource Nester.Toast.Foreground}">
+      <Grid ColumnDefinitions="Auto,*,Auto">
+        <!-- Icon -->
+        <PathIcon Grid.Column="0"
+                  Data="{Binding Level, Converter={StaticResource TypeToIconConverter}}"
+                  Foreground="{Binding Level, Converter={StaticResource TypeToBrushConverter}}"
+                  Margin="0,0,12,0"
+                  VerticalAlignment="Top" />
+
+        <!-- Content -->
+        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+          <TextBlock Text="{Binding Title}" FontWeight="Bold" Margin="0,0,0,4"
+                     IsVisible="{Binding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+          <Button Content="{Binding ActionText}"
+                  Command="{Binding ActionCommand}"
+                  Margin="0,8,0,0"
+                  HorizontalAlignment="Left"
+                  IsVisible="{Binding ActionText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  Padding="0" />
+        </StackPanel>
+
+        <!-- Close Button -->
+        <Button Grid.Column="2" Classes="banner-close"
+                Command="{Binding DismissCommand}"
+                VerticalAlignment="Top">
+          <Path Data="M 2,2 L 14,14 M 14,2 L 2,14"
+                Stroke="{DynamicResource Nester.Toast.Foreground}"
+                StrokeThickness="1.4"
+                StrokeLineCap="Round"
+                Width="16" Height="16"
+                Stretch="None" />
+        </Button>
+      </Grid>
+  </Border>
+</local:FeedbackItemViewBase>

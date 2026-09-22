@@ -1,0 +1,165 @@
+<UserControl x:Class="Everlong.Nester.Presentation.Ipv4ComposeDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+              xmlns:c="clr-namespace:Everlong.Nester.Dialog;assembly=Everlong.Nester.Extensions"
+             xmlns:cv="clr-namespace:Everlong.Nester.Converters;assembly=Everlong.Nester.Wpf"
+             mc:Ignorable="d"
+             d:DesignHeight="660"
+             d:DesignWidth="430"
+             d:DataContext="{d:DesignInstance c:Ipv4ComposerDialogSession}"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+
+  <UserControl.Resources>
+    <!--
+      The octet boxes are buttons, so they can take focus and the click that
+      selects a part — this template is what keeps them looking like a box.
+    -->
+    <Style x:Key="TransparentButton" TargetType="Button">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </UserControl.Resources>
+
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          TextElement.Foreground="{DynamicResource Nester.DialogChrome.Foreground}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="{DynamicResource Nester.DialogChrome.Padding}">
+    <Border.Effect>
+      <DropShadowEffect BlurRadius="{DynamicResource Nester.BlurRadius}"
+                        ShadowDepth="2"
+                        Opacity="0.2" />
+    </Border.Effect>
+
+
+
+  <Grid MinWidth="{DynamicResource Nester.Dialog.Width.Medium}" MaxWidth="{DynamicResource Nester.Dialog.MaxWidth.Medium}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+      <StackPanel Grid.Row="0" Margin="0,0,0,0">
+
+        <StackPanel>
+          <TextBlock Style="{DynamicResource Nester.DialogTitle.Style}" Text="{Binding Title}"
+                     Visibility="{Binding Title, Converter={StaticResource StringToVisibilityConverter}}" Margin="0,0,40,8" /> 
+          <TextBlock Style="{DynamicResource Nester.DialogMessage.Style}" Text="{Binding Message}" Margin="0"
+                     Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,12">
+          <Button Command="{Binding SetActivePartCommand}" CommandParameter="0"
+                  Style="{StaticResource TransparentButton}">
+            <Border Tag="0" Style="{DynamicResource Nester.IpPart.Style}">
+              <TextBlock Text="{Binding Part1}" Style="{DynamicResource Nester.IpText.Style}" />
+            </Border>
+          </Button>
+          <TextBlock Text="." FontSize="24" FontWeight="Bold" VerticalAlignment="Center" Opacity="0.5" Margin="4,0" />
+
+          <Button Command="{Binding SetActivePartCommand}" CommandParameter="1"
+                  Style="{StaticResource TransparentButton}">
+            <Border Tag="1" Style="{DynamicResource Nester.IpPart.Style}">
+              <TextBlock Text="{Binding Part2}" Style="{DynamicResource Nester.IpText.Style}" />
+            </Border>
+          </Button>
+          <TextBlock Text="." FontSize="24" FontWeight="Bold" VerticalAlignment="Center" Opacity="0.5" Margin="4,0" />
+
+          <Button Command="{Binding SetActivePartCommand}" CommandParameter="2"
+                  Style="{StaticResource TransparentButton}">
+            <Border Tag="2" Style="{DynamicResource Nester.IpPart.Style}">
+              <TextBlock Text="{Binding Part3}" Style="{DynamicResource Nester.IpText.Style}" />
+            </Border>
+          </Button>
+          <TextBlock Text="." FontSize="24" FontWeight="Bold" VerticalAlignment="Center" Opacity="0.5" Margin="4,0" />
+
+          <Button Command="{Binding SetActivePartCommand}" CommandParameter="3"
+                  Style="{StaticResource TransparentButton}">
+            <Border Tag="3" Style="{DynamicResource Nester.IpPart.Style}">
+              <TextBlock Text="{Binding Part4}" Style="{DynamicResource Nester.IpText.Style}" />
+            </Border>
+          </Button>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,12">
+        </StackPanel>
+
+        <Grid Margin="0,0,0,12">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+
+          <Button Grid.Row="0" Grid.Column="0"
+                  Style="{DynamicResource Nester.KeypadButton.Style}"
+                  Command="{Binding PingCommand}"
+                  Content="{Binding PingText}"
+                  IsEnabled="{Binding CanPing}" />
+          <Button Grid.Row="0" Grid.Column="1"
+                  Style="{DynamicResource Nester.KeypadButton.Style}"
+                  Command="{Binding ClearCommand}"
+                  Content="{Binding ClearText}" />
+          <Button Grid.Row="0" Grid.Column="2"
+                  Style="{DynamicResource Nester.KeypadButton.Style}"
+                  Command="{Binding BackspaceCommand}"
+                  Content="⌫" ToolTip="{Binding BackspaceToolTip}" />
+
+          <Button Grid.Row="1" Grid.Column="0" Style="{DynamicResource Nester.KeypadButton.Style}" Content="1"
+                  Command="{Binding AppendKeyCommand}" CommandParameter="1" />
+          <Button Grid.Row="1" Grid.Column="1" Style="{DynamicResource Nester.KeypadButton.Style}" Content="2"
+                  Command="{Binding AppendKeyCommand}" CommandParameter="2" />
+          <Button Grid.Row="1" Grid.Column="2" Style="{DynamicResource Nester.KeypadButton.Style}" Content="3"
+                  Command="{Binding AppendKeyCommand}" CommandParameter="3" />
+
+          <Button Grid.Row="2" Grid.Column="0" Style="{DynamicResource Nester.KeypadButton.Style}" Content="4"
+                  Command="{Binding AppendKeyCommand}" CommandParameter="4" />
+          <Button Grid.Row="2" Grid.Column="1" Style="{DynamicResource Nester.KeypadButton.Style}" Content="5"
+                  Command="{Binding AppendKeyCommand}" CommandParameter="5" />
+          <Button Grid.Row="2" Grid.Column="2" Style="{DynamicResource Nester.KeypadButton.Style}" Content="6"
+                  Command="{Binding AppendKeyCommand}" CommandParameter="6" />
+
+          <Button Grid.Row="3" Grid.Column="0" Style="{DynamicResource Nester.KeypadButton.Style}" Content="7"
+                  Command="{Binding AppendKeyCommand}" CommandParameter="7" />
+          <Button Grid.Row="3" Grid.Column="1" Style="{DynamicResource Nester.KeypadButton.Style}" Content="8"
+                  Command="{Binding AppendKeyCommand}" CommandParameter="8" />
+          <Button Grid.Row="3" Grid.Column="2" Style="{DynamicResource Nester.KeypadButton.Style}" Content="9"
+                  Command="{Binding AppendKeyCommand}" CommandParameter="9" />
+
+          <Button Grid.Row="4" Grid.Column="0" Style="{DynamicResource Nester.KeypadButton.Style}" Content="0"
+                  Command="{Binding AppendKeyCommand}" CommandParameter="0" />
+          <Button Style="{DynamicResource Nester.PrimaryButton.Style}" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"
+                  Content="{Binding ConfirmText}"
+                  HorizontalAlignment="Stretch"
+                  Margin="4,0,0,0"
+                  Padding="0,12"
+                  Command="{Binding ConfirmCommand}" />
+        </Grid>
+      </StackPanel>
+      <Button Grid.Row="0" Style="{DynamicResource Nester.DialogClose.Style}" Content="✕"
+              HorizontalAlignment="Right" VerticalAlignment="Top"
+              ToolTip="{Binding CloseText}"
+              AutomationProperties.Name="{Binding CloseText}"
+              Command="{Binding CloseCommand}" />
+    </Grid>
+  </Border>
+</UserControl>

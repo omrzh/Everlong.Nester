@@ -1,9 +1,8 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using Everlong.Nester.Controls;
-using Everlong.Nester.Intent;
 using Everlong.Nester.Presentation;
+using Everlong.Nester.Intent;
 using Everlong.Nester.Primitives;
 
 namespace Everlong.Nester.Shell;

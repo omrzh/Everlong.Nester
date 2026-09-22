@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:v="using:Everlong.Nester.Controls">
+                    xmlns:v="using:Everlong.Nester.Presentation">
 
   <ControlTheme x:Key="{x:Type v:TreeItem}" TargetType="v:TreeItem">
     <Setter Property="Template">

@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Headless.XUnit;
-using Everlong.Nester.Controls;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Shell;
 using Everlong.Nester.Tests.Hosting;

@@ -4,7 +4,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Headless.XUnit;
 using Everlong.DI;
-using Everlong.Nester.Controls;
 using Everlong.Nester.Dialog;
 using Everlong.Nester.Routing;
 using Everlong.Nester.Shell;

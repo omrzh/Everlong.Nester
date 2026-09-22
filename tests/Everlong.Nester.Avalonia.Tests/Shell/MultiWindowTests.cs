@@ -4,7 +4,6 @@ using Everlong.Nester.Tests.Hosting;
 using NesterApp;
 using Avalonia.Headless.XUnit;
 using Everlong.Nester.Auth;
-using Everlong.Nester.Controls;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Dialog;
 using Everlong.Nester.Layer;

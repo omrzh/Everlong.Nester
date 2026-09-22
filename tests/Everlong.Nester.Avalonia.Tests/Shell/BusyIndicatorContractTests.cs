@@ -2,7 +2,6 @@ using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using Everlong.Nester.Controls;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Helpers;
 using Xunit;

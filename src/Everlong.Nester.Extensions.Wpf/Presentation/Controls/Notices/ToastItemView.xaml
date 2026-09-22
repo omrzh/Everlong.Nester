@@ -1,0 +1,49 @@
+<local:BottomSlideItemViewBase x:Class="Everlong.Nester.Presentation.ToastItemView"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:Everlong.Nester.Presentation"
+                    xmlns:t="clr-namespace:Everlong.Nester.Notice;assembly=Everlong.Nester.Extensions"
+                    xmlns:conv="clr-namespace:Everlong.Nester.Converters"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    mc:Ignorable="d"
+                    d:DataContext="{d:DesignInstance t:ToastEntry}"
+                    Background="Transparent">
+  <UserControl.Resources>
+    <conv:TypeToIconConverter x:Key="TypeToIconConverter" />
+    <conv:TypeToBrushConverter x:Key="TypeToBrushConverter" />
+  </UserControl.Resources>
+
+  <Border Background="{DynamicResource Nester.Toast.Background}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.CornerRadius.Small}"
+          Padding="{DynamicResource Nester.Padding.Medium}"
+          Margin="{DynamicResource Nester.Margin.Small}">
+    <Border.Effect>
+      <DropShadowEffect BlurRadius="{DynamicResource Nester.BlurRadius}" ShadowDepth="2" Opacity="0.2" />
+    </Border.Effect>
+    <StackPanel Orientation="Horizontal">
+      <!-- Icon -->
+      <Path Data="{Binding Level, Converter={StaticResource TypeToIconConverter}}"
+            Fill="{Binding Level, Converter={StaticResource TypeToBrushConverter}}"
+            Width="{DynamicResource Nester.Icon.Size.Small}"
+            Height="{DynamicResource Nester.Icon.Size.Small}"
+            Stretch="Uniform" Margin="0,0,10,0"
+            VerticalAlignment="Center">
+        <Path.Style>
+          <Style TargetType="Path">
+            <Setter Property="Visibility" Value="Visible" />
+            <Style.Triggers>
+              <DataTrigger Binding="{Binding Level, Converter={StaticResource TypeToIconConverter}}" Value="{x:Null}">
+                <Setter Property="Visibility" Value="Collapsed" />
+              </DataTrigger>
+            </Style.Triggers>
+          </Style>
+        </Path.Style>
+      </Path>
+      <TextBlock Text="{Binding Message}" VerticalAlignment="Center"
+                   Foreground="{DynamicResource Nester.Toast.Foreground}" />
+    </StackPanel>
+  </Border>
+</local:BottomSlideItemViewBase>

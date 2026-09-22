@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using Everlong.Nester.Activation;
-using Everlong.Nester.Controls;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Intent;
 using Everlong.Nester.Layer;

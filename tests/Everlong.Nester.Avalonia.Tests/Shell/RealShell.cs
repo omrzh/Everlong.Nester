@@ -3,7 +3,6 @@ using Xunit;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Everlong.DI;
-using Everlong.Nester.Controls;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Intent;
 using Everlong.Nester.Layer;

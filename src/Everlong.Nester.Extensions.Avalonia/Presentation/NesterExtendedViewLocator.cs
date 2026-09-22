@@ -1,6 +1,5 @@
 using System.Collections.Frozen;
 using Avalonia.Controls.Templates;
-using Everlong.Nester.Controls;
 using Everlong.Nester.Dialog;
 using Everlong.Nester.Notice;
 

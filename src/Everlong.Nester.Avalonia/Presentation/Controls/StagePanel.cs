@@ -1,0 +1,192 @@
+// NOTE: Single-source file — the WPF project compiles this exact file via
+// <Compile Include> in Everlong.Nester.Wpf.csproj.  Edit it here only;
+// never create a WPF-side copy (the two builds would drift).
+using Everlong.Nester.Layer;
+using Everlong.Nester.Shell;
+
+namespace Everlong.Nester.Presentation;
+
+/// <summary>
+///   The stage panel — the visual surface that hosts the layer floors and
+///   their content slots, and carries the owning shell's identity.  Its
+///   public face is <see cref="IShellStage" />.
+/// </summary>
+internal class StagePanel : PPanel, IShellStage, ILayerStage
+{
+  /// <inheritdoc />
+  public IShell Shell { get; private set; } = null!;
+
+  /// <summary>
+  ///   The flying layer's plane figure, or <see langword="null" /> while no
+  ///   shell container provides one.
+  /// </summary>
+  /// <remarks>
+  ///   Assigned at <see cref="BindShell" />; the plane enters the visual
+  ///   tree when its lease is mounted on this stage.
+  /// </remarks>
+  public FlyingCanvas? FlyingCanvas { get; private set; }
+
+  /// <summary>Binds the stage to its owning shell and to the shell's flying layer.</summary>
+  internal void BindShell(IShell shell, IFlyingLayer? flying)
+  {
+    Shell = shell;
+    FlyingCanvas = flying?.Canvas;
+  }
+
+  private readonly Dictionary<ContentLayer, LayerListener> _listeners = [];
+
+  /// <summary>
+  ///   Mounts a tenant's lease surface onto the stage and connects its layer
+  ///   listener (content replacement and policy changes recompute the tab
+  ///   reachability of every layer).
+  /// </summary>
+  public void MountLease(ILayerLease lease)
+  {
+    ContentLayer surface = ((ContentLayerLease)lease).Surface;
+    Children.Add(surface);
+    _listeners[surface] = new LayerListener(this, surface);
+  }
+
+  /// <summary>Detaches a tenant's lease surface from the stage and recomputes the layers' tab reachability.</summary>
+  public void UnmountLease(ILayerLease lease)
+  {
+    ContentLayer surface = ((ContentLayerLease)lease).Surface;
+    if (_listeners.Remove(surface, out LayerListener? listener))
+      listener.Detach();
+    Children.Remove(surface);
+    RecomputeTabModes();
+  }
+
+  /// <summary>
+  ///   Recomputes the layers' Tab modes, topmost first: a layer whose content
+  ///   declares no intent is excluded; a trapped layer cycles and excludes
+  ///   every layer beneath it; a reachable layer cycles.  The mode is applied
+  ///   to the layer surface itself — the content may be any object the
+  ///   surface's template renders.
+  /// </summary>
+  private void RecomputeTabModes()
+  {
+    bool excluded = false;
+    foreach (ContentLayer layer in Children.OfType<ContentLayer>().OrderByDescending(LayerZ))
+    {
+      FocusPolicy? policy = (layer.Content as IFocusPolicySurface)?.FocusPolicy;
+      bool trapped = !excluded && policy == FocusPolicy.Trapped;
+      bool reachable = !excluded && policy == FocusPolicy.Reachable;
+      if (trapped)
+        excluded = true;
+
+      if (!trapped && !reachable)
+      {
+        SetTabMode(layer, TabMode.Excluded);
+        continue;
+      }
+
+      SetTabMode(layer, TabMode.Cycle);
+    }
+  }
+
+  private enum TabMode
+  {
+    Excluded,
+    Cycle,
+  }
+
+  private static void SetTabMode(ContentLayer layer, TabMode mode)
+  {
+#if AVALONIA
+    var value = mode == TabMode.Excluded
+      ? Avalonia.Input.KeyboardNavigationMode.None
+      : Avalonia.Input.KeyboardNavigationMode.Cycle;
+    Avalonia.Input.KeyboardNavigation.SetTabNavigation(layer, value);
+#else
+    var value = mode == TabMode.Excluded
+      ? System.Windows.Input.KeyboardNavigationMode.None
+      : System.Windows.Input.KeyboardNavigationMode.Cycle;
+    System.Windows.Input.KeyboardNavigation.SetTabNavigation(layer, value);
+#endif
+  }
+
+  private static int LayerZ(ContentLayer layer)
+  {
+#if AVALONIA
+    return layer.ZIndex;
+#else
+    return System.Windows.Controls.Panel.GetZIndex(layer);
+#endif
+  }
+
+#if !AVALONIA
+  // WPF's Panel lays out nothing on its own: these two overrides are what give
+  // the stage the platform's single-cell semantics.  Avalonia's Panel is
+  // already that, so the file carries the override for WPF alone.
+  /// <summary>Measures every layer at the full constraint; the stage desires the largest of them.</summary>
+  protected override System.Windows.Size MeasureOverride(System.Windows.Size availableSize)
+  {
+    double width = 0;
+    double height = 0;
+    foreach (System.Windows.UIElement layer in InternalChildren)
+    {
+      layer.Measure(availableSize);
+      width = Math.Max(width, layer.DesiredSize.Width);
+      height = Math.Max(height, layer.DesiredSize.Height);
+    }
+
+    return new System.Windows.Size(width, height);
+  }
+
+  /// <summary>Arranges every layer across the whole stage; alignment stays the layer's own.</summary>
+  protected override System.Windows.Size ArrangeOverride(System.Windows.Size finalSize)
+  {
+    var rect = new System.Windows.Rect(finalSize);
+    foreach (System.Windows.UIElement layer in InternalChildren)
+      layer.Arrange(rect);
+    return finalSize;
+  }
+#endif
+
+  /// <summary>
+  ///   The per-layer event wiring: content replacement and the content's
+  ///   policy changes both feed the stage's tab recompute.  Detached on
+  ///   unmount.
+  /// </summary>
+  private sealed class LayerListener
+  {
+    private readonly StagePanel _stage;
+    private readonly ContentLayer _layer;
+    private IFocusPolicySurface? _content;
+
+    internal LayerListener(StagePanel stage, ContentLayer layer)
+    {
+      _stage = stage;
+      _layer = layer;
+      _layer.ContentReplaced += OnContentReplaced;
+      AttachContent();
+      _stage.RecomputeTabModes();
+    }
+
+    internal void Detach()
+    {
+      _layer.ContentReplaced -= OnContentReplaced;
+      DetachContent();
+    }
+
+    private void OnContentReplaced()
+    {
+      DetachContent();
+      AttachContent();
+      _stage.RecomputeTabModes();
+    }
+
+    private void AttachContent()
+    {
+      _content = _layer.Content as IFocusPolicySurface;
+      _content?.FocusPolicyChanged += _stage.RecomputeTabModes;
+    }
+
+    private void DetachContent()
+    {
+      _content?.FocusPolicyChanged -= _stage.RecomputeTabModes;
+      _content = null;
+    }
+  }
+}

@@ -1,8 +1,7 @@
 using Avalonia;
 using Avalonia.VisualTree;
-using Everlong.Nester.Controls;
-using Everlong.Nester.Intent;
 using Everlong.Nester.Presentation;
+using Everlong.Nester.Intent;
 using Everlong.Nester.Primitives;
 
 namespace Everlong.Nester.Shell;

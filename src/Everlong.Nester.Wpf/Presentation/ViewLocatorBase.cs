@@ -1,4 +1,3 @@
-using Everlong.Nester.Controls;
 using System.Windows;
 
 namespace Everlong.Nester.Presentation;

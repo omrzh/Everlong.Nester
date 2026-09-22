@@ -1,4 +1,3 @@
-using Everlong.Nester.Controls;
 using Everlong.Nester.Presentation;
 using Microsoft.Extensions.DependencyInjection;
 using Terminal.Gui.ViewBase;

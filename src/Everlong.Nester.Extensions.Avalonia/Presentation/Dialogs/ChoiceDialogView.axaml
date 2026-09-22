@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:c="using:Everlong.Nester.Dialog"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="200"
+             x:Class="Everlong.Nester.Presentation.ChoiceDialogView"
+             x:DataType="c:ChoiceDialogSession"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+  <Design.DataContext>
+    <c:ChoiceDialogSession />
+  </Design.DataContext>
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          TextElement.Foreground="{DynamicResource Nester.DialogChrome.Foreground}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="{DynamicResource Nester.DialogChrome.Padding}"
+          BoxShadow="{DynamicResource Nester.DialogChrome.Shadow}">
+
+  <StackPanel MinWidth="{DynamicResource Nester.Dialog.Width.Small}" MaxWidth="{DynamicResource Nester.Dialog.MaxWidth.Small}">
+      <TextBlock Classes="DialogTitle" Text="{Binding Title}"
+                 IsVisible="{Binding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      <TextBlock Classes="DialogMessage" Text="{Binding Message}"
+                 Margin="0,0,0,20"
+                 IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+        <Button Classes="DialogAction" Content="{Binding CancelText}"
+                IsEnabled="{Binding IsCancelEnabled}"
+                Command="{Binding CancelCommand}" />
+        <Button Classes="DialogAction" Content="{Binding SecondaryText}"
+                IsEnabled="{Binding IsSecondaryEnabled}"
+                Command="{Binding SecondaryCommand}" />
+        <Button Classes="DialogAction Primary" Content="{Binding PrimaryText}"
+                IsEnabled="{Binding IsPrimaryEnabled}"
+                Command="{Binding PrimaryCommand}" />
+      </StackPanel>
+  </StackPanel>
+  </Border>
+</UserControl>

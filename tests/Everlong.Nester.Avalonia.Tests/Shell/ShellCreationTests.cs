@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Everlong.Nester.Routing;
 using Everlong.Nester.Tests.Hosting;
-using Everlong.Nester.Controls;
+using Everlong.Nester.Presentation;
 using PlatformControl = Avalonia.Controls.Control;
 
 namespace Everlong.Nester.Tests.Shell;
