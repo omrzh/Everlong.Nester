@@ -83,8 +83,7 @@ internal sealed partial class RoutingView : BodyPanel, IRoutingView, IFocusPolic
   }
 #else
   // WPF has no visual-tree attach/detach virtual; a visual parent change is
-  // the same signal — the WPF BodyPanel fork tracks it through the layout's
-  // source change for its own IsAttachedToVisualTree.
+  // the same signal.
   /// <inheritdoc />
   protected override void OnVisualParentChanged(System.Windows.DependencyObject oldParent)
   {

@@ -16,9 +16,6 @@ public interface IBodyPanel<TView>
   /// <summary>The currently active child, or <see langword="null"/> when none is active.</summary>
   IViewLocation<TView>? ActiveChild { get; }
 
-  /// <summary>Whether this body is currently attached to the visual tree.</summary>
-  bool IsAttachedToVisualTree { get; }
-
   /// <summary>Marks the active child of this body.</summary>
   void SetActiveChild(IViewLocation<TView> node);
 

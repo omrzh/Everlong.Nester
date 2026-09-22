@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Controls;
 namespace Everlong.Nester.Presentation;
 
@@ -13,9 +12,6 @@ public class BodyPanel : Panel, IBodyPanel
 {
   private readonly BodyPanelController<IViewLocation<PControl>> _controller = new();
 
-  bool IBodyPanel<PControl>.IsAttachedToVisualTree => _isAttached;
-  private volatile bool _isAttached;
-
   /// <summary>
   ///   Initializes a new instance of the <see cref="BodyPanel" /> class.
   /// </summary>
@@ -25,20 +21,6 @@ public class BodyPanel : Panel, IBodyPanel
     ClipToBounds = true;
     HorizontalAlignment = PHorizontalAlignment.Stretch;
     VerticalAlignment = PVerticalAlignment.Stretch;
-  }
-
-  /// <inheritdoc />
-  protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
-  {
-    base.OnAttachedToVisualTree(e);
-    _isAttached = true;
-  }
-
-  /// <inheritdoc />
-  protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
-  {
-    base.OnDetachedFromVisualTree(e);
-    _isAttached = false;
   }
 
   // ── Change-set application ───────────────────────────────────────────────

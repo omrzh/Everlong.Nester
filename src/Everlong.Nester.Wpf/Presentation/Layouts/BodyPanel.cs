@@ -14,10 +14,6 @@ public class BodyPanel : Panel, IBodyPanel
 {
   private readonly BodyPanelController<IViewLocation<PControl>> _controller = new();
 
-  bool IBodyPanel<PControl>.IsAttachedToVisualTree => _isAttached;
-
-  private volatile bool _isAttached;
-
   /// <summary>
   ///   Initializes a new instance of the <see cref="BodyPanel" /> class.
   /// </summary>
@@ -26,7 +22,6 @@ public class BodyPanel : Panel, IBodyPanel
     ClipToBounds = true;
     HorizontalAlignment = PHorizontalAlignment.Stretch;
     VerticalAlignment = PVerticalAlignment.Stretch;
-    PresentationSource.AddSourceChangedHandler(this, OnSourceChanged);
   }
 
   // 1. Measure: each child measures at full constraint, the panel's desired size
@@ -69,11 +64,6 @@ public class BodyPanel : Panel, IBodyPanel
     return arrangeSize;
   }
 
-
-  private void OnSourceChanged(object? sender, SourceChangedEventArgs e)
-  {
-    _isAttached = e.NewSource is not null;
-  }
 
   // ── Change-set application ───────────────────────────────────────────────
   //

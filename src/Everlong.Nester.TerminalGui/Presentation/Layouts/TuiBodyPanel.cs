@@ -62,8 +62,6 @@ public class TuiBodyPanel : View, IBodyPanel
 
   IViewLocation<View>? IBodyPanel<View>.ActiveChild => _controller.Active;
 
-  bool IBodyPanel<View>.IsAttachedToVisualTree => SuperView is not null;
-
   void IBodyPanel<View>.SetActiveChild(IViewLocation<View> node)
   {
     _controller.Switch(node);
