@@ -7,6 +7,11 @@ shared file may only be linked once every name it spells already exists on the
 WPF side too.  This prints, per shared file, which WPF-only files and which
 other shared files it names.
 
+Both sets are derived rather than kept by hand: the shared set is the WPF
+project's compile-include list, and a name is "paired" when an Avalonia-only
+file and a WPF-only file both declare it.  A hand-kept copy of either went
+stale the moment a file was renamed or moved.
+
     python .agents/py/shared_refs.py [--repo <path>]
 """
 import argparse, collections, os, re, sys
@@ -19,23 +24,11 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
-SHARED = [
-    "DI/ServiceCollectionExtensions.cs",
-    "Controls/StagePanel.cs", "Controls/NavigationHost.cs", "Controls/ContentLayerLease.cs",
-    "Controls/TreeControl.shared.cs", "Controls/TreeItem.shared.cs",
-    "Routing/Router.cs", "Routing/PlatformStackModel.cs", "Routing/PlatformStages.cs",
-    "Presentation/SharedAttributes.cs", "Presentation/ShellFlyingLayer.cs",
-    "Presentation/ISceneTransition.cs", "Presentation/TransitionKind.cs",
-    "Presentation/TransitionContext.cs", "Presentation/ILayoutControl.cs",
-]
-# The Avalonia-only halves of the platform-paired types: a shared file naming
-# one of these names can mean either half, so a hit is not evidence.
-AV_PAIRED = [
-    "Controls/ContentLayer.cs", "Controls/LayoutBody.cs", "Controls/TreeControl.cs",
-    "Controls/TreeItem.cs", "Presentation/IViewLocator.cs", "Presentation/ViewLocatorBase.cs",
-    "Presentation/CompositeViewLocator.cs", "Presentation/TransitionContext.avalonia.cs",
-    "Shell/AvaloniaShell.cs", "Shell/AvaloniaShell.Platform.cs", "Shell/AvaloniaShellViews.cs",
-]
+# The WPF project is the authority on which Avalonia files it links; a shared
+# file it names but cannot find is a build break, not a silent miss.
+LINK = re.compile(
+    r'<Compile\s+Include="\.\.\\Everlong\.Nester\.Avalonia\\([^"]+)"'
+    r'\s+Link="[^"]+"')
 DECL = re.compile(
     r'^\s*(?:\[[^\]]*\]\s*)*(?:public|internal|private|protected|file)?\s*'
     r'(?:static\s+|sealed\s+|abstract\s+|partial\s+|readonly\s+|ref\s+)*'
@@ -46,6 +39,15 @@ DECL = re.compile(
 def blank(text: str) -> str:
     text = re.sub(r'/\*.*?\*/', ' ', text, flags=re.S)
     return re.sub(r'^\s*//.*$', ' ', text, flags=re.M)
+
+
+def cs_files(root: Path) -> list:
+    out = []
+    for dirpath, dirnames, names in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in ("obj", "bin")]
+        out += [os.path.relpath(os.path.join(dirpath, n), root).replace("\\", "/")
+                for n in names if n.endswith(".cs")]
+    return out
 
 
 def decls(paths, root: Path) -> dict:
@@ -73,23 +75,24 @@ def main() -> int:
         print(f"shared_refs: {wpf} and {av} must both exist", file=sys.stderr)
         return 2
 
-    wpf_files = []
-    for dirpath, dirnames, names in os.walk(wpf):
-        dirnames[:] = [d for d in dirnames if d not in ("obj", "bin")]
-        wpf_files += [os.path.relpath(os.path.join(dirpath, n), wpf).replace("\\", "/")
-                      for n in names if n.endswith(".cs")]
+    csproj = wpf / "Everlong.Nester.Wpf.csproj"
+    shared = [p.replace("\\", "/") for p in LINK.findall(csproj.read_text(encoding="utf-8-sig"))]
+    absent = [s for s in shared if not (av / s).exists()]
+    if absent:
+        print(f"shared_refs: linked by WPF but absent under {av}: {', '.join(absent)}",
+              file=sys.stderr)
+        return 2
 
-    wpf_decl = decls(wpf_files, wpf)
-    shared_decl = decls(SHARED, av)
-    paired = set(decls(AV_PAIRED, av))
-    texts = {s: blank((av / s).read_text(encoding="utf-8-sig"))
-             for s in SHARED if (av / s).exists()}
+    wpf_decl = decls(cs_files(wpf), wpf)
+    shared_decl = decls(shared, av)
+    # A name declared on both sides is the paired halves of one type: a shared
+    # file naming it may mean the Avalonia half, so the hit is not evidence of
+    # a WPF-only dependency.
+    paired = set(decls([f for f in cs_files(av) if f not in shared], av)) & set(wpf_decl)
+    texts = {s: blank((av / s).read_text(encoding="utf-8-sig")) for s in shared}
 
-    for name in SHARED:
-        text = texts.get(name)
-        if text is None:
-            print(f"{name}\n   MISSING under {av}")
-            continue
+    for name in shared:
+        text = texts[name]
         own = {n for n, ps in shared_decl.items() if name in ps}
         wpf_hits, shared_hits = set(), set()
         for declared, files in wpf_decl.items():
