@@ -1,14 +1,14 @@
 namespace Everlong.Nester.Presentation;
 
-/// <summary>A layout body child — the view it mounts into the body.</summary>
+/// <summary>A body panel child — the view it mounts into the body panel.</summary>
 public interface IViewLocation<TView>
 {
-  /// <summary>The view this child mounts into its hosting body, or <see langword="null"/> before it is assembled.</summary>
+  /// <summary>The view this child mounts into its hosting body panel, or <see langword="null"/> before it is assembled.</summary>
   TView? View { get; set; }
 }
 
 /// <summary>The visual container of a chain segment: owns a child list, an active child, and visibility.</summary>
-public interface ILayoutBody<TView>
+public interface IBodyPanel<TView>
 {
   /// <summary>The child nodes, in mount order.</summary>
   IReadOnlyList<IViewLocation<TView>> Children { get; }

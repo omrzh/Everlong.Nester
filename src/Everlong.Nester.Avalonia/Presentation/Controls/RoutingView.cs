@@ -9,11 +9,11 @@ using Everlong.Nester.Shell;
 namespace Everlong.Nester.Presentation;
 
 /// <summary>
-///   The platform routing view — the layout body that hosts the presented
+///   The platform routing view — the body panel that hosts the presented
 ///   chain's outermost view, carries the model's committed state, assembles
 ///   the resolved chain's views and reveals each convergence.
 /// </summary>
-internal sealed partial class RoutingView : LayoutBody, IRoutingView, IFocusPolicySurface
+internal sealed partial class RoutingView : BodyPanel, IRoutingView, IFocusPolicySurface
 {
   /// <inheritdoc />
   public FocusPolicy FocusPolicy
@@ -83,7 +83,7 @@ internal sealed partial class RoutingView : LayoutBody, IRoutingView, IFocusPoli
   }
 #else
   // WPF has no visual-tree attach/detach virtual; a visual parent change is
-  // the same signal — the WPF LayoutBody fork tracks it through the layout's
+  // the same signal — the WPF BodyPanel fork tracks it through the layout's
   // source change for its own IsAttachedToVisualTree.
   /// <inheritdoc />
   protected override void OnVisualParentChanged(System.Windows.DependencyObject oldParent)
@@ -128,7 +128,7 @@ internal sealed partial class RoutingView : LayoutBody, IRoutingView, IFocusPoli
         continue;
 
       var location = (PlatformLocation)node;
-      ILayoutBody<PControl>? parentBody = node.Parent is null
+      IBodyPanel<PControl>? parentBody = node.Parent is null
                                                    ? this
                                                    : ((PlatformLocation)node.Parent).Body;
       if (parentBody is null)

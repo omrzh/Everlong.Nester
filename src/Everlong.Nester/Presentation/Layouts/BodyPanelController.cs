@@ -1,14 +1,14 @@
 namespace Everlong.Nester.Presentation;
 
 /// <summary>
-///   Tracks the set of children registered in a panel-based layout body and
+///   Tracks the set of children registered in a body panel and
 ///   computes the minimal set of add / remove / show / hide operations
 ///   required for each composition step.  Has zero dependency on any UI
 ///   framework; the platform-specific panel mutations are performed by the
-///   panel after inspecting the returned <see cref="LayoutBodyChangeSet{T}"/>.
+///   panel after inspecting the returned <see cref="BodyPanelChangeSet{T}"/>.
 /// </summary>
 /// <typeparam name="T">The platform control type.</typeparam>
-public sealed class LayoutBodyController<T> where T : class
+public sealed class BodyPanelController<T> where T : class
 {
   private readonly List<T> _children = [];
 
@@ -41,17 +41,17 @@ public sealed class LayoutBodyController<T> where T : class
   ///   Ensures <paramref name="child" /> is added to the panel. Safe to call
   ///   if the child is already present (idempotent).
   /// </summary>
-  public LayoutBodyChangeSet<T> EnsureAdded(T child)
+  public BodyPanelChangeSet<T> EnsureAdded(T child)
   {
     ArgumentNullException.ThrowIfNull(child);
 
     if (HasChild(child))
     {
-      return LayoutBodyChangeSet<T>.CreateEmpty();
+      return BodyPanelChangeSet<T>.CreateEmpty();
     }
 
     _children.Add(child);
-    return new LayoutBodyChangeSet<T>(
+    return new BodyPanelChangeSet<T>(
       ToAdd: [child],
       ToRemove: [],
       ToShow: [],
@@ -64,7 +64,7 @@ public sealed class LayoutBodyController<T> where T : class
   ///   Safe to call if the view is not in the panel (idempotent).
   ///   If <paramref name="child"/> is currently active, the active reference is cleared before removal.
   /// </summary>
-  public LayoutBodyChangeSet<T> Release(T child)
+  public BodyPanelChangeSet<T> Release(T child)
   {
     ArgumentNullException.ThrowIfNull(child);
 
@@ -75,10 +75,10 @@ public sealed class LayoutBodyController<T> where T : class
 
     if (!RemoveChild(child))
     {
-      return LayoutBodyChangeSet<T>.CreateEmpty();
+      return BodyPanelChangeSet<T>.CreateEmpty();
     }
 
-    return new LayoutBodyChangeSet<T>(
+    return new BodyPanelChangeSet<T>(
       ToAdd: [],
       ToRemove: [child],
       ToShow: [],
@@ -113,10 +113,10 @@ public sealed class LayoutBodyController<T> where T : class
 }
 
 /// <summary>
-///   Describes what the panel must do to apply a single <see cref="LayoutBodyController{T}"/>
+///   Describes what the panel must do to apply a single <see cref="BodyPanelController{T}"/>
 ///   operation. All lists are snapshots — they are unaffected by subsequent controller operations.
 /// </summary>
-public readonly record struct LayoutBodyChangeSet<T>(
+public readonly record struct BodyPanelChangeSet<T>(
   IReadOnlyList<T> ToAdd,
   IReadOnlyList<T> ToRemove,
   IReadOnlyList<T> ToShow,
@@ -124,10 +124,10 @@ public readonly record struct LayoutBodyChangeSet<T>(
   bool IsRefresh)
 {
   /// <summary>Creates a refresh changeset (all lists empty, IsRefresh = true).</summary>
-  public static LayoutBodyChangeSet<T> CreateRefresh()
+  public static BodyPanelChangeSet<T> CreateRefresh()
     => new([], [], [], [], IsRefresh: true);
 
   /// <summary>Creates an empty no-op changeset (all lists empty, IsRefresh = false).</summary>
-  public static LayoutBodyChangeSet<T> CreateEmpty()
+  public static BodyPanelChangeSet<T> CreateEmpty()
     => new([], [], [], [], IsRefresh: false);
 }

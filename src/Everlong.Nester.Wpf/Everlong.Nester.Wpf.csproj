@@ -56,7 +56,7 @@
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\ISceneTransition.cs" Link="Presentation\Transitions\ISceneTransition.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\TransitionKind.cs" Link="Presentation\Transitions\TransitionKind.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\TransitionContext.cs" Link="Presentation\Transitions\TransitionContext.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Layouts\ILayoutControl.cs" Link="Presentation\Layouts\ILayoutControl.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Layouts\IBodyHolder.cs" Link="Presentation\Layouts\IBodyHolder.cs" />
   </ItemGroup>
 
   <!-- The package readme is the repository's own readme.md, packed at the root of

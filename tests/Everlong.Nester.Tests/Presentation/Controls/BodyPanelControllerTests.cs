@@ -4,10 +4,10 @@ using Xunit;
 namespace Everlong.Nester.Tests.Presentation;
 
 /// <summary>
-///   Algorithm tests for <see cref="LayoutBodyController{T}"/>.
+///   Algorithm tests for <see cref="BodyPanelController{T}"/>.
 ///   Uses plain <see cref="object"/> instances — no UI framework or UI thread required.
 /// </summary>
-public class LayoutBodyPanelAlgorithmTests
+public class BodyPanelControllerTests
 {
   private readonly object _pageA = new();
   private readonly object _pageB = new();
@@ -19,7 +19,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Switch_EmptyPanel_AddsAndUpdatesActive()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
 
     ctrl.Switch(_pageA);
 
@@ -30,7 +30,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Switch_ToNewPage_AddsNewAndUpdatesActive()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
 
     ctrl.Switch(_pageB);
@@ -46,7 +46,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Switch_BackToCachedPage_UpdatesActiveWithoutAdding()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
     ctrl.Switch(_pageB);
 
@@ -61,7 +61,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Switch_SamePage_ActiveUnchangedAndChildrenUnaffected()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
 
     ctrl.Switch(_pageA);
@@ -75,12 +75,12 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Release_NonActivePage_RemovesFromPanelAndActiveUnchanged()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
     ctrl.Switch(_pageB);
     ctrl.Switch(_pageA);
 
-    LayoutBodyChangeSet<object> cs = ctrl.Release(_pageB);
+    BodyPanelChangeSet<object> cs = ctrl.Release(_pageB);
 
     Assert.Single(cs.ToRemove, _pageB);
     Assert.Empty(cs.ToAdd);
@@ -92,10 +92,10 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Release_PageNotInPanel_IsIdempotentAndReturnsEmpty()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
 
-    LayoutBodyChangeSet<object> cs = ctrl.Release(_pageB);
+    BodyPanelChangeSet<object> cs = ctrl.Release(_pageB);
 
     Assert.Empty(cs.ToRemove);
     Assert.False(cs.IsRefresh);
@@ -105,9 +105,9 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Release_EmptyPanel_IsIdempotentAndReturnsEmpty()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
 
-    LayoutBodyChangeSet<object> cs = ctrl.Release(_pageA);
+    BodyPanelChangeSet<object> cs = ctrl.Release(_pageA);
 
     Assert.Empty(cs.ToRemove);
     Assert.Empty(ctrl.Children);
@@ -118,7 +118,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Switch_MultiplePages_OnlyUpdatesActive()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
     ctrl.Switch(_pageB);
     ctrl.Switch(_pageC);
@@ -132,7 +132,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Switch_MultiplePages_SwitchToNew_AddsAndUpdatesActive()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
     ctrl.Switch(_pageB);
     ctrl.Switch(_pageC);
@@ -148,14 +148,14 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Release_Sequential_EachReleaseOnlyRemovesItsTarget()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
     ctrl.Switch(_pageB);
     ctrl.Switch(_pageC);
     ctrl.Switch(_pageA);
 
-    LayoutBodyChangeSet<object> csB = ctrl.Release(_pageB);
-    LayoutBodyChangeSet<object> csC = ctrl.Release(_pageC);
+    BodyPanelChangeSet<object> csB = ctrl.Release(_pageB);
+    BodyPanelChangeSet<object> csC = ctrl.Release(_pageC);
 
     Assert.Single(csB.ToRemove, _pageB);
     Assert.Single(csC.ToRemove, _pageC);
@@ -166,7 +166,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Release_ThenSwitchToReleasedPage_ReAddsItToPanel()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
     ctrl.Switch(_pageB);
     ctrl.Switch(_pageA);
@@ -185,7 +185,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Switch_CalledTwiceWithSameTarget_SecondCallIsNoOp()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
     ctrl.Switch(_pageB);
 
@@ -199,7 +199,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Switch_BackAndForthMultipleTimes_MaintainsCorrectState()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
     ctrl.Switch(_pageB);
     ctrl.Switch(_pageA);
@@ -214,7 +214,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Switch_NullTarget_ThrowsArgumentNullException()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
 
     Assert.Throws<ArgumentNullException>(() => ctrl.Switch(null!));
   }
@@ -222,7 +222,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Release_NullChild_ThrowsArgumentNullException()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
 
     Assert.Throws<ArgumentNullException>(() => ctrl.Release(null!));
   }
@@ -232,7 +232,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Switch_ActiveUpdatedImmediately()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
     ctrl.Switch(_pageB);
 
@@ -242,7 +242,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Release_ChildRemovedFromChildren_ImmediatelyAfterRelease()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     ctrl.Switch(_pageA);
     ctrl.Switch(_pageB);
     ctrl.Switch(_pageA);
@@ -256,9 +256,9 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void EnsureAdded_ReturnsToAddForNewChild()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
 
-    LayoutBodyChangeSet<object> cs = ctrl.EnsureAdded(_pageA);
+    BodyPanelChangeSet<object> cs = ctrl.EnsureAdded(_pageA);
 
     Assert.Single(cs.ToAdd, _pageA);
     Assert.Empty(cs.ToRemove);
@@ -270,7 +270,7 @@ public class LayoutBodyPanelAlgorithmTests
   [Fact]
   public void Switch_RequiresNoUIThread_PureDataComputation()
   {
-    LayoutBodyController<object> ctrl = new();
+    BodyPanelController<object> ctrl = new();
     Exception? threadEx = null;
 
     Thread t = new(() =>

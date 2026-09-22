@@ -286,13 +286,13 @@
       </Grid>
     </Border>
 
-    <!-- Content area: the mount point this layout returns from ILayoutControl.GetLayoutBody -->
+    <!-- Content area: the mount point this layout returns from IBodyHolder.GetBodyPanel -->
     <Border Grid.Row="1" Grid.Column="1"
             Background="{DynamicResource App.Body.Background}"
             BorderBrush="{DynamicResource App.Body.BorderBrush}"
             CornerRadius="15 0 0 0" BorderThickness="1 1 0 0"
             Padding="10">
-      <n:LayoutBody x:Name="Body" />
+      <n:BodyPanel x:Name="Body" />
     </Border>
   </Grid>
 </UserControl>

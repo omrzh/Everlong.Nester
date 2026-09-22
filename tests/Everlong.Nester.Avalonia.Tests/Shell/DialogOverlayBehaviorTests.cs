@@ -208,7 +208,7 @@ public class DialogOverlayBehaviorTests
     await WaitUntilAsync(() => panel.DerivedHosts().Count() == 1);
     var host = SingleCapsule(panel);
     var dimmer = Assert.IsType<DimmerLayout>(Assert.Single(host.Children));
-    var view = Assert.IsType<ExitingDialogView>(Assert.Single(((LayoutBody)dimmer.GetLayoutBody()).Children));
+    var view = Assert.IsType<ExitingDialogView>(Assert.Single(((BodyPanel)dimmer.GetBodyPanel()).Children));
     Assert.Equal(1, view.EnterCount);
 
     // Closing the session runs the overlay's exit choreography on the view.
@@ -236,7 +236,7 @@ public class DialogOverlayBehaviorTests
       DimmerLayout? dimmer = host?.Children.OfType<DimmerLayout>().FirstOrDefault();
       view = dimmer is null
         ? null
-        : ((LayoutBody)dimmer.GetLayoutBody()).Children
+        : ((BodyPanel)dimmer.GetBodyPanel()).Children
             .OfType<LaidOutDialogView>().FirstOrDefault();
       return view is { EnterRan: true };
     });
@@ -296,7 +296,7 @@ public class DialogOverlayBehaviorTests
     await WaitUntilAsync(() => panel.DerivedHosts().Count() == 1);
     var host = SingleCapsule(panel);
     var dimmer = Assert.IsType<DimmerLayout>(Assert.Single(host.Children));
-    var body = (LayoutBody)dimmer.GetLayoutBody();
+    var body = (BodyPanel)dimmer.GetBodyPanel();
     Assert.Null(body.RenderTransform);
 
     // An external back is vetoed by the mandatory dimmer — the dimmer is

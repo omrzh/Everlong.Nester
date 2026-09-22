@@ -119,7 +119,7 @@ public class DialogTenantTests
     // session view hangs inside the dimmer's body.
     var host = SingleCapsule(panel);
     var dimmer = SingleDimmer(host);
-    var dialogView = Assert.Single(((LayoutBody)dimmer.GetLayoutBody()).Children);
+    var dialogView = Assert.Single(((BodyPanel)dimmer.GetBodyPanel()).Children);
     Assert.Same(session, dialogView.DataContext);
 
     // Close: the session completes, the overlay is reclaimed.
@@ -226,7 +226,7 @@ public class DialogTenantTests
 
     // Presented through the routing pipeline: dimmer shell + enter transition.
     var dimmer = SingleDimmer(SingleCapsule(panel));
-    var dialogView = Assert.IsType<TransitionDialogView>(((LayoutBody)dimmer.GetLayoutBody()).Children.Single());
+    var dialogView = Assert.IsType<TransitionDialogView>(((BodyPanel)dimmer.GetBodyPanel()).Children.Single());
     Assert.Equal(1, dialogView.EnterCount);
 
     session.Close();

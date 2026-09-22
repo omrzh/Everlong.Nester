@@ -16,15 +16,15 @@ internal sealed partial class RoutingView
   /// </summary>
   /// <remarks>
   ///   A control that can host a chain node below it implements
-  ///   <see cref="ILayoutControl" />; that contract is the only source for a
+  ///   <see cref="IBodyHolder" />; that contract is the only source for a
   ///   mount point.
   /// </remarks>
-  private static ILayoutBody<PControl>? BodyOf(PlatformLocation location)
+  private static IBodyPanel<PControl>? BodyOf(PlatformLocation location)
   {
     if (!location.BodyResolved)
     {
-      location.Body = location.View is ILayoutControl layoutControl
-                        ? layoutControl.GetLayoutBody()
+      location.Body = location.View is IBodyHolder holder
+                        ? holder.GetBodyPanel()
                         : null;
       location.BodyResolved = true;
     }

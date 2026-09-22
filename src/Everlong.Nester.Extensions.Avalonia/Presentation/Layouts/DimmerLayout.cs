@@ -13,14 +13,14 @@ namespace Everlong.Nester.Presentation;
 ///   The dimmer of a dialog: hosts the layer's body, paints the scrim and
 ///   arbitrates dismissal.
 /// </summary>
-public class DimmerLayout : PContentControl, ILayoutControl, IIntentHandler, ISceneTransition, IArriving
+public class DimmerLayout : PContentControl, IBodyHolder, IIntentHandler, ISceneTransition, IArriving
 {
   private const string BackdropKey = "Nester.Dimmer.Backdrop";
 
   private static readonly IBrush FallbackBackdropBrush
     = new SolidColorBrush(PColor.Parse("#40000000"));
 
-  private readonly LayoutBody _body = new();
+  private readonly BodyPanel _body = new();
 
   /// <summary>
   ///   Initializes a new instance of the <see cref="DimmerLayout" /> class.
@@ -60,7 +60,7 @@ public class DimmerLayout : PContentControl, ILayoutControl, IIntentHandler, ISc
   }
 
   /// <inheritdoc />
-  public ILayoutBody GetLayoutBody() => _body;
+  public IBodyPanel GetBodyPanel() => _body;
 
   private bool _isDispatching;
   private bool _isShaking;

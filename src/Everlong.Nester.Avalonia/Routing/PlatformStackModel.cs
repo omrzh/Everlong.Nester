@@ -18,7 +18,7 @@ internal sealed class PlatformStackModel : RouterStack
 
 /// <summary>
 ///   The platform's realized node — the platform control behind the base
-///   visual slot and the mount child of its parent's layout body.
+///   visual slot and the mount child of its parent's body panel.
 /// </summary>
 internal sealed class PlatformLocation(Type type, IArgs? args, object instance)
   : Location(type, args, instance), IViewLocation<PControl>
@@ -27,7 +27,7 @@ internal sealed class PlatformLocation(Type type, IArgs? args, object instance)
   public PControl? View { get => Presenter as PControl; set => Presenter = value; }
 
   /// <summary>The mount point inside this node's view — where the inner node's view mounts.</summary>
-  public ILayoutBody<PControl>? Body { get; set; }
+  public IBodyPanel<PControl>? Body { get; set; }
 
   /// <summary>Whether <see cref="Body" /> has been resolved — a settled "no body" answer is held too.</summary>
   internal bool BodyResolved { get; set; }

@@ -15,8 +15,8 @@ internal sealed partial class RoutingView
   {
     // The bodies the mounting touched — their visibility settles onto
     // the active child at the very end, whatever the choreography did.
-    var settledBodies = new HashSet<ILayoutBody<PControl>>();
-    var mounted = new Dictionary<ILayoutBody<PControl>, IViewLocation<PControl>>();
+    var settledBodies = new HashSet<IBodyPanel<PControl>>();
+    var mounted = new Dictionary<IBodyPanel<PControl>, IViewLocation<PControl>>();
     try
     {
       await RevealCoreAsync(scene, settledBodies, mounted);
@@ -29,7 +29,7 @@ internal sealed partial class RoutingView
       // convergence.  The presentation state a director leaves (opacity,
       // hit-test, transform, z-index) is restored only on the non-superseded
       // path below; the superseding run owns it otherwise.
-      foreach (ILayoutBody<PControl> body in settledBodies)
+      foreach (IBodyPanel<PControl> body in settledBodies)
         body.SettleActive();
     }
   }
@@ -42,8 +42,8 @@ internal sealed partial class RoutingView
   ///   final visibility is restored.
   /// </summary>
   private async Task RevealCoreAsync(IConvergenceScene convergence,
-                                     HashSet<ILayoutBody<PControl>> settledBodies,
-                                     Dictionary<ILayoutBody<PControl>, IViewLocation<PControl>> mounted)
+                                     HashSet<IBodyPanel<PControl>> settledBodies,
+                                     Dictionary<IBodyPanel<PControl>, IViewLocation<PControl>> mounted)
   {
     // ── The transfer's moving sides — the choreography's subjects ──
     // The arriving side spans from the first difference down, so a revision is
@@ -106,7 +106,7 @@ internal sealed partial class RoutingView
         // node's own chain parent — the shared prefix's site, or this view at
         // the root — never a positional alignment with the resolved chain.
         var location = (PlatformLocation)chainNode;
-        ILayoutBody<PControl>? parentBody = chainNode.Parent is { } parent
+        IBodyPanel<PControl>? parentBody = chainNode.Parent is { } parent
                                                      ? BodyOf((PlatformLocation)parent)
                                                      : this;
         if (parentBody is null)
@@ -231,7 +231,7 @@ internal sealed partial class RoutingView
 
   /// <summary>Whether a newer reveal already moved a mounted body's active child past this change.</summary>
   private static bool IsSuperseded(
-    IReadOnlyDictionary<ILayoutBody<PControl>, IViewLocation<PControl>> mounted)
+    IReadOnlyDictionary<IBodyPanel<PControl>, IViewLocation<PControl>> mounted)
   {
     foreach (var pair in mounted)
       if (!ReferenceEquals(pair.Key.ActiveChild, pair.Value))

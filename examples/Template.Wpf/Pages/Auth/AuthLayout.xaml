@@ -32,7 +32,7 @@
         </Border>
 
         <!-- Content Mount Point -->
-        <n:LayoutBody x:Name="Body" Grid.Row="1" Margin="20" />
+        <n:BodyPanel x:Name="Body" Grid.Row="1" Margin="20" />
       </Grid>
     </Border>
   </Grid>

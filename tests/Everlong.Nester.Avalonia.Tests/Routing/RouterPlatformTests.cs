@@ -21,9 +21,9 @@ namespace Everlong.Nester.Tests.Routing;
 [Collection("RealShell")]
 public class RouterPlatformTests
 {
-  private sealed class LayoutView : ContentControl, ILayoutControl
+  private sealed class LayoutView : ContentControl, IBodyHolder
   {
-    private readonly LayoutBody _body = new();
+    private readonly BodyPanel _body = new();
 
     internal LayoutView()
     {
@@ -32,7 +32,7 @@ public class RouterPlatformTests
       Height = 100;
     }
 
-    public ILayoutBody GetLayoutBody() => _body;
+    public IBodyPanel GetBodyPanel() => _body;
   }
 
   private sealed class PageView : ContentControl { }
@@ -78,15 +78,15 @@ public class RouterPlatformTests
     (AvaloniaShell shell, Router router) = Create();
     await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(PageAlpha)));
 
-    var hostBody = (ILayoutBody<Control>)router.View;
+    var hostBody = (IBodyPanel<Control>)router.View;
     var layoutNode = Assert.Single(hostBody.Children);
     var layoutView = Assert.IsType<LayoutView>(layoutNode.View);
-    var layoutBody = (ILayoutBody<Control>)layoutView.GetLayoutBody();
-    var pageNode = Assert.Single(layoutBody.Children);
+    var bodyPanel = (IBodyPanel<Control>)layoutView.GetBodyPanel();
+    var pageNode = Assert.Single(bodyPanel.Children);
     Assert.IsType<PageView>(pageNode.View);
 
     Assert.Same(layoutNode, hostBody.ActiveChild);
-    Assert.Same(pageNode, layoutBody.ActiveChild);
+    Assert.Same(pageNode, bodyPanel.ActiveChild);
     Assert.True(layoutView.IsVisible);
     Assert.True(((PageView)pageNode.View!).IsVisible);
   }
@@ -136,12 +136,12 @@ public class RouterPlatformTests
 
     await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(PageAlpha)));
     Assert.Equal(1, router.Stack.Count);
-    var hostBody = (ILayoutBody<Control>)router.View;
-    var layoutBody = (ILayoutBody<Control>)((LayoutView)hostBody.Children[0].View!).GetLayoutBody();
-    var pageA = (PageView)layoutBody.Children[0].View!;
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
+    var pageA = (PageView)bodyPanel.Children[0].View!;
 
     await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(PageBeta)));
-    var pageB = Assert.Single(layoutBody.Children, n => !ReferenceEquals(n.View, pageA)).View!;
+    var pageB = Assert.Single(bodyPanel.Children, n => !ReferenceEquals(n.View, pageA)).View!;
     Assert.False(pageA.IsVisible);
     Assert.True(((PageView)pageB).IsVisible);
 
@@ -150,6 +150,6 @@ public class RouterPlatformTests
     Assert.Equal(IntentResult.Handled, await shell.DispatchIntent(null, new BackIntent()));
     Assert.True(pageA.IsVisible);
     Assert.False(((PageView)pageB).IsVisible);
-    Assert.Same(layoutBody.Children.First(n => ReferenceEquals(n.View, pageA)), layoutBody.ActiveChild);
+    Assert.Same(bodyPanel.Children.First(n => ReferenceEquals(n.View, pageA)), bodyPanel.ActiveChild);
   }
 }

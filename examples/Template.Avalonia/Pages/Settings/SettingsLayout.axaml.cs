@@ -4,14 +4,14 @@ using Everlong.Nester.Presentation;
 namespace NesterApp.Pages.Settings;
 
 [ViewFor<SettingsLayoutModel>]
-public partial class SettingsLayout : UserControl, ILayoutControl, ISceneTransition
+public partial class SettingsLayout : UserControl, IBodyHolder, ISceneTransition
 {
   public SettingsLayout()
   {
     InitializeComponent();
   }
 
-  public ILayoutBody GetLayoutBody() => Body;
+  public IBodyPanel GetBodyPanel() => Body;
 
   public async Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
   {

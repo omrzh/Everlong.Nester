@@ -3,18 +3,18 @@ using Terminal.Gui.ViewBase;
 namespace Everlong.Nester.Presentation;
 
 /// <summary>
-///   The layout body of the Terminal.Gui surface — a <see cref="View" /> the
+///   The body panel of the Terminal.Gui surface — a <see cref="View" /> the
 ///   routing stages mount chain views into; only the active child is
 ///   visible.
 /// </summary>
-public class TuiLayoutBody : View, ILayoutBody
+public class TuiBodyPanel : View, IBodyPanel
 {
-  private readonly LayoutBodyController<IViewLocation<View>> _controller = new();
+  private readonly BodyPanelController<IViewLocation<View>> _controller = new();
 
   /// <summary>
-  ///   Initializes a new instance of the <see cref="TuiLayoutBody" /> class.
+  ///   Initializes a new instance of the <see cref="TuiBodyPanel" /> class.
   /// </summary>
-  public TuiLayoutBody()
+  public TuiBodyPanel()
   {
     Width = Dim.Fill();
     Height = Dim.Fill();
@@ -22,7 +22,7 @@ public class TuiLayoutBody : View, ILayoutBody
 
   // ── Change-set application ───────────────────────────────────────────────
 
-  private void ApplyChangeSet(LayoutBodyChangeSet<IViewLocation<View>> cs)
+  private void ApplyChangeSet(BodyPanelChangeSet<IViewLocation<View>> cs)
   {
     foreach (IViewLocation<View> node in cs.ToAdd)
       if (node.View is { } view)
@@ -56,32 +56,32 @@ public class TuiLayoutBody : View, ILayoutBody
     view.Height = Dim.Fill();
   }
 
-  // ── ILayoutBody<View> ────────────────────────────────────────────────────
+  // ── IBodyPanel<View> ────────────────────────────────────────────────────
 
-  IReadOnlyList<IViewLocation<View>> ILayoutBody<View>.Children => _controller.Children;
+  IReadOnlyList<IViewLocation<View>> IBodyPanel<View>.Children => _controller.Children;
 
-  IViewLocation<View>? ILayoutBody<View>.ActiveChild => _controller.Active;
+  IViewLocation<View>? IBodyPanel<View>.ActiveChild => _controller.Active;
 
-  bool ILayoutBody<View>.IsAttachedToVisualTree => SuperView is not null;
+  bool IBodyPanel<View>.IsAttachedToVisualTree => SuperView is not null;
 
-  void ILayoutBody<View>.SetActiveChild(IViewLocation<View> node)
+  void IBodyPanel<View>.SetActiveChild(IViewLocation<View> node)
   {
     _controller.Switch(node);
   }
 
-  void ILayoutBody<View>.Add(IViewLocation<View> node)
+  void IBodyPanel<View>.Add(IViewLocation<View> node)
   {
     ApplyChangeSet(_controller.EnsureAdded(node));
   }
 
-  void ILayoutBody<View>.Remove(IViewLocation<View> node)
+  void IBodyPanel<View>.Remove(IViewLocation<View> node)
   {
     ApplyChangeSet(_controller.Release(node));
   }
 
-  void ILayoutBody<View>.SetVisible(bool isVisible) => Visible = isVisible;
+  void IBodyPanel<View>.SetVisible(bool isVisible) => Visible = isVisible;
 
-  void ILayoutBody<View>.SettleActive()
+  void IBodyPanel<View>.SettleActive()
   {
     IViewLocation<View>? active = _controller.Active;
     foreach (IViewLocation<View> node in _controller.Children)

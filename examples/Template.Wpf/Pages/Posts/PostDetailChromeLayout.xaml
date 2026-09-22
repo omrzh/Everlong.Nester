@@ -37,7 +37,7 @@
         </Border>
 
         <!-- Overlay content mount point -->
-        <n:LayoutBody x:Name="Body" Grid.Row="1" Margin="0,4,0,0" />
+        <n:BodyPanel x:Name="Body" Grid.Row="1" Margin="0,4,0,0" />
       </Grid>
     </Border>
   </Grid>

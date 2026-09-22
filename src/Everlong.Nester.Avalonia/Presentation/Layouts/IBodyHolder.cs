@@ -9,17 +9,17 @@ namespace Everlong.Nester.Presentation;
 /// </summary>
 /// <remarks>
 ///   The framework asks only this contract: a view that can be a non-terminal
-///   chain node implements it, and the body it returns stays in the control's
+///   chain node implements it, and the panel it returns stays in the control's
 ///   visual tree while the control is presented.
 /// </remarks>
-public interface ILayoutControl
+public interface IBodyHolder
 {
   /// <summary>
-  ///   Gets the <see cref="ILayoutBody"/> the inner content mounts into.
+  ///   Gets the <see cref="IBodyPanel"/> the inner content mounts into.
   /// </summary>
   /// <returns>The mount point this control exposes.</returns>
-  ILayoutBody GetLayoutBody();
+  IBodyPanel GetBodyPanel();
 }
 
-/// <summary>The platform layout body — <see cref="ILayoutBody{TView}" /> bound to the platform control type.</summary>
-public interface ILayoutBody : ILayoutBody<PControl>;
+/// <summary>The platform body panel — <see cref="IBodyPanel{TView}" /> bound to the platform control type.</summary>
+public interface IBodyPanel : IBodyPanel<PControl>;

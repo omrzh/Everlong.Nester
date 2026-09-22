@@ -34,8 +34,8 @@ internal sealed class TerminalAssembleStage(IServiceProvider services)
   }
 
   /// <summary>The node's inner mount point — its layout's declared Body slot.</summary>
-  private static ILayoutBody<View>? ResolveBody(View view)
-    => view is ILayoutControl layoutControl ? layoutControl.GetLayoutBody() : null;
+  private static IBodyPanel<View>? ResolveBody(View view)
+    => view is IBodyHolder holder ? holder.GetBodyPanel() : null;
 }
 
 /// <summary>
@@ -48,8 +48,8 @@ internal sealed class TerminalRevealStage(IRoutingView host)
 {
   internal Task RevealAsync(IConvergenceScene convergence)
   {
-    var settledBodies = new HashSet<ILayoutBody<View>>();
-    var mounted = new Dictionary<ILayoutBody<View>, IViewLocation<View>>();
+    var settledBodies = new HashSet<IBodyPanel<View>>();
+    var mounted = new Dictionary<IBodyPanel<View>, IViewLocation<View>>();
     try
     {
       RevealCore(convergence, settledBodies, mounted);
@@ -60,7 +60,7 @@ internal sealed class TerminalRevealStage(IRoutingView host)
       // touched body is visible — read from the body's CURRENT active, so
       // a reveal that lands after a superseding one converges to the
       // superseding convergence.
-      foreach (ILayoutBody<View> body in settledBodies)
+      foreach (IBodyPanel<View> body in settledBodies)
         body.SettleActive();
     }
 
@@ -68,8 +68,8 @@ internal sealed class TerminalRevealStage(IRoutingView host)
   }
 
   private void RevealCore(IConvergenceScene convergence,
-                          HashSet<ILayoutBody<View>> settledBodies,
-                          Dictionary<ILayoutBody<View>, IViewLocation<View>> mounted)
+                          HashSet<IBodyPanel<View>> settledBodies,
+                          Dictionary<IBodyPanel<View>, IViewLocation<View>> mounted)
   {
     // The arriving side spans from the transfer's first difference down; a node
     // on both sides is re-engaged in place and nothing re-mounts.
@@ -93,8 +93,8 @@ internal sealed class TerminalRevealStage(IRoutingView host)
       // Every node of a platform chain is a TerminalLocation — the model
       // materializes them through CreateLocation.
       var location = (TerminalLocation)chainNode;
-      ILayoutBody<View>? parentBody = start + i == 0
-                                        ? host as ILayoutBody<View>
+      IBodyPanel<View>? parentBody = start + i == 0
+                                        ? host as IBodyPanel<View>
                                         : ((TerminalLocation)convergence.Chain[start + i - 1]).Body;
       if (parentBody is null)
         continue;
@@ -126,8 +126,8 @@ internal sealed class TerminalRevealStage(IRoutingView host)
         continue;
 
       var location = (TerminalLocation)node;
-      ILayoutBody<View>? parentBody = node.Parent is null
-                                        ? host as ILayoutBody<View>
+      IBodyPanel<View>? parentBody = node.Parent is null
+                                        ? host as IBodyPanel<View>
                                         : ((TerminalLocation)node.Parent).Body;
       if (parentBody is null)
         continue;

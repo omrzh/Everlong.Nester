@@ -4,23 +4,22 @@ namespace Everlong.Nester.Presentation;
 
 /// <summary>
 ///   A panel that hosts page content within a layout and handles content transitions.
-///   The mount point a layout exposes through <see cref="ILayoutControl" />.
+///   The mount point a view exposes through <see cref="IBodyHolder" />.
 ///   All visited page views remain in the Visual Tree; non-active pages are hidden with
 ///   <see cref="Avalonia.Visual.IsVisible"/> = false so inactive pages are fully removed from
 ///   layout, triggering a full remeasure cycle when they are reactivated.
 /// </summary>
-public class LayoutBody : Panel, ILayoutBody
+public class BodyPanel : Panel, IBodyPanel
 {
+  private readonly BodyPanelController<IViewLocation<PControl>> _controller = new();
 
-  private readonly LayoutBodyController<IViewLocation<PControl>> _controller = new();
-
-  bool ILayoutBody<PControl>.IsAttachedToVisualTree => _isAttached;
+  bool IBodyPanel<PControl>.IsAttachedToVisualTree => _isAttached;
   private volatile bool _isAttached;
 
   /// <summary>
-  ///   Initializes a new instance of the <see cref="LayoutBody" /> class.
+  ///   Initializes a new instance of the <see cref="BodyPanel" /> class.
   /// </summary>
-  public LayoutBody()
+  public BodyPanel()
   {
     VerifyAccess();
     ClipToBounds = true;
@@ -44,13 +43,13 @@ public class LayoutBody : Panel, ILayoutBody
 
   // ── Change-set application ───────────────────────────────────────────────
   //
-  // LayoutBody never touches opacity, hit-test, transform or z-index, and it
+  // BodyPanel never touches opacity, hit-test, transform or z-index, and it
   // does not decide visibility on its own: SetActiveChild only updates the
   // Active pointer, and the visible/hidden state is written by SettleActive
   // when the platform reveal asks for it (per-body mount/activate/settle) —
   // plus whatever the user's ISceneTransition director does.
 
-  private void ApplyChangeSet(LayoutBodyChangeSet<IViewLocation<PControl>> cs)
+  private void ApplyChangeSet(BodyPanelChangeSet<IViewLocation<PControl>> cs)
   {
     if (cs.IsRefresh)
       return;
@@ -68,30 +67,30 @@ public class LayoutBody : Panel, ILayoutBody
     }
   }
 
-  IReadOnlyList<IViewLocation<PControl>> ILayoutBody<PControl>.Children
+  IReadOnlyList<IViewLocation<PControl>> IBodyPanel<PControl>.Children
     => _controller.Children;
 
-  IViewLocation<PControl>? ILayoutBody<PControl>.ActiveChild
+  IViewLocation<PControl>? IBodyPanel<PControl>.ActiveChild
     => _controller.Active;
 
-  void ILayoutBody<PControl>.SetActiveChild(IViewLocation<PControl> node)
+  void IBodyPanel<PControl>.SetActiveChild(IViewLocation<PControl> node)
   {
     _controller.Switch(node);
   }
 
-  void ILayoutBody<PControl>.Add(IViewLocation<PControl> node)
+  void IBodyPanel<PControl>.Add(IViewLocation<PControl> node)
   {
     ApplyChangeSet(_controller.EnsureAdded(node));
   }
 
-  void ILayoutBody<PControl>.Remove(IViewLocation<PControl> node)
+  void IBodyPanel<PControl>.Remove(IViewLocation<PControl> node)
   {
     ApplyChangeSet(_controller.Release(node));
   }
 
-  void ILayoutBody<PControl>.SetVisible(bool isVisible) => IsVisible = isVisible;
+  void IBodyPanel<PControl>.SetVisible(bool isVisible) => IsVisible = isVisible;
 
-  void ILayoutBody<PControl>.SettleActive()
+  void IBodyPanel<PControl>.SettleActive()
   {
     IViewLocation<PControl>? active = _controller.Active;
     foreach (IViewLocation<PControl> node in _controller.Children)

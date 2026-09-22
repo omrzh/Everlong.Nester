@@ -34,17 +34,17 @@ produce two independent presentations.
 ### The mount point
 
 A view that can be a non-terminal chain node declares where the node below it mounts: it implements
-`ILayoutControl` and returns the `LayoutBody` from its XAML.
+`IBodyHolder` and returns the `BodyPanel` from its XAML.
 
 ```csharp
-public partial class MainLayout : UserControl, ILayoutControl
+public partial class MainLayout : UserControl, IBodyHolder
 {
-  public ILayoutBody GetLayoutBody() => Body;   // the x:Name="Body" element
+  public IBodyPanel GetBodyPanel() => Body;   // the x:Name="Body" element
 }
 ```
 
 ```xml
-<n:LayoutBody x:Name="Body" />
+<n:BodyPanel x:Name="Body" />
 ```
 
 That contract is the only source for a mount point — the framework never searches the view's tree, and
@@ -52,8 +52,8 @@ the element's name means nothing to it (it is only how the code-behind reaches t
 whose chain position is never a parent needs no declaration; one that is a parent and declares none
 leaves its child unmounted.
 
-`LayoutBody` is a panel: every visited page stays in it as a child, and only the active one is visible.
-Keep it attached to the view's own visual tree — the framework mounts into it directly, and a body
+`BodyPanel` is a panel: every visited page stays in it as a child, and only the active one is visible.
+Keep it attached to the view's own visual tree — the framework mounts into it directly, and a panel
 outside the tree renders nothing.
 
 ## 2. Navigating
