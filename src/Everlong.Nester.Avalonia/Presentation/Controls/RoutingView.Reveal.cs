@@ -49,21 +49,8 @@ internal sealed partial class RoutingView
     // The arriving side spans from the first difference down, so a revision is
     // a subject too.  A node on both sides is re-engaged in place: it is not
     // re-mounted, not hidden and not dipped — the director owns whatever
-    // re-entrance it gets.
-    var arriving = new HashSet<Location>(ReferenceEqualityComparer.Instance);
-    foreach (ILocation node in convergence.Arrivings)
-    {
-      if (node is Location arrivingNode)
-        arriving.Add(arrivingNode);
-    }
-
-    var departing = new HashSet<Location>(ReferenceEqualityComparer.Instance);
-    foreach (ILocation node in convergence.Departings)
-    {
-      if (node is Location departingNode)
-        departing.Add(departingNode);
-    }
-
+    // re-entrance it gets.  The sides are chain slices, a handful of nodes:
+    // the membership tests below scan them rather than build a set.
     List<PControl> arrivingViews = [];
     List<Location> enteringNodes = [];
     List<PControl> enteringViews = [];
@@ -76,7 +63,7 @@ internal sealed partial class RoutingView
       if (view is not null)
         arrivingViews.Add(view);
 
-      if (departing.Contains(arrivingNode))
+      if (Contains(convergence.Departings, arrivingNode))
         continue; // re-engaged in place — already mounted and visible
       enteringNodes.Add(arrivingNode);
       if (view is not null)
@@ -86,7 +73,7 @@ internal sealed partial class RoutingView
     List<PControl> departingViews = [];
     foreach (ILocation node in convergence.Departings)
     {
-      if (node is Location departingNode && !arriving.Contains(departingNode)
+      if (node is Location departingNode && !Contains(convergence.Arrivings, departingNode)
           && departingNode.Presenter is PControl view)
         departingViews.Add(view);
     }
@@ -213,6 +200,18 @@ internal sealed partial class RoutingView
 #endif
       }
     }
+  }
+
+  /// <summary>Whether <paramref name="side" /> holds <paramref name="node" /> by reference.</summary>
+  private static bool Contains(IReadOnlyList<ILocation> side, Location node)
+  {
+    for (int i = 0; i < side.Count; i++)
+    {
+      if (ReferenceEquals(side[i], node))
+        return true;
+    }
+
+    return false;
   }
 
   /// <summary>
