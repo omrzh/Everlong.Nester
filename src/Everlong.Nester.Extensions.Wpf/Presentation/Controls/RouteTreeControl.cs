@@ -9,6 +9,12 @@ public partial class RouteTreeControl : TreeControl
     DefaultStyleKeyProperty.OverrideMetadata(typeof(RouteTreeControl),
       new FrameworkPropertyMetadata(typeof(RouteTreeControl)));
 
+    // The control is the tree's frame, not an affordance in it: WPF would
+    // otherwise stop a Tab here before the first item's header.  Staying
+    // focusable but out of the tab order sends Tab straight into the items.
+    IsTabStopProperty.OverrideMetadata(typeof(RouteTreeControl),
+      new FrameworkPropertyMetadata(false));
+
     EventManager.RegisterClassHandler(typeof(RouteTreeControl), TreeItem.ItemClickedEvent,
       new RoutedEventHandler(static (s, e) =>
       {

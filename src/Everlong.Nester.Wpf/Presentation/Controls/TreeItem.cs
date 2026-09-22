@@ -45,6 +45,13 @@ public partial class TreeItem : HeaderedItemsControl
   {
     DefaultStyleKeyProperty.OverrideMetadata(typeof(TreeItem),
       new FrameworkPropertyMetadata(typeof(TreeItem)));
+
+    // A WPF Control is focusable and a tab stop by default, so the container
+    // would take a Tab of its own ahead of the header button in its template.
+    // The item is a container, not an affordance: staying focusable but out of
+    // the tab order leaves its descendants reachable by one Tab.
+    IsTabStopProperty.OverrideMetadata(typeof(TreeItem),
+      new FrameworkPropertyMetadata(false));
   }
 
   /// <summary>Raised when the item header is clicked. Bubbles up the visual tree.</summary>
