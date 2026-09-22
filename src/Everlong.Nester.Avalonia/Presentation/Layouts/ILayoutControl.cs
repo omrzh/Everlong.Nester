@@ -5,14 +5,19 @@ namespace Everlong.Nester.Presentation;
 
 
 /// <summary>
-///   Interface for controls that can host other controls.
+///   A control that declares the mount point a chain node below it mounts into.
 /// </summary>
+/// <remarks>
+///   The framework asks only this contract: a view that can be a non-terminal
+///   chain node implements it, and the body it returns stays in the control's
+///   visual tree while the control is presented.
+/// </remarks>
 public interface ILayoutControl
 {
   /// <summary>
-  ///   Gets the <see cref="ILayoutBody"/> hosting the inner content.
+  ///   Gets the <see cref="ILayoutBody"/> the inner content mounts into.
   /// </summary>
-  /// <returns>The <see cref="ILayoutBody"/> declared in the layout's visual tree.</returns>
+  /// <returns>The mount point this control exposes.</returns>
   ILayoutBody GetLayoutBody();
 }
 

@@ -108,12 +108,12 @@ internal sealed partial class RoutingView : LayoutBody, IRoutingView, IFocusPoli
       if (view is null)
         continue; // no view for this instance — the node stays unassembled and retries
 
-      // The data context is wired before the mount point is ever resolved: a
+      // The data context is wired before the mount point is ever asked for: a
       // view whose content comes from its data context (an imperative content
-      // control) builds that content on the assignment, and the body it
-      // carries is only in the logical tree afterwards.  The search itself is
-      // deferred to the first mount (<see cref="BodyOf" />) — a node that
-      // never hosts a child never pays for it.
+      // control) builds that content on the assignment, and a mount point read
+      // before it would see a view that has not been given its data.  The mount
+      // point itself is resolved at the first mount that needs it
+      // (<see cref="BodyOf" />) — a node that never hosts a child never asks.
       view.DataContext = location.Instance;
       location.View = view;
     }

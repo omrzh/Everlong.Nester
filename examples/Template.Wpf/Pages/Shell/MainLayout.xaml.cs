@@ -8,7 +8,7 @@ using Everlong.Nester.Primitives;
 namespace NesterApp.Pages.Shell;
 
 [ViewFor<MainLayoutModel>]
-public partial class MainLayout : UserControl, ISceneTransition
+public partial class MainLayout : UserControl, ILayoutControl, ISceneTransition
 {
   private Window? _hostWindow;
 
@@ -18,6 +18,8 @@ public partial class MainLayout : UserControl, ISceneTransition
     Loaded += OnLoaded;
     Unloaded += OnUnloaded;
   }
+
+  public ILayoutBody GetLayoutBody() => Body;
 
   public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
     => this.PassThroughAsync(context, token);

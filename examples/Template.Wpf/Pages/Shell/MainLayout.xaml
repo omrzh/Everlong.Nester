@@ -305,7 +305,7 @@
       </Grid>
     </Border>
 
-    <!-- Content Area: Declare a LayoutBody named 'Body' for Nester to mount content -->
+    <!-- Content area: the mount point this layout returns from ILayoutControl.GetLayoutBody -->
     <Border Grid.Row="1" Grid.Column="1"
             BorderBrush="{DynamicResource App.Body.BorderBrush}"
             BorderThickness="1,1,0,0" CornerRadius="15, 0,0,0"

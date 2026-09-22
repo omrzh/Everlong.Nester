@@ -4,7 +4,7 @@ namespace Everlong.Nester.Presentation;
 
 /// <summary>
 ///   A panel that hosts page content within a layout and handles content transitions.
-///   The named mount point (x:Name="Body") of a layout's nested content.
+///   The mount point a layout exposes through <see cref="ILayoutControl" />.
 ///   All visited page views remain in the Visual Tree; non-active pages are hidden with
 ///   <see cref="Avalonia.Visual.IsVisible"/> = false so inactive pages are fully removed from
 ///   layout, triggering a full remeasure cycle when they are reactivated.
