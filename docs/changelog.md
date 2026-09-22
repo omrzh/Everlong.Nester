@@ -74,10 +74,19 @@ The XAML element is the one name a consumer types, so every `<n:LayoutBody/>` be
 `Panel` is Nester's word here, not the platform's: Avalonia's `Panel` is a single-cell container,
 WPF's is not, and Terminal.Gui has no panel at all.
 
+**Migrate.** `IBodyPanel<TView>.IsAttachedToVisualTree` is removed. The reveal read it once, to decide
+whether to wait for an arriving view to load; the wait moved onto the arriving view itself and nothing has
+read the flag since. An implementation of `IBodyPanel<TView>` drops the member — the platform panels no
+longer track it.
+
 **Behaviour.** A convergence no moving-side view directs now completes with the commit that landed it
 instead of a dispatcher pass later — the entry was made visible-but-transparent and laid out for a
 director that never ran. `ISceneTransition` still owes a laid-out view; the wait now sits in the branch
 that consumes it.
+
+**Behaviour.** A view that hosts a chain node but declares no mount point is reported through the error
+channel — the shell's `ReportError`, so the app's error handler sees it — instead of leaving a blank page
+in silence. The child stays unmounted and the rest of the convergence proceeds.
 
 ## 0.1.7 — 2026-09-20
 
