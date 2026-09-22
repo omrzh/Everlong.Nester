@@ -17,9 +17,11 @@ internal sealed partial class RoutingView
   /// <remarks>
   ///   A control that can host a chain node below it implements
   ///   <see cref="IBodyHolder" />; that contract is the only source for a
-  ///   mount point.
+  ///   mount point.  A view that declares none is reported through the shell's
+  ///   error channel as the answer settles; the caller leaves the child
+  ///   unmounted and the convergence continues.
   /// </remarks>
-  private static IBodyPanel<PControl>? BodyOf(PlatformLocation location)
+  private IBodyPanel<PControl>? BodyOf(PlatformLocation location)
   {
     if (!location.BodyResolved)
     {
@@ -27,6 +29,17 @@ internal sealed partial class RoutingView
                         ? holder.GetBodyPanel()
                         : null;
       location.BodyResolved = true;
+
+      // Asking for this node's mount point means a chain node mounts below it,
+      // so a view that declares none is a misconfiguration, not a leaf.  The
+      // report is once, where the answer settles; the child stays unmounted.
+      if (location.Body is null)
+      {
+        string owner = location.View?.GetType().Name ?? location.Instance.GetType().Name;
+        Shell?.ReportError(new InvalidOperationException(
+          $"A chain node mounts below '{owner}', but its view exposes no body panel. A view that can sit "
+          + "above another chain node implements IBodyHolder and returns the BodyPanel from GetBodyPanel()."));
+      }
     }
 
     return location.Body;
