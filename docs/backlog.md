@@ -112,7 +112,7 @@ Decided against, recorded so the question is not opened twice.
 - **A `windows-latest` job for the WPF template case** — `template_smoke.py` skips it off Windows, and this
   machine runs it; a runner would re-prove a case that is not the one that breaks.
 - **Caching NuGet packages in CI** — the restore is not where the minutes are; the workload install is.
-- **Restating the design-document ruler in `AGENTS.md`** — HARD RULE 6 states its scope and the fourteen specs
+- **Restating the design-document ruler in `AGENTS.md`** — the rule states its scope and the fourteen specs
   are the shape samples a fifteenth is written from; the mechanical half has never been the thing that broke.
 - **A compile-time check that a layout model's view implements `IBodyHolder`.** The rule reads as mechanical —
   a model referenced by `[Layout<T>]` is refused a locator

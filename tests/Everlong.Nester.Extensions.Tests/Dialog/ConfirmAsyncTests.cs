@@ -5,7 +5,7 @@ using Everlong.Nester.Routing;
 using Microsoft.Extensions.Time.Testing;
 using Xunit;
 
-namespace Everlong.Nester.Tests.Dialog;
+namespace Everlong.Nester.Extensions.Tests.Dialog;
 
 /// <summary>
 ///   The <c>ConfirmAsync</c> extension wiring over the router: session

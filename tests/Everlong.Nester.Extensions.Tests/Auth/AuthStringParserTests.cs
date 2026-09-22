@@ -1,7 +1,7 @@
 using Everlong.Nester.Auth;
 using Xunit;
 
-namespace Everlong.Nester.Tests.Auth;
+namespace Everlong.Nester.Extensions.Tests.Auth;
 
 /// <summary>
 ///   Table-driven coverage of <see cref="AuthStringParser.ParseAuthInfo" />:

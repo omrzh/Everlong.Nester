@@ -2,7 +2,7 @@ using Everlong.Globalization;
 using Everlong.Nester.Extensions.Properties;
 using Xunit;
 
-namespace Everlong.Nester.Tests.Dialog;
+namespace Everlong.Nester.Extensions.Tests.Dialog;
 
 public class LangDialogTests : IDisposable
 {

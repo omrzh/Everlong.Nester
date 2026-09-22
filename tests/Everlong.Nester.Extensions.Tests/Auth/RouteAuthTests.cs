@@ -2,7 +2,7 @@ using Everlong.Nester.Auth;
 using Everlong.Nester.Routing;
 using Xunit;
 
-namespace Everlong.Nester.Tests.Auth;
+namespace Everlong.Nester.Extensions.Tests.Auth;
 
 /// <summary>
 ///   <see cref="RouteAuth.IsAuthorized" /> over a real <see cref="AuthService" />:

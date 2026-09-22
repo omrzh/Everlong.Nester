@@ -175,6 +175,9 @@ csharp_align_multiline_property_pattern = true
 csharp_prefer_system_threading_lock = true:suggestion
 csharp_style_prefer_unbound_generic_type_in_nameof = true:suggestion
 
+# The file tree does not serve as the authority for namespaces in this solution
+dotnet_diagnostic.IDE0130.severity = silent
+
 # The enforced set: a rule refuses a commit if and only if it appears here, as
 # `dotnet_diagnostic.<ID>.severity`.  `warning` and `error` both refuse; a rule
 # absent here is a preference, not a gate.  An ID line wins over the option line

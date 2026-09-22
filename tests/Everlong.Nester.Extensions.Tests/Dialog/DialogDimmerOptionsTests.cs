@@ -1,7 +1,7 @@
 using Everlong.Nester.Dialog;
 using Xunit;
 
-namespace Everlong.Nester.Tests.Dialog;
+namespace Everlong.Nester.Extensions.Tests.Dialog;
 
 /// <summary>
 ///   The options-to-dimmer dispatch the dialog sugar is built on: the state an
