@@ -247,6 +247,29 @@ public class RouterTransitionTests
     Assert.True(page.IsHitTestVisible);
   }
 
+  // ── the mount point is resolved when it is first needed ──
+
+  [AvaloniaFact]
+  public async Task Route_TerminalBecomesContainer_MountsItsChildWhenItDoes()
+  {
+    (AvaloniaShell shell, Router router) = Create();
+
+    // The layout arrives alone: it is the chain's terminal, so nothing mounts
+    // into it and its mount point is never asked for.
+    await router.RouteAsync(new Request(typeof(LayoutAlpha), null));
+
+    var hostBody = (ILayoutBody<Control>)router.View;
+    var layoutView = Assert.IsType<LayoutView>(hostBody.Children[0].View);
+    var layoutBody = (ILayoutBody<Control>)layoutView.GetLayoutBody();
+    Assert.Empty(layoutBody.Children);
+
+    // The same layout now hosts a page — the mount point resolves on first use.
+    await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(PageAlpha)));
+
+    Assert.Single(layoutBody.Children);
+    Assert.IsType<PageView>(layoutBody.ActiveChild!.View);
+  }
+
   [AvaloniaFact]
   public async Task RouteAsync_EnterAnimation_RunsTheChainDirector_WithArrivingInvisible()
   {

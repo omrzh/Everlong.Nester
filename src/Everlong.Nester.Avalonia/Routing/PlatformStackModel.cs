@@ -28,4 +28,7 @@ internal sealed class PlatformLocation(Type type, IArgs? args, object instance)
 
   /// <summary>The mount point inside this node's view — where the inner node's view mounts.</summary>
   public ILayoutBody<PControl>? Body { get; set; }
+
+  /// <summary>Whether <see cref="Body" /> has been resolved — a settled "no body" answer is held too.</summary>
+  internal bool BodyResolved { get; set; }
 }

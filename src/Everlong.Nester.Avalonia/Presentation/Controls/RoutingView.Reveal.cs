@@ -120,7 +120,7 @@ internal sealed partial class RoutingView
         // the root — never a positional alignment with the resolved chain.
         var location = (PlatformLocation)chainNode;
         ILayoutBody<PControl>? parentBody = chainNode.Parent is { } parent
-                                                     ? ((PlatformLocation)parent).Body
+                                                     ? BodyOf((PlatformLocation)parent)
                                                      : this;
         if (parentBody is null)
           continue;

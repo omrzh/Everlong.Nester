@@ -5,11 +5,29 @@
 #if AVALONIA
 using Avalonia.LogicalTree;
 #endif
+using Everlong.Nester.Routing;
 
 namespace Everlong.Nester.Presentation;
 
 internal sealed partial class RoutingView
 {
+  /// <summary>
+  ///   The node's mount point, resolved once on first use — a node that never
+  ///   hosts a child never pays for the search, and one that only later becomes
+  ///   a container resolves then.  A settled <see langword="null" /> answer is
+  ///   held: the view declares no body.
+  /// </summary>
+  private static ILayoutBody<PControl>? BodyOf(PlatformLocation location)
+  {
+    if (!location.BodyResolved)
+    {
+      location.Body = location.View is { } view ? ResolveLayoutBody(view) : null;
+      location.BodyResolved = true;
+    }
+
+    return location.Body;
+  }
+
   /// <summary>
   ///   Resolves the body a view mounts its inner content into — the view's
   ///   own <see cref="ILayoutControl" /> contract, or the one
