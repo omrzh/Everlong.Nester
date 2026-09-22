@@ -16,7 +16,7 @@ shell once as `IShell`, `ILayerBroker`, `IErrorReporter`, `IIntentDispatcher`, i
 reaches it through `IShell`.
 
 `ShellBase` is the platform-neutral core — assembly, dispatch, error routing, the ledger, teardown —
-and the platform shells supply the leaves of §4.
+and the platform shells supply the leaves of the platform hooks.
 
 ## 2. Lifecycle
 
@@ -53,7 +53,7 @@ the presentation anchor:
 1. `EnsureAssembled` — the shell builds its provider, and assigning the root cuts the window scope
    from it (assign-once).
 2. `BindAgent` — the declared activation agent wins, otherwise the container supplies one; the agent
-   is bound to this shell (§8).
+   is bound to this shell (the activation binding).
 3. `PrepareDirector` — a hand-assigned Director wins, otherwise its declared type is resolved through
    the container's injector; neither present throws.
 4. `PrepareStage` — the platform stage, with the ledger connected to it.
@@ -63,7 +63,7 @@ the presentation anchor:
    tracked by the app lifetime.
 7. `OnAssembled()` then the Director's own ready hook — services live, host connected, **pipeline not
    yet active**.
-8. `Activate()` — fold the shell's intent pipeline (§5).
+8. `Activate()` — fold the shell's intent pipeline (the intent chain).
 9. `ObserveStartup(OnStarted(RunStartupDispatch()))` — the startup dispatch, fire-and-forget.
 
 A second `Start()` throws, because the lifecycle has already walked past `Assembled`.
@@ -117,8 +117,8 @@ with that exception.
 
 The shell is the broker: `ShellBase` implements `ILayerBroker` and the lease-facing `ILayerLedger`, and
 registration publishes the broker as the container's injection point. Connecting the stage wires the
-ledger to it, teardown evicts every live lease (§9 step 3), and `Acquire` throws once the shell is
-disposed.
+ledger to it, teardown evicts every live lease (the third step of the teardown order), and `Acquire`
+throws once the shell is disposed.
 
 ## 8. Activation binding
 

@@ -141,6 +141,6 @@ consulted — and the exception is never translated into a result.
   cannot express both `Handled` and `Vetoed`.
 - **An intent is not a command bus.** No result payload, no queue, no retry: one dispatch consults the
   chain once.
-- **An exception is never a decision** (§8).
+- **An exception is never a decision** (the exception discipline above).
 - **The input surface is the intent vocabulary.** A component that keeps the state a transfer governs in
   a side channel competes with the protocol for authority over that state.

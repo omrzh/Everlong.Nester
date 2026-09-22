@@ -13,7 +13,7 @@ one table, one entry point.
 
 The union is the point. The mapping set is the application's, and a locator that claimed only part of it
 would make the declaration order carry meaning it does not have. It is also the property that makes the
-platform's recycling contract unanswerable (§3).
+platform's recycling contract unanswerable (why the union locator cannot answer, below).
 
 **Resolution starts at the asking control, not at the application.** A view is resolved from the tree the
 control that needs it sits in — so the nearest scope wins and the application's own table is the last

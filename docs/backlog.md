@@ -1,30 +1,32 @@
 # Backlog
 
-Known work, none of it scheduled. An entry carries its evidence — a path, a command, a number — or it does
+Known work, none of it scheduled. An entry carries its evidence — a path, a symbol, a command — or it does
 not belong here, and an entry is deleted when it is done, never struck through.
 
 ## Decided, unscheduled
 
-- **The generic `IntentCommand` posts nothing.** `src/Everlong.Nester.Wpf/Shell/IntentCommands.cs:28` has no
-  `CommandBinding` anywhere; `RegisterCommandBindings` binds the five shell-state commands only.
+- **The generic `IntentCommand` posts nothing.** `IntentCommands.IntentCommand` is bound nowhere: no
+  `CommandBinding` names it, and `RegisterCommandBindings` binds the five shell-state commands only.
   `PostIntent(control, intent)` is the static path a binding would call. Bind it or drop it.
 - **`DialogShake.PlayBlockedSound` is an empty body on Avalonia**
-  (`src/Everlong.Nester.Extensions.Avalonia/Controls/DialogShake.cs:23`), where the WPF twin plays
+  (`src/Everlong.Nester.Extensions.Avalonia/Controls/DialogShake.cs`), where the WPF twin plays
   `SystemSounds.Beep`. Public API whose caller is a consumer, so not dead code: wire a playback path.
 - **Analyzer release tracking is weaker than it reads.** `Microsoft.CodeAnalysis.Analyzers 3.3.4` arrives
   transitively and nothing pins it; `.editorconfig` sets no `RS*` severity, so `RS2000`–`RS2008` cannot fail a
-  build (they do fire when provoked); `Generators.csproj:25-26` removes `AdditionalFiles` the package's targets
-  include first, so the pair removes nothing.
+  build (they do fire when provoked); `Generators.csproj` removes the two `AnalyzerReleases.*.md` from
+  `AdditionalFiles`, which the package's targets include first, so the pair removes nothing.
 - **Absorption at package level is untested.** The absorbed-revision flow, the transfer's two moving sides and
   the re-armed `IArriving` case run from HEAD source only, and the moving sides have never run on TerminalGui
   (`tests/Everlong.Nester.Tests/Routing/`).
 - **Two absorption shapes have no consumer-facing page.** Layout args are generated and pinned
   (`GeneratesRouteWithParameterProjection`) but absent from `docs/guide/navigation.md`; a page that consumes
-  `BackIntent` and re-engages itself is written down nowhere. `docs/design/absorption.md` §1 has both shapes.
+  `BackIntent` and re-engages itself is written down nowhere. The contract section of
+  `docs/design/absorption.md` has both shapes.
 - **Three threads were never written down**: the focus-declared-by-the-view intent behind `FocusPolicy`
   (`StagePanel` maps it by stack position); the release-accounting numbers behind `PinChain` / `InstancePins`
-  (`docs/design/routing.md` §9 has the shape, the `StackShapes` drill was dropped); the RouteSync matcher audit
-  and performance numbers (`docs/design/routesync.md` §3 has the mechanism).
+  (the identity-and-retention section of `docs/design/routing.md` has the shape, the `StackShapes` drill was
+  dropped); the RouteSync matcher audit and performance numbers (the section of `docs/design/routesync.md`
+  on how a highlight is derived has the mechanism).
 - **`CleanOutput` wipes `artifacts/`**, so a single target run leaves a partial output directory
   (`.\build.cmd PackTemplates` leaves only the template package). `Publish` is unaffected.
 - **The template smoke test's cleanup is best-effort** — an IDE build host holds a freshly generated project
@@ -37,7 +39,7 @@ not belong here, and an entry is deleted when it is done, never struck through.
   `AcceptAndroidSDKLicenses=true`, then both paths exported so MSBuild reads them.
 - **The template's layout views are compile-verified only.** The Avalonia test head links `UiShell.cs`,
   `MainViewModel.Avalonia.cs` and `Lang*.g.cs`
-  (`tests/Everlong.Nester.Avalonia.Tests/Everlong.Nester.Avalonia.Tests.csproj:54-59`), not the layout views,
+  (`tests/Everlong.Nester.Avalonia.Tests/Everlong.Nester.Avalonia.Tests.csproj`), not the layout views,
   so its `MainLayout` is a stub routing participant. `.agents/py/template_smoke.py` — CI's `templates` job —
   is what exercises the real ones.
 
@@ -62,14 +64,14 @@ not belong here, and an entry is deleted when it is done, never struck through.
   *Decided by: someone running it, or dropping the claim.*
 - **`CloseIntent` is not as uncancellable as its old doc promised.** The pair differs only in which handler
   probes it: the app Director's guard is keyed on `TryCloseIntent`
-  (`examples/Template.Shared/Pages/Shell/MainViewModel.cs:119`), while any presented page vetoes either one
+  (`examples/Template.Shared/Pages/Shell/MainViewModel.cs`), while any presented page vetoes either one
   through the chain consultation `RouterBase.HandleAsync` runs first
-  (`src/Everlong.Nester/Routing/RouterBase.cs:592`). The claim the doc used to make is a property of the
+  (`src/Everlong.Nester/Routing/RouterBase.cs`). The claim the doc used to make is a property of the
   sender, not of the record. Either the teardown leaves the intent path for a direct shell-teardown entry,
   or one record is enough and `TryCloseIntent`'s `Try` is the whole difference.
   *Decided by: a caller that needs a close nothing can refuse.*
 - **`HostState` names one thing three ways.** Its doc says "Window state for the shell"
-  (`src/Everlong.Nester/Primitives/HostState.cs:4`), its dispatch site is `MutateShellStateIntent`, and the
+  (`src/Everlong.Nester/Primitives/HostState.cs`), its dispatch site is `MutateShellStateIntent`, and the
   snapshot that carries it is `HostPropertyBase` — whose own members say "shell-state" and "shell title".
   The honest name is out of reach at the moment: `src/Everlong.Nester.Wpf/Shell/ShellExtensions.cs`
   imports both `System.Windows` and `Everlong.Nester.Primitives`, so a Nester `WindowState` would be
@@ -101,7 +103,7 @@ Decided against, recorded so the question is not opened twice.
   reads an inline link as a reference without a definition.
 - **A WPF view-resolution test head** — WPF has no headless host in this repository, so the order the WPF
   chain walks is fixed by the remark on `…/Controls/DataTemplatePrecedenceTests.cs`, not by an assertion;
-  the platform rule itself is `docs/design/view-resolution.md` §6.
+  the platform rule itself is the constraints section of `docs/design/view-resolution.md`.
 - **Runtime test heads for the Android and Browser example hosts** — either needs a device or a browser
   runner, and what the repository owes an example host is that it compiles, which is what the two workloads
   in `ci.yml` check.
@@ -116,8 +118,8 @@ Decided against, recorded so the question is not opened twice.
   are the shape samples a fifteenth is written from; the mechanical half has never been the thing that broke.
 - **A compile-time check that a layout model's view implements `IBodyHolder`.** The rule reads as mechanical —
   a model referenced by `[Layout<T>]` is refused a locator
-  (`src/Everlong.Nester.Generators/Routes/RouteGenerator.cs:141`), so its view always needs the contract — and
-  both halves already exist (`Analyzers/MappingAnalyzer.cs:23` pairs `[ViewFor]` / `[Mapping]`;
-  `RouteGenerator.cs:24` collects the `[Layout<T>]` targets). Not built: a `[Layout<T>]`-referenced model can
+  (`src/Everlong.Nester.Generators/Routes/RouteGenerator.cs`, `Plan`), so its view always needs the contract —
+  and both halves already exist (`Analyzers/MappingAnalyzer.cs` pairs `[ViewFor]` / `[Mapping]`;
+  `RouteGenerator.cs` collects the `[Layout<T>]` targets). Not built: a `[Layout<T>]`-referenced model can
   also carry `[Routable]`, and the reference is compilation-local, so the premise holds only inside one
   assembly. The runtime reports a blank page instead (`RoutingView.Body.cs`, `BodyOf`).

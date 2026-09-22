@@ -19,7 +19,7 @@
    show the **last added view draws on top**.  `TuiStage` orders by the observed behaviour (add in
    ascending z, the highest z last = top).  If Terminal.Gui is ever corrected to match its own comment,
    that ordering stops holding silently — a change here must be re-measured against the target version
-   with the procedure in §3.  A fragile adaptation point, noted at `TuiStage.Rebuild`.
+   with the pixel verification below.  A fragile adaptation point, noted at `TuiStage.Rebuild`.
 3. **A self-dirty View clears its whole viewport.** In `View.Draw`, a true `needsDrawSelf` (own
    `NeedsDraw`) runs `DoClearViewport` first, filling the entire viewport with the background before
    drawing the children.  Once a full-screen surface dirties itself and redraws, it wipes out the
@@ -47,7 +47,7 @@ upper one's self-dirty wipes the lower, the lower one's self-dirty wipes the upp
 | Dialog band | **content-sized, centred floating window** | `NesterView.FloatingSize` + `AdoptFloatingChain` shrinking the lease surface after the reveal |
 | Notice band | content-sized, edge-anchored small overlay (future) | same "window" semantics; it cannot be a translucent bar |
 | Dimmer (translucent scrim) | **does not exist** | no alpha; the `DefaultDimmerModel` TG view only carries the "window shell / positioning host" role |
-| Lower layer alive + overlay stable | holds for static content; a **whole-surface** self-repaint of the lower layer wipes the overlay once | residual erase vector (see §4) |
+| Lower layer alive + overlay stable | holds for static content; a **whole-surface** self-repaint of the lower layer wipes the overlay once | residual erase vector (see the lessons below) |
 
 An overlay is stable while no "full-screen and self-dirtying" surface shares its area.  Page content
 changes travel the subtree-dirty path (safe); only when the navigation surface itself lays out / dirties
@@ -92,7 +92,7 @@ seen**; use `Debug.WriteLine` (or a file) for troubleshooting output.
    reaches the dialog band first (higher z, served first), and "root of the overlay goes back = close"
    settles `ShowAsync` with `null` — the "Cancelled" that showed up on the page was in fact a closed
    invisible dialog.
-4. **Console output is invisible in a TUI** (see §3); report errors through `Debug`/a file.
+4. **Console output is invisible in a TUI** (see the pixel verification above); report errors through `Debug`/a file.
 
 ---
 
@@ -124,4 +124,4 @@ seen**; use `Debug.WriteLine` (or a file) for troubleshooting output.
 - **A real Notice band**: `TerminalNoticeService` is a placeholder (trace) today.
 - **A binding helper**: a very thin INPC subscriber (the projection stays the view author's choice) — undecided.
 - **Z-order against future Terminal.Gui versions**: after a version bump, re-verify with the pixel technique
-  in §3.
+  in the pixel verification above.

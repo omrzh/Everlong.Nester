@@ -104,7 +104,7 @@ handlers in — so the topmost surface has the first say and dies first.
 
 A lease carries an `IntentHandler`, which is how a leased surface joins an intent dispatch: the
 handler slot is the layer domain's whole contribution to the intent protocol, and the broker itself
-stays out of it. The consultation order is the stacking order of §8 — the topmost lease has the first
+stays out of it. The consultation order is the layer stack's order — the topmost lease has the first
 say — and a handler that does not recognize an intent forwards it to the next one, exactly as the
 intent protocol prescribes.
 

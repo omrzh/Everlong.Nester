@@ -193,7 +193,8 @@ Resources.MergedDictionaries.Add(new ViewLocator());
 Resources.MergedDictionaries.Add(new DynamicViewLocator());   // optional: hand-written custom resolution
 ```
 
-`docs/design/view-resolution.md` §1 states the rule; each platform's lookup follows its own reading.
+`docs/design/view-resolution.md`'s "The locator is the application's table" states the rule; each platform's
+lookup follows its own reading.
 
 ```xml
 <!-- Avalonia — App.axaml: the styles, in this order -->

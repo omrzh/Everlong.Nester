@@ -55,6 +55,7 @@ The tree is the source of truth; this section is the map.
 6. The analyzers ride in `Everlong.Nester` alone: it packs the generator and code-fix DLLs into `analyzers/dotnet/cs`, and every other package reaches them through the core. A second copy would deliver each diagnostic twice.
 7. A file compiled into two platform packages lives in the Avalonia one and is linked by the WPF one (`<Compile Include>` + `Link`), never copied: `src/Everlong.Nester.Avalonia/` for the core chrome, `src/Everlong.Nester.Extensions.Avalonia/` for the extension chrome and the animation kit.
 8. Template content must not contain `#if`/`#endif`: the dotnet-new engine evaluates them against template symbols and silently strips the guarded block. A file one platform must drop is excluded in the consuming csproj (`<Compile Remove>`), never guarded in the source.
+9. A reference names what it points at, never where it sits: no HARD RULE number, no `§N`, no `file.cs:123`. A position is a claim about a tree that moves, so the number rots in silence — it keeps resolving, just to the wrong place — and every renumbering then rewrites every file that quoted it. Name the heading, the type, the member.
 
 ## Branches
 

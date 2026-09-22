@@ -5,7 +5,7 @@ using Xunit;
 namespace Everlong.Nester.Tests.Routing;
 
 /// <summary>
-///   The page-inner-stack pattern (`docs/design/routing.md` §11): a
+///   The page-inner-stack pattern (`docs/design/routing.md`): a
 ///   parameterized page keeps a private history of its own argument
 ///   instances and consumes Back/Forward through its
 ///   <see cref="IIntentHandler" /> — the outer stack stays untouched until
