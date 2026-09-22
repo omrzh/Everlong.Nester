@@ -188,7 +188,7 @@ public class RouterTransitionTests
     public Control? Build(object? param) => _factory();
   }
 
-  private static (AvaloniaShell shell, Router router) Create()
+  private static (AvaloniaShell shell, Router router) Create(bool windowed = false)
   {
     Application.Current!.DataTemplates.Add(new ViewTemplate(typeof(LayoutAlpha), () => new LayoutView()));
     Application.Current!.DataTemplates.Add(new ViewTemplate(typeof(PageAlpha), () => new PageView()));
@@ -206,7 +206,7 @@ public class RouterTransitionTests
       s.AddSingleton<PageAlpha>(_ => new PageAlpha());
       s.AddSingleton<PageBeta>(_ => new PageBeta());
       s.AddSingleton<DirectorPage>(_ => new DirectorPage());
-    });
+    }, rootView: windowed ? new HostWindow { Width = 900, Height = 600 } : null);
     shell.Start();
     return (shell, new Router(shell.Services));
   }
@@ -217,6 +217,35 @@ public class RouterTransitionTests
   /// <summary>A mount child — a platform location carrying the given view.</summary>
   private static IViewLocation<Control> Node(Control view)
     => new PlatformLocation(view.GetType(), Args.Empty, view) { View = view };
+
+  /// <summary>A real host window — the stage joins a visual root, so the reveal's layout wait can run.</summary>
+  private sealed class HostWindow : Window, IAvaloniaShellHost
+  {
+    public void HostShell(IAvaloniaShell shell, Control stage) => Content = stage;
+  }
+
+  // ── a convergence no view directs: the entering side is shown in the landing turn ──
+
+  [AvaloniaFact]
+  public async Task Route_WithNoDirector_ShowsTheArrivingPageInTheLandingTurn()
+  {
+    (AvaloniaShell shell, Router router) = Create(windowed: true);
+
+    await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(PageAlpha)));
+
+    // No moving-side view directs this convergence, so nothing owes the
+    // entering side a laid-out-but-invisible state: the reveal runs to its end
+    // in the same turn the transaction lands — no dispatcher pass to wait on,
+    // and no dip to opacity 0 left behind.
+    Assert.True(router.WaitIdleAsync().IsCompleted, "the reveal must not outlive the landing turn");
+
+    var hostBody = (ILayoutBody<Control>)router.View;
+    var layoutBody = (ILayoutBody<Control>)((LayoutView)hostBody.Children[0].View!).GetLayoutBody();
+    var page = Assert.IsType<PageView>(layoutBody.ActiveChild!.View);
+    Assert.True(page.IsVisible);
+    Assert.Equal(1, page.Opacity);
+    Assert.True(page.IsHitTestVisible);
+  }
 
   [AvaloniaFact]
   public async Task RouteAsync_EnterAnimation_RunsTheChainDirector_WithArrivingInvisible()

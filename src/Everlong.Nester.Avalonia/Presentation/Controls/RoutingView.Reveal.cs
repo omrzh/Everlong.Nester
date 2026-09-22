@@ -135,26 +135,32 @@ internal sealed partial class RoutingView
       }
     }
 
-    // ── the entering side is laid out but invisible ──
-    foreach (PControl view in enteringViews)
-    {
-      SetViewVisible(view, true);
-      view.Opacity = 0;
-      view.IsHitTestVisible = false;
-    }
-
-    // ── The director's contract: the entering side is laid out when it runs.
-    //    The subject is the entering view, not this view — a derived router's
-    //    view joins the tree in this very turn — and the gate is the stage,
-    //    the signal that layout is possible at all. ──
-    if (layoutProbe is { } probe &&
-        Stage is { } stage && stage.IsInVisualTree())
-      await UIDispatcher.WaitForLayoutAsync(probe, convergence.Lifetime);
-
     // ── Director animation (failure-isolated — a throwing director must
     // not block the final visibility or the entry-release) ──
+    //
+    // The director is the only subject of the prep: an entering view is
+    // mounted, laid out and invisible when the method runs, and the layout
+    // wait exists to make that true.  A convergence no moving-side view
+    // directs — or one whose stage carries no flying plane — mounts and shows
+    // in this same turn: no dip to opacity 0, and no dispatcher pass to wait
+    // on.
     if (directorView is ISceneTransition director && Stage?.FlyingCanvas is { } canvas)
     {
+      // ── the entering side is laid out but invisible ──
+      foreach (PControl view in enteringViews)
+      {
+        SetViewVisible(view, true);
+        view.Opacity = 0;
+        view.IsHitTestVisible = false;
+      }
+
+      // The subject is the entering view, not this view — a derived router's
+      // view joins the tree in this very turn — and the gate is the stage,
+      // the signal that layout is possible at all.
+      if (layoutProbe is { } probe &&
+          Stage is { } stage && stage.IsInVisualTree())
+        await UIDispatcher.WaitForLayoutAsync(probe, convergence.Lifetime);
+
       var transition = new TransitionContext(canvas, kind)
       {
         ArrivingChain = arrivingViews,

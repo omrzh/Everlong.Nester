@@ -16,12 +16,15 @@ namespace Everlong.Nester.Presentation;
 ///   visible: it never left the presentation.  The framework restores final
 ///   visibility after the method returns.
 ///
-///   The framework gives the dispatcher one pass to lay the entering chain out,
-///   waiting on the innermost entering view — the last one the mount cascade
-///   reaches — and, when one pass was not enough, on that view's <c>Loaded</c>
-///   event; both only while the stage has joined the visual tree.  An entering
-///   view whose stack never does reaches the method unmeasured, and a director
-///   that reads geometry must tolerate it.
+///   Before a director is invoked, the framework gives the dispatcher one
+///   pass to lay the entering chain out, waiting on the innermost entering
+///   view — the last one the mount cascade reaches — and, when one pass was
+///   not enough, on that view's <c>Loaded</c> event; both only while the stage
+///   has joined the visual tree.  A convergence with no director to invoke
+///   takes no pass, and its entering views mount and show in the turn they
+///   were prepared.  An entering view whose stack never joins the visual tree
+///   reaches the method unmeasured, and a director that reads geometry must
+///   tolerate it.
 /// </remarks>
 public interface ISceneTransition
 {
