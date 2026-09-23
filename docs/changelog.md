@@ -11,7 +11,8 @@ entry says so when it does. That is the one thing a consumer should assume rathe
 
 Nothing between 0.1.7 and this one shipped — the only tag is `v0.1.7` — so this entry carries the whole
 span: the shell's intent family is split in two, one intent is gone, the flying plane gains an anchor, a
-view declares its mount point one way, and the family that names it is renamed.
+view declares its mount point one way, the family that names it is renamed, and a session ending is
+arbitrated through the message hub.
 
 **Migrate.** `IShellIntent` carried two subjects under one name — the window's chrome and the shell's own
 end. Six records move to the new `IWindowIntent`: `ShowIntent`, `HideIntent`, `TopmostIntent`,
@@ -87,6 +88,16 @@ that consumes it.
 **Behaviour.** A view that hosts a chain node but declares no mount point is reported through the error
 channel — the shell's `ReportError`, so the app's error handler sees it — instead of leaving a blank page
 in silence. The child stays unmounted and the rest of the convergence proceeds.
+
+**Feature.** A session ending is arbitrated through the message hub. The app calls `RequestSessionEnding`
+on the hub from `OnSessionEnding` / `ShutdownRequested`; the framework broadcasts `SessionEndingMessage`,
+a participant registers a prompt and the action it confirms with `Guard`, and the framework asks through
+`IMessageBox` — a default per platform — and runs the confirmed actions once every guard passes. The
+intent chain stays shell-internal.
+
+**Behaviour.** A close the OS or the lifetime initiates no longer enters the user close chain: it would
+run the close guard, and on Avalonia holding it aborts the shutdown outright. Avalonia reads the reason
+off the close event; WPF has none, so the shell marks the session ending instead.
 
 ## 0.1.7 — 2026-09-20
 
