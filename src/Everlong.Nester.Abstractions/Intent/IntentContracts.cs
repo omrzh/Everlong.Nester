@@ -1,8 +1,12 @@
 namespace Everlong.Nester.Intent;
 
+// xml doc discipline exemption
 /// <summary>
-///   Represents an intent to perform an action — a polymorphic marker with no members.
+///   Represents an intent to perform an action — a polymorphic marker.
 /// </summary>
+/// <remarks>
+///   Less is more, and nothing is everything.
+/// </remarks>
 public interface IIntent : IImpulse;
 
 /// <summary>The outcome of an <see cref="IIntent" /> consultation.</summary>
