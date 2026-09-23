@@ -89,14 +89,40 @@ public class DialogOverlayBehaviorTests
   {
   }
 
+  /// <summary>A dialog view that parks its enter animation until released.</summary>
+  public sealed class BlockingDialogView : ContentControl, ISceneTransition
+  {
+    private readonly TaskCompletionSource _release = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    /// <summary>Whether <see cref="AnimateEnterAsync" /> has been entered.</summary>
+    public bool Entered { get; private set; }
+
+    public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
+    {
+      Entered = true;
+      return _release.Task;
+    }
+
+    public Task AnimateExitAsync(TransitionContext context, CancellationToken token) => Task.CompletedTask;
+
+    /// <summary>Lets the parked enter animation complete.</summary>
+    public void Release() => _release.TrySetResult();
+  }
+
+  public sealed class BlockingDialog : DialogSessionBase<object?>
+  {
+  }
+
   private sealed class ViewLocator : IDataTemplate
   {
-    public bool Match(object? data) => data is ProbeDialog or ExitingDialog or LaidOutDialog or ConfirmDialogSession;
+    public bool Match(object? data)
+      => data is ProbeDialog or ExitingDialog or LaidOutDialog or BlockingDialog or ConfirmDialogSession;
 
     public Control? Build(object? data) => data switch
     {
       ExitingDialog => new ExitingDialogView(),
       LaidOutDialog => new LaidOutDialogView(),
+      BlockingDialog => new BlockingDialogView(),
       _ => new ContentControl()
     };
   }
@@ -252,6 +278,43 @@ public class DialogOverlayBehaviorTests
 
     session.Close();
     await showTask.WaitAsync(TimeSpan.FromSeconds(5));
+  }
+
+  // ── the dimmer blocks the layer below while the enter animation runs ──
+
+  [AvaloniaFact]
+  public async Task DialogEnter_DimmerBlocksLowerLayerWhileAnimating()
+  {
+    var (_, panel, _, sp) = CreateShell();
+    var dialogs = sp.GetRequiredService<IRouter>();
+    var session = new BlockingDialog();
+
+    Task showTask = dialogs.ShowAsync(session);
+
+    DimmerLayout? dimmer = null;
+    BlockingDialogView? view = null;
+    await WaitUntilAsync(() =>
+    {
+      RoutingView? host = panel.DerivedHosts().FirstOrDefault();
+      dimmer = host?.Children.OfType<DimmerLayout>().FirstOrDefault();
+      view = dimmer is null
+        ? null
+        : ((BodyPanel)dimmer.GetBodyPanel()).Children.OfType<BlockingDialogView>().FirstOrDefault();
+      return view is { Entered: true };
+    });
+
+    Assert.NotNull(dimmer);
+    Assert.NotNull(view);
+
+    // The inner director is parked: the enter animation is in flight.
+    Assert.True(dimmer.IsHitTestVisible, "the dimmer leaked clicks while the dialog animated in");
+
+    view.Release();
+    await WaitUntilAsync(() => view.IsHitTestVisible);
+
+    session.Close();
+    await showTask.WaitAsync(TimeSpan.FromSeconds(5));
+    Assert.Empty(panel.DerivedHosts());
   }
 
   // ── a close lower in the stack — the lower session settles itself and closes only its own overlay; the top is untouched ──

@@ -117,15 +117,17 @@ public static class TransitionContextExtensions
   {
     /// <summary>
     ///   The common pass-through pattern for an outer scene director: reveals
-    ///   this view (<c>Opacity</c> = 1) and delegates the enter transition to
-    ///   the next inner <see cref="ISceneTransition"/>.  When there is no
-    ///   inner director, completes immediately.
+    ///   this view (<c>Opacity</c> = 1, hit-test on) and delegates the enter
+    ///   transition to the next inner <see cref="ISceneTransition"/>.  When
+    ///   there is no inner director, completes immediately.
     /// </summary>
     public Task PassThroughAsync(TransitionContext context, CancellationToken token)
     {
       if (transition is PControl view && context.NextDirectorAfter(view) is { } director)
       {
+        // The frame takes no part in the inner animation: reveal it fully now.
         view.Opacity = 1;
+        view.IsHitTestVisible = true;
         return director.AnimateEnterAsync(context.ScopedFrom(view), token);
       }
 
