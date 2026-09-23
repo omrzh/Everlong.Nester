@@ -129,6 +129,11 @@ public partial class App : Application, IErrorHandler
       }
     });
 
+    // ── Session ending — the lifetime's request is arbitrated synchronously
+    //    (the verdict must be known before the event returns) ──
+    if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime sessionLifetime)
+      sessionLifetime.ShutdownRequested += OnShutdownRequested;
+
     // ── Shell assembly — the whole path, written out ────────────────────────
     // The user's own Shell class: `new` the window, the constructor runs the
     // assembly ceremony (registrations → the window's own container →
@@ -200,5 +205,20 @@ public partial class App : Application, IErrorHandler
     Debug.WriteLine(exception.StackTrace);
     ExceptionDispatchInfo.Capture(exception).Throw();
     return false;
+  }
+
+  /// <summary>
+  ///   The session-ending arbiter: the lifetime's shutdown request is answered
+  ///   synchronously through the message hub's guard orchestration.
+  /// </summary>
+  private void OnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
+  {
+    if (e.Cancel)
+      return;
+
+    // The orchestration owns the re-entrancy guard; the app only decides where
+    // the hub comes from and (optionally) the prompt surface.
+    if (AppLifetime.Current?.Services?.GetService<IMessageHub>() is { } hub)
+      e.Cancel = !hub.RequestSessionEnding(null);   // pass a factory to customize
   }
 }

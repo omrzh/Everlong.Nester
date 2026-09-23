@@ -44,5 +44,7 @@
   "PostDetailChromeTitle": "Post Detail",
   "ProfileLeaveConfirmMessage": "You have unsaved changes. Are you sure you want to leave?",
   "ProfileLeaveConfirmYes": "Yes",
-  "ProfileLeaveConfirmStay": "Stay"
+  "ProfileLeaveConfirmStay": "Stay",
+  "SessionEndingTitle": "Session ending",
+  "SessionEndingMessage": "The system is ending the session. Close the landing page?"
 }

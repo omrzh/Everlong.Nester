@@ -44,5 +44,7 @@
   "PostDetailChromeTitle": "文章詳情",
   "ProfileLeaveConfirmMessage": "您有未儲存的變更。確定要離開嗎？",
   "ProfileLeaveConfirmYes": "是",
-  "ProfileLeaveConfirmStay": "留下"
+  "ProfileLeaveConfirmStay": "留下",
+  "SessionEndingTitle": "工作階段即將結束",
+  "SessionEndingMessage": "系統正在結束工作階段。要關閉首頁嗎？"
 }
