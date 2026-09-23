@@ -205,7 +205,7 @@ public abstract partial class WpfShell : ShellBase
       return;
 
     e.Cancel = true;
-    await this.DispatchIntent(_stagePanel, new TryCloseIntent());
+    await this.DispatchIntent(this, new TryCloseIntent());
   }
 
   /// <summary>

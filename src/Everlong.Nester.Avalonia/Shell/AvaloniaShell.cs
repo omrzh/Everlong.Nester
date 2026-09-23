@@ -327,7 +327,7 @@ public abstract partial class AvaloniaShell : ShellBase
       return;
 
     e.Cancel = true;
-    await this.DispatchIntent(StagePanel, new TryCloseIntent());
+    await this.DispatchIntent(this, new TryCloseIntent());
   }
 
   /// <summary>
