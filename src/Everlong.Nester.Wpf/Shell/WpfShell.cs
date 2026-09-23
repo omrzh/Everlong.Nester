@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using Everlong.Nester.Activation;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Intent;
@@ -117,6 +118,15 @@ public abstract partial class WpfShell : ShellBase
     // assignment only; the window presents itself via OnAssembled).
     if (PApp.Current?.MainWindow != HostWindow)
       PApp.Current!.MainWindow = HostWindow;
+
+    HookSessionEnding();
+  }
+
+  /// <inheritdoc />
+  public override async ValueTask DisposeAsync()
+  {
+    UnhookSessionEnding();
+    await base.DisposeAsync();
   }
 
   /// <inheritdoc />
@@ -193,6 +203,30 @@ public abstract partial class WpfShell : ShellBase
 
   // ── Window close plumbing ──
 
+  private bool _sessionEnding;
+
+  /// <summary>Hooks the application's session-ending signal — a close the OS initiates is not a user close.</summary>
+  private void HookSessionEnding()
+  {
+    if (PApp.Current is { } app)
+      app.SessionEnding += OnSessionEnding;
+  }
+
+  private void UnhookSessionEnding()
+  {
+    if (PApp.Current is { } app)
+      app.SessionEnding -= OnSessionEnding;
+  }
+
+  private void OnSessionEnding(object sender, SessionEndingCancelEventArgs e)
+  {
+    _sessionEnding = true;
+
+    // A shutdown another handler cancels runs no Closing — clear the flag once
+    // the dispatcher has drained the shutdown it may have queued.
+    PApp.Current?.Dispatcher.InvokeAsync(() => _sessionEnding = false, DispatcherPriority.Background);
+  }
+
   /// <summary>
   ///   Translates a window-closing notification into a <see cref="TryCloseIntent" />
   ///   for unified arbitration through the shell dispatch chain.  The host
@@ -202,6 +236,11 @@ public abstract partial class WpfShell : ShellBase
   public async void ClosingToTryCloseIntent(CancelEventArgs e)
   {
     if (e.Cancel || Lifetime.Lifecycle != ShellLifecycle.Started)
+      return;
+
+    // WPF closes the window on session ending regardless of e.Cancel, so
+    // arbitration there is a no-op — let the close fall through.
+    if (_sessionEnding)
       return;
 
     e.Cancel = true;

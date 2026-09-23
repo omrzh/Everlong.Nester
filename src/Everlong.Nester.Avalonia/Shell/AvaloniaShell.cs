@@ -326,6 +326,11 @@ public abstract partial class AvaloniaShell : ShellBase
     if (e.Cancel || Lifetime.Lifecycle != ShellLifecycle.Started)
       return;
 
+    // A shutdown the OS or the lifetime initiates is not a user close: holding
+    // it would abort the shutdown, and the intent chain has no say in it.
+    if (e.CloseReason is WindowCloseReason.OSShutdown or WindowCloseReason.ApplicationShutdown)
+      return;
+
     e.Cancel = true;
     await this.DispatchIntent(this, new TryCloseIntent());
   }
