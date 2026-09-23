@@ -4,7 +4,7 @@ using Xunit;
 namespace Everlong.Nester.Tests.Routing;
 
 /// <summary>
-///   The transfer's moving sides (`docs/design/routing.md` §7): the arriving
+///   The transfer's moving sides (`docs/design/routing.md`): the arriving
 ///   side spans from the first positional difference down to the target, so a
 ///   revision re-engages the node it changed and everything below it, while
 ///   the prefix above the change is never re-entered.

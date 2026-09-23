@@ -3,6 +3,9 @@
 #pragma warning disable
 #nullable enable
 using Everlong.Nester.Presentation;
+using System;
+using System.Collections.Frozen;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -11,11 +14,27 @@ namespace TestApp;
 partial class AppViewLocator : ViewLocatorBase
 {
   [global::System.CodeDom.Compiler.GeneratedCode("Everlong.Nester.Generators", <ASSEMBLY_VERSION>)]
+  private readonly FrozenSet<Type> _supportedTypes;
+  [global::System.CodeDom.Compiler.GeneratedCode("Everlong.Nester.Generators", <ASSEMBLY_VERSION>)]
   [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public AppViewLocator()
   {
     AddTemplate<global::TestApp.ViewModels.HomePageViewModel, global::TestApp.Views.HomePageView>();
     AddTemplate<global::TestApp.ViewModels.SettingsViewModel, global::TestApp.Views.SettingsView>();
+    _supportedTypes = new Type[]
+    {
+      typeof(global::TestApp.ViewModels.HomePageViewModel),
+      typeof(global::TestApp.ViewModels.SettingsViewModel)
+    }.ToFrozenSet();
+  }
+
+  [global::System.CodeDom.Compiler.GeneratedCode("Everlong.Nester.Generators", <ASSEMBLY_VERSION>)]
+  [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+  public override bool Match(object? data)
+  {
+    if (data is null)
+      return false;
+    return _supportedTypes.Contains(data.GetType());
   }
 
   [global::System.CodeDom.Compiler.GeneratedCode("Everlong.Nester.Generators", <ASSEMBLY_VERSION>)]

@@ -80,11 +80,12 @@ public static partial class ServiceCollectionExtensions
       // from the scope the instance came from.
       services.AddInjector(ServiceLifetime.Scoped);
 
-      // The shared transition canvas — the navigation and dialog
-      // domains inject it.  Exit visuals for the tenant-return path
-      // (DismissAsync) — replaceable in tests to control animation timing.
-      // Stateless: safe as an application-level singleton.
-      services.AddSingleton<ShellFlyingLayer>();
+      // The flying layer — the window's plane figure, above every floor,
+      // resolvable from the shell's container so user services reach it
+      // too.  Only the interface is registered: the tenant's constructor
+      // acquires its lease, so a second registration would yield a second
+      // plane.
+      services.TryAddSingleton<IFlyingLayer, ShellFlyingLayer>();
 
       // Routing domain — the router machinery: MS DI scopes carry no
       // tree semantics, so the scope's router is seeded before it resolves

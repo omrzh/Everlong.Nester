@@ -1,35 +1,43 @@
 <Solution>
   <Folder Name="/items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="AGENTS.md" />
     <File Path="build.cmd" />
     <File Path="build.sh" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="NesterVersion.props" />
+    <File Path="readme.md" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Everlong.Nester.Abstractions/Everlong.Nester.Abstractions.csproj" />
-    <Project Path="src/Everlong.Nester/Everlong.Nester.csproj" Id="6d91e27e-dcef-45cb-b8c8-f24d49ac9322" />
     <Project Path="src/Everlong.Nester.Avalonia/Everlong.Nester.Avalonia.csproj" />
-    <Project Path="src/Everlong.Nester.Wpf/Everlong.Nester.Wpf.csproj" />
-    <Project Path="src/Everlong.Nester.Extensions/Everlong.Nester.Extensions.csproj" />
+    <Project Path="src/Everlong.Nester.CodeFixers/Everlong.Nester.CodeFixers.csproj" />
     <Project Path="src/Everlong.Nester.Extensions.Avalonia/Everlong.Nester.Extensions.Avalonia.csproj" />
     <Project Path="src/Everlong.Nester.Extensions.Wpf/Everlong.Nester.Extensions.Wpf.csproj" />
-    <Project Path="src/Everlong.Nester.TerminalGui/Everlong.Nester.TerminalGui.csproj" />
+    <Project Path="src/Everlong.Nester.Extensions/Everlong.Nester.Extensions.csproj" />
     <Project Path="src/Everlong.Nester.Generators/Everlong.Nester.Generators.csproj" />
-    <Project Path="src/Everlong.Nester.CodeFixers/Everlong.Nester.CodeFixers.csproj" />
+    <Project Path="src/Everlong.Nester.TerminalGui/Everlong.Nester.TerminalGui.csproj" />
+    <Project Path="src/Everlong.Nester.Wpf/Everlong.Nester.Wpf.csproj" />
+    <Project Path="src/Everlong.Nester/Everlong.Nester.csproj" Id="6d91e27e-dcef-45cb-b8c8-f24d49ac9322" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/Everlong.Nester.Generators.Tests/Everlong.Nester.Generators.Tests.csproj" />
-    <Project Path="tests/Everlong.Nester.CodeFixers.Tests/Everlong.Nester.CodeFixers.Tests.csproj" />
-    <Project Path="tests/Everlong.Nester.Tests/Everlong.Nester.Tests.csproj" />
-    <Project Path="tests/Everlong.Nester.Extensions.Tests/Everlong.Nester.Extensions.Tests.csproj" />
     <Project Path="tests/Everlong.Nester.Avalonia.Tests/Everlong.Nester.Avalonia.Tests.csproj" />
+    <Project Path="tests/Everlong.Nester.CodeFixers.Tests/Everlong.Nester.CodeFixers.Tests.csproj" />
+    <Project Path="tests/Everlong.Nester.Extensions.Tests/Everlong.Nester.Extensions.Tests.csproj" />
+    <Project Path="tests/Everlong.Nester.Generators.Tests/Everlong.Nester.Generators.Tests.csproj" />
+    <Project Path="tests/Everlong.Nester.Tests/Everlong.Nester.Tests.csproj" />
   </Folder>
   <Folder Name="/examples/">
-    <Project Path="examples/Template.Avalonia/Template.Avalonia.csproj" />
-    <Project Path="examples/Template.Avalonia.Desktop/Template.Avalonia.Desktop.csproj" />
-    <Project Path="examples/Template.Wpf/Template.Wpf.csproj" />
-    <Project Path="examples/Template.TerminalGui/Template.TerminalGui.csproj" />
     <Project Path="examples/Template.Avalonia.Android/Template.Avalonia.Android.csproj">
       <Deploy Solution="Debug|*" />
     </Project>
     <Project Path="examples/Template.Avalonia.Browser/Template.Avalonia.Browser.csproj" />
+    <Project Path="examples/Template.Avalonia.Desktop/Template.Avalonia.Desktop.csproj" />
+    <Project Path="examples/Template.Avalonia/Template.Avalonia.csproj" />
+    <Project Path="examples/Template.TerminalGui/Template.TerminalGui.csproj" />
+    <Project Path="examples/Template.Wpf/Template.Wpf.csproj" />
   </Folder>
 </Solution>

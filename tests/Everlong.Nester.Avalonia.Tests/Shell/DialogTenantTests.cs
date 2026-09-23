@@ -4,7 +4,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Headless.XUnit;
 using Everlong.DI;
-using Everlong.Nester.Controls;
 using Everlong.Nester.Dialog;
 using Everlong.Nester.Routing;
 using Everlong.Nester.Shell;
@@ -90,11 +89,11 @@ public class DialogTenantTests
     return (shell, shell.Panel, shell.Shell, shell.Services);
   }
 
-  private static NavigationHost SingleCapsule(StagePanel panel)
+  private static RoutingView SingleCapsule(StagePanel panel)
     => Assert.Single(panel.DerivedHosts());
 
   /// <summary>The dimmer view inside the overlay (the default dimmer chrome).</summary>
-  private static DimmerLayout SingleDimmer(NavigationHost host)
+  private static DimmerLayout SingleDimmer(RoutingView host)
     => Assert.IsType<DimmerLayout>(Assert.Single(host.Children));
 
   /// <summary>The dialog domain's active sessions (open order).</summary>
@@ -120,7 +119,7 @@ public class DialogTenantTests
     // session view hangs inside the dimmer's body.
     var host = SingleCapsule(panel);
     var dimmer = SingleDimmer(host);
-    var dialogView = Assert.Single(((LayoutBody)dimmer.GetLayoutBody()).Children);
+    var dialogView = Assert.Single(((BodyPanel)dimmer.GetBodyPanel()).Children);
     Assert.Same(session, dialogView.DataContext);
 
     // Close: the session completes, the overlay is reclaimed.
@@ -227,7 +226,7 @@ public class DialogTenantTests
 
     // Presented through the routing pipeline: dimmer shell + enter transition.
     var dimmer = SingleDimmer(SingleCapsule(panel));
-    var dialogView = Assert.IsType<TransitionDialogView>(((LayoutBody)dimmer.GetLayoutBody()).Children.Single());
+    var dialogView = Assert.IsType<TransitionDialogView>(((BodyPanel)dimmer.GetBodyPanel()).Children.Single());
     Assert.Equal(1, dialogView.EnterCount);
 
     session.Close();

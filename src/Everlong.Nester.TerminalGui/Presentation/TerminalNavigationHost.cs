@@ -3,11 +3,11 @@ using Everlong.Nester.Routing;
 namespace Everlong.Nester.Presentation;
 
 /// <summary>
-///   The Terminal.Gui navigation view — a layout body that hosts the
+///   The Terminal.Gui navigation view — a body panel that hosts the
 ///   presented chain's outermost view and presents the model's transactions
 ///   through the terminal stages.
 /// </summary>
-internal sealed class TerminalNavigationHost : TuiLayoutBody, IRoutingView
+internal sealed class TerminalNavigationHost : TuiBodyPanel, IRoutingView
 {
   private readonly TerminalAssembleStage _assemble;
   private readonly TerminalRevealStage _reveal;

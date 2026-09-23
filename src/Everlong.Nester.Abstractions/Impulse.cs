@@ -1,5 +1,6 @@
 namespace Everlong.Nester;
 
+// xml doc discipline exemption
 /// <summary>
 ///   A marker for the causal input of a state transfer.
 /// </summary>

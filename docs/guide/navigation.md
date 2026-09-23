@@ -31,6 +31,31 @@ public partial class PostDetailPageModel : ParameterizedModel<PostDetailArgs>;
 A locator is immutable and never mutated by navigation, so the same descriptor can be routed twice and
 produce two independent presentations.
 
+### The mount point
+
+A view that can be a non-terminal chain node declares where the node below it mounts: it implements
+`IBodyHolder` and returns the `BodyPanel` from its XAML.
+
+```csharp
+public partial class MainLayout : UserControl, IBodyHolder
+{
+  public IBodyPanel GetBodyPanel() => Body;   // the x:Name="Body" element
+}
+```
+
+```xml
+<n:BodyPanel x:Name="Body" />
+```
+
+That contract is the only source for a mount point — the framework never searches the view's tree, and
+the element's name means nothing to it (it is only how the code-behind reaches the element). A view
+whose chain position is never a parent needs no declaration; one that is a parent and declares none
+leaves its child unmounted.
+
+`BodyPanel` is a panel: every visited page stays in it as a child, and only the active one is visible.
+Keep it attached to the view's own visual tree — the framework mounts into it directly, and a panel
+outside the tree renders nothing.
+
 ## 2. Navigating
 
 `Router` comes from the model base (`RoutableModel.Router`) or from `[Inject]`.

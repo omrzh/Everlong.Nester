@@ -306,5 +306,3 @@ faults the caller's await, so a `false` is never a swallowed failure.
   participant tree realizes into is supplied by the platform rather than injected into the core.
 - **A descriptor is reusable; a site is not.** Navigating twice with one descriptor produces two
   independent presentations, and nothing a navigation does may be visible on the descriptor afterwards.
-- **`ILocation` shares its name with `System.ComponentModel.ILocation`** — a consumer with both
-  namespaces in scope must qualify it.

@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Headless.XUnit;
-using Everlong.Nester.Controls;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Shell;
 using Everlong.Nester.Tests.Hosting;
@@ -22,9 +21,9 @@ namespace Everlong.Nester.Tests.Routing;
 [Collection("RealShell")]
 public class RouterTransitionTests
 {
-  private sealed class LayoutView : ContentControl, ILayoutControl
+  private sealed class LayoutView : ContentControl, IBodyHolder
   {
-    private readonly LayoutBody _body = new();
+    private readonly BodyPanel _body = new();
 
     internal LayoutView()
     {
@@ -33,7 +32,7 @@ public class RouterTransitionTests
       Height = 100;
     }
 
-    public ILayoutBody GetLayoutBody() => _body;
+    public IBodyPanel GetBodyPanel() => _body;
   }
 
   private sealed class PageView : ContentControl { }
@@ -189,7 +188,7 @@ public class RouterTransitionTests
     public Control? Build(object? param) => _factory();
   }
 
-  private static (AvaloniaShell shell, Router router) Create()
+  private static (AvaloniaShell shell, Router router) Create(bool windowed = false)
   {
     Application.Current!.DataTemplates.Add(new ViewTemplate(typeof(LayoutAlpha), () => new LayoutView()));
     Application.Current!.DataTemplates.Add(new ViewTemplate(typeof(PageAlpha), () => new PageView()));
@@ -207,7 +206,7 @@ public class RouterTransitionTests
       s.AddSingleton<PageAlpha>(_ => new PageAlpha());
       s.AddSingleton<PageBeta>(_ => new PageBeta());
       s.AddSingleton<DirectorPage>(_ => new DirectorPage());
-    });
+    }, rootView: windowed ? new HostWindow { Width = 900, Height = 600 } : null);
     shell.Start();
     return (shell, new Router(shell.Services));
   }
@@ -219,6 +218,58 @@ public class RouterTransitionTests
   private static IViewLocation<Control> Node(Control view)
     => new PlatformLocation(view.GetType(), Args.Empty, view) { View = view };
 
+  /// <summary>A real host window — the stage joins a visual root, so the reveal's layout wait can run.</summary>
+  private sealed class HostWindow : Window, IAvaloniaShellHost
+  {
+    public void HostShell(IAvaloniaShell shell, Control stage) => Content = stage;
+  }
+
+  // ── a convergence no view directs: the entering side is shown in the landing turn ──
+
+  [AvaloniaFact]
+  public async Task Route_WithNoDirector_ShowsTheArrivingPageInTheLandingTurn()
+  {
+    (AvaloniaShell shell, Router router) = Create(windowed: true);
+
+    await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(PageAlpha)));
+
+    // No moving-side view directs this convergence, so nothing owes the
+    // entering side a laid-out-but-invisible state: the reveal runs to its end
+    // in the same turn the transaction lands — no dispatcher pass to wait on,
+    // and no dip to opacity 0 left behind.
+    Assert.True(router.WaitIdleAsync().IsCompleted, "the reveal must not outlive the landing turn");
+
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
+    var page = Assert.IsType<PageView>(bodyPanel.ActiveChild!.View);
+    Assert.True(page.IsVisible);
+    Assert.Equal(1, page.Opacity);
+    Assert.True(page.IsHitTestVisible);
+  }
+
+  // ── the mount point is resolved when it is first needed ──
+
+  [AvaloniaFact]
+  public async Task Route_TerminalBecomesContainer_MountsItsChildWhenItDoes()
+  {
+    (AvaloniaShell shell, Router router) = Create();
+
+    // The layout arrives alone: it is the chain's terminal, so nothing mounts
+    // into it and its mount point is never asked for.
+    await router.RouteAsync(new Request(typeof(LayoutAlpha), null));
+
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var layoutView = Assert.IsType<LayoutView>(hostBody.Children[0].View);
+    var bodyPanel = (IBodyPanel<Control>)layoutView.GetBodyPanel();
+    Assert.Empty(bodyPanel.Children);
+
+    // The same layout now hosts a page — the mount point resolves on first use.
+    await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(PageAlpha)));
+
+    Assert.Single(bodyPanel.Children);
+    Assert.IsType<PageView>(bodyPanel.ActiveChild!.View);
+  }
+
   [AvaloniaFact]
   public async Task RouteAsync_EnterAnimation_RunsTheChainDirector_WithArrivingInvisible()
   {
@@ -229,9 +280,9 @@ public class RouterTransitionTests
     // The page is the changed chain's first ISceneTransition (outermost
     // first) — the reveal selects it and runs its enter animation with the
     // arriving chain laid out but invisible (the prepare phase).
-    var hostBody = (ILayoutBody<Control>)router.View;
-    var layoutBody = (ILayoutBody<Control>)((LayoutView)hostBody.Children[0].View!).GetLayoutBody();
-    var director = Assert.IsType<DirectorPageView>(layoutBody.Children[0].View);
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
+    var director = Assert.IsType<DirectorPageView>(bodyPanel.Children[0].View);
 
     Assert.Equal(["Enter"], director.Calls);
     Assert.NotNull(director.LastContext);
@@ -250,9 +301,9 @@ public class RouterTransitionTests
     await router.RouteAsync(new Request(typeof(AdaptiveDirectorPage), new TestArgs("a1"),
       [Target.Of(typeof(LayoutAlpha)), Target.Of(typeof(AdaptiveDirectorPage), new TestArgs("a1"), page)]));
 
-    var hostBody = (ILayoutBody<Control>)router.View;
-    var layoutBody = (ILayoutBody<Control>)((LayoutView)hostBody.Children[0].View!).GetLayoutBody();
-    var director = Assert.IsType<DirectorPageView>(layoutBody.Children[0].View);
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
+    var director = Assert.IsType<DirectorPageView>(bodyPanel.Children[0].View);
     Assert.Equal(["Enter"], director.Calls);
     Assert.Equal(0, director.OpacityAtEnter);          // a fresh arrival is prepared invisible
 
@@ -274,9 +325,9 @@ public class RouterTransitionTests
     (AvaloniaShell shell, Router router) = Create();
     await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(DirectorPage)));
 
-    var hostBody = (ILayoutBody<Control>)router.View;
-    var layoutBody = (ILayoutBody<Control>)((LayoutView)hostBody.Children[0].View!).GetLayoutBody();
-    var director = Assert.IsType<DirectorPageView>(layoutBody.Children[0].View);
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
+    var director = Assert.IsType<DirectorPageView>(bodyPanel.Children[0].View);
     Assert.Equal(["Enter"], director.Calls);
 
     // A route whose resolved chain is a reference prefix of the presented one:
@@ -298,10 +349,10 @@ public class RouterTransitionTests
 
     // Back (Exit) — the director walks the departing chain: the page that
     // is leaving directs its own exit.
-    var hostBody = (ILayoutBody<Control>)router.View;
-    var layoutBody = (ILayoutBody<Control>)((LayoutView)hostBody.Children[0].View!).GetLayoutBody();
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
     var director = Assert.IsType<DirectorPageView>(
-      layoutBody.Children.Select(n => n.View).OfType<DirectorPageView>().Single());
+      bodyPanel.Children.Select(n => n.View).OfType<DirectorPageView>().Single());
 
     Assert.Equal(["Enter", "Exit"], director.Calls);   // enter on arrival, exit on back
     Assert.NotNull(director.LastContext);
@@ -325,20 +376,20 @@ public class RouterTransitionTests
     Assert.Equal(IntentResult.Handled, await shell.DispatchIntent(null, new BackIntent()));
     Assert.False(pageC.Released);
 
-    var hostBody = (ILayoutBody<Control>)router.View;
-    var layoutBody = (ILayoutBody<Control>)((LayoutView)hostBody.Children[0].View!).GetLayoutBody();
-    var pageCView = Assert.IsType<DirectorPageView>(layoutBody.Children[^1].View);
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
+    var pageCView = Assert.IsType<DirectorPageView>(bodyPanel.Children[^1].View);
 
     // Navigate to a fresh page — the push clears the forward trail (C):
     // the dropped chain's page is released and its view is physically
-    // removed from the shared layout body.
+    // removed from the shared body panel.
     await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(PageAlpha), pageD));
 
     Assert.True(pageC.Released, "the forward-cleared page must be released");
-    Assert.DoesNotContain(layoutBody.Children, n => ReferenceEquals(n.View, pageCView));
+    Assert.DoesNotContain(bodyPanel.Children, n => ReferenceEquals(n.View, pageCView));
     // The shared layout node and the live pages stay mounted (A's page, the
     // restored B page, and D's fresh page — C is gone).
-    Assert.Equal(3, layoutBody.Children.Count);
+    Assert.Equal(3, bodyPanel.Children.Count);
     Assert.Same(pageD, router.Model!.Current);
   }
 
@@ -356,9 +407,9 @@ public class RouterTransitionTests
     Task route = router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(LoadingPage), loading));
     await loading.ArrivalStarted.Task;
 
-    var hostBody = (ILayoutBody<Control>)router.View;
-    var layoutBody = (ILayoutBody<Control>)((LayoutView)hostBody.Children[0].View!).GetLayoutBody();
-    Assert.IsType<LoadingPageView>(layoutBody.ActiveChild!.View);
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
+    Assert.IsType<LoadingPageView>(bodyPanel.ActiveChild!.View);
 
     // Back while the arrival is still in flight — the traversal must
     // switch the presented page back immediately.
@@ -368,8 +419,8 @@ public class RouterTransitionTests
     await Task.WhenAll(route, back);
 
     // The screen is back on the previous page; the loading page is hidden.
-    Assert.IsType<PageView>(layoutBody.ActiveChild!.View);
-    Assert.False(layoutBody.Children.First(n => n.View is LoadingPageView).View!.IsVisible);
+    Assert.IsType<PageView>(bodyPanel.ActiveChild!.View);
+    Assert.False(bodyPanel.Children.First(n => n.View is LoadingPageView).View!.IsVisible);
   }
 
   [AvaloniaFact]
@@ -384,9 +435,9 @@ public class RouterTransitionTests
     Task route = router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(RecordingDirectorPage), loading));
     await loading.ArrivalStarted.Task;
 
-    var hostBody = (ILayoutBody<Control>)router.View;
-    var layoutBody = (ILayoutBody<Control>)((LayoutView)hostBody.Children[0].View!).GetLayoutBody();
-    var director = Assert.IsType<RecordingDirectorView>(layoutBody.ActiveChild!.View);
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
+    var director = Assert.IsType<RecordingDirectorView>(bodyPanel.ActiveChild!.View);
     Assert.Equal(["Enter"], director.Calls);
 
     Task back = shell.DispatchIntent(null, new BackIntent()).AsTask();
@@ -396,8 +447,8 @@ public class RouterTransitionTests
 
     // A non-throwing director must not block the switch.
     Assert.Equal(["Enter", "Exit"], director.Calls);
-    Assert.IsType<PageView>(layoutBody.ActiveChild!.View);
-    Assert.False(layoutBody.Children.First(n => n.View is RecordingDirectorView).View!.IsVisible);
+    Assert.IsType<PageView>(bodyPanel.ActiveChild!.View);
+    Assert.False(bodyPanel.Children.First(n => n.View is RecordingDirectorView).View!.IsVisible);
   }
 
   [AvaloniaFact]
@@ -412,9 +463,9 @@ public class RouterTransitionTests
     Task route = router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(ThrowingDirectorPage), loading));
     await loading.ArrivalStarted.Task;
 
-    var hostBody = (ILayoutBody<Control>)router.View;
-    var layoutBody = (ILayoutBody<Control>)((LayoutView)hostBody.Children[0].View!).GetLayoutBody();
-    var director = Assert.IsType<ThrowingDirectorView>(layoutBody.ActiveChild!.View);
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
+    var director = Assert.IsType<ThrowingDirectorView>(bodyPanel.ActiveChild!.View);
     Assert.Equal(["Enter"], director.Calls);
 
     Task back = shell.DispatchIntent(null, new BackIntent()).AsTask();
@@ -425,15 +476,15 @@ public class RouterTransitionTests
     // The director's exit failure must be contained: the reveal still
     // finishes its final visibility, the previous page shows.
     Assert.Equal(["Enter", "Exit"], director.Calls);
-    Assert.IsType<PageView>(layoutBody.ActiveChild!.View);
-    Assert.False(layoutBody.Children.First(n => n.View is ThrowingDirectorView).View!.IsVisible);
+    Assert.IsType<PageView>(bodyPanel.ActiveChild!.View);
+    Assert.False(bodyPanel.Children.First(n => n.View is ThrowingDirectorView).View!.IsVisible);
   }
 
   [AvaloniaFact]
   public void SettleActive_HidesEveryChildExceptTheActiveOne()
   {
-    var body = new LayoutBody();
-    ILayoutBody<Control> host = body;
+    var body = new BodyPanel();
+    IBodyPanel<Control> host = body;
     var staleA = Node(new PageView());
     var active = Node(new PageView());
     var staleC = Node(new PageView());
@@ -467,9 +518,9 @@ public class RouterTransitionTests
     var page = new EnterGatedDirectorPage();
     Task route = router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(EnterGatedDirectorPage), page));
 
-    var hostBody = (ILayoutBody<Control>)router.View;
-    var layoutBody = (ILayoutBody<Control>)((LayoutView)hostBody.Children[0].View!).GetLayoutBody();
-    var director = Assert.IsType<EnterGatedDirectorView>(layoutBody.ActiveChild!.View);
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
+    var director = Assert.IsType<EnterGatedDirectorView>(bodyPanel.ActiveChild!.View);
     Assert.Equal(["Enter"], director.Calls);   // the enter animation is in flight
 
     // Back while the forward reveal is still animating — the traversal
@@ -480,7 +531,7 @@ public class RouterTransitionTests
     page.EnterGate.SetResult();
     await Task.WhenAll(route, back);
 
-    Assert.IsType<PageView>(layoutBody.ActiveChild!.View);
-    Assert.False(layoutBody.Children.First(n => n.View is EnterGatedDirectorView).View!.IsVisible);
+    Assert.IsType<PageView>(bodyPanel.ActiveChild!.View);
+    Assert.False(bodyPanel.Children.First(n => n.View is EnterGatedDirectorView).View!.IsVisible);
   }
 }

@@ -16,7 +16,7 @@ shell once as `IShell`, `ILayerBroker`, `IErrorReporter`, `IIntentDispatcher`, i
 reaches it through `IShell`.
 
 `ShellBase` is the platform-neutral core — assembly, dispatch, error routing, the ledger, teardown —
-and the platform shells supply the leaves of §4.
+and the platform shells supply the leaves of the platform hooks.
 
 ## 2. Lifecycle
 
@@ -53,7 +53,7 @@ the presentation anchor:
 1. `EnsureAssembled` — the shell builds its provider, and assigning the root cuts the window scope
    from it (assign-once).
 2. `BindAgent` — the declared activation agent wins, otherwise the container supplies one; the agent
-   is bound to this shell (§8).
+   is bound to this shell (the activation binding).
 3. `PrepareDirector` — a hand-assigned Director wins, otherwise its declared type is resolved through
    the container's injector; neither present throws.
 4. `PrepareStage` — the platform stage, with the ledger connected to it.
@@ -63,7 +63,7 @@ the presentation anchor:
    tracked by the app lifetime.
 7. `OnAssembled()` then the Director's own ready hook — services live, host connected, **pipeline not
    yet active**.
-8. `Activate()` — fold the shell's intent pipeline (§5).
+8. `Activate()` — fold the shell's intent pipeline (the intent chain).
 9. `ObserveStartup(OnStarted(RunStartupDispatch()))` — the startup dispatch, fire-and-forget.
 
 A second `Start()` throws, because the lifecycle has already walked past `Assembled`.
@@ -83,37 +83,27 @@ signal; they never await `Start()`.
 
 `ShellBase` fixes the order and never references host or stage types. The platform supplies the leaves:
 the provider, the lease, the stage, the host surface and its wiring, the window or view that
-participates in the intent chain (a pass-through stands in when there is none), the platform
-window-intent family as the chain's last link, the ready / startup / terminal-error hooks, the native
+participates in the intent chain (a pass-through stands in when there is none), the platform's own
+intent families as the chain's last link, the ready / startup / terminal-error hooks, the native
 handle and the platform services. Each leaf states its own role.
 
 The framework never presents the window: the host presents itself in the ready anchor (the
 invisible-presentation convention), which is also where pre-flight assembly belongs. The UI thread must
 not block there.
 
-The view locator is the application's table, not the framework's. The shell wraps the application's
-locator list in its own composite, and the order that composite reads it with is its platform's:
-**first entry first** on Avalonia — the same reading the platform applies to the collection, so the
-shell and any presenter resolving a view model on its own agree — and **last entry first** on WPF,
-where the composite scans merged resource dictionaries and the platform itself resolves an implicit
-template that way. One rule per platform, and the declared order is the mirror of the other's to
-express the same precedence.
-
-A locator is a builder, not a recycler: it declares a single-argument `Build` and does not implement
-the platform's recycling template, so every mount is a fresh view — a presenter whose content changes
-type shows the view the new data maps to, never the child it had before. The reasoning behind that
-choice is the view-resolution domain's.
-
 ## 5. The intent chain
 
 The shell's pipeline folds four stages: **layers → Director → host → fallback**. Layers are asked
 topmost first (the stacking order the layer domain fixes); the Director is the application's decision
-surface; the host optionally participates; the fallback is the platform's window-intent family,
-reached only when nothing upstream settled.
+surface; the host optionally participates; the fallback is the platform's own families — the window
+intents and the shell-lifecycle pair — reached only when nothing upstream settled.
 
-Two shell-side facts belong here. The layers stage reports a throwing handler and lets the dispatch
+Three shell-side facts belong here. The layers stage reports a throwing handler and lets the dispatch
 continue. The Director stage arbitrates a throw through `HandleError`: accepted settles as `Pass`,
-declined rethrows to the dispatch caller.
+declined rethrows to the dispatch caller. The third is the two families themselves. A window intent is
+answered where a window exists, so a surface without one leaves it `Pass` — consuming it would report a
+window operation as performed on a surface that has no window. The shell-lifecycle pair is the other
+way round: ending the shell is a fact about every surface, so every platform answers it.
 
 ## 6. The Director
 
@@ -127,8 +117,8 @@ with that exception.
 
 The shell is the broker: `ShellBase` implements `ILayerBroker` and the lease-facing `ILayerLedger`, and
 registration publishes the broker as the container's injection point. Connecting the stage wires the
-ledger to it, teardown evicts every live lease (§9 step 3), and `Acquire` throws once the shell is
-disposed.
+ledger to it, teardown evicts every live lease (the third step of the teardown order), and `Acquire`
+throws once the shell is disposed.
 
 ## 8. Activation binding
 

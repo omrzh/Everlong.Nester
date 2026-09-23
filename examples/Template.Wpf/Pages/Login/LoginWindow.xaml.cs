@@ -3,9 +3,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Everlong.Nester.Controls;
-using Everlong.Nester.Shell;
 using Everlong.Nester.Presentation;
+using Everlong.Nester.Shell;
 
 namespace NesterApp.Pages.Login;
 

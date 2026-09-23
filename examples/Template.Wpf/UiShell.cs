@@ -207,7 +207,7 @@ public sealed partial class UiShell(IActivationIntent? startupIntent = null) : W
     if (context.IsTerminated)
       return;
 
-    if (context.Intent is not IShellIntent)
+    if (context.Intent is not IWindowIntent and not IShellIntent)
       return;
 
     switch (context.Intent)

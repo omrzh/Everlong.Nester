@@ -7,7 +7,7 @@ using Everlong.Nester.Shell;
 namespace NesterApp.Pages.Shell;
 
 [ViewFor<MainLayoutModel>]
-public partial class MainLayout : UserControl, ISceneTransition
+public partial class MainLayout : UserControl, IBodyHolder, ISceneTransition
 {
   private TopLevel? _topLevel;
 
@@ -15,6 +15,8 @@ public partial class MainLayout : UserControl, ISceneTransition
   {
     InitializeComponent();
   }
+
+  public IBodyPanel GetBodyPanel() => Body;
 
   public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
     => this.PassThroughAsync(context, token);
@@ -59,4 +61,5 @@ public partial class MainLayout : UserControl, ISceneTransition
 
   private void OnCloseClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
     => this.PostIntent(new TryCloseIntent());
+
 }

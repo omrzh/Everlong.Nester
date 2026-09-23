@@ -5,6 +5,7 @@ This repository's local agent workspace:
 | Path | What it is |
 |---|---|
 | `commit-gate.sh` | the commit gate — `--help` prints the whole story; it is the one check that runs before a commit |
+| `session-ending.ps1` | the session-ending probe (Windows only) — builds and launches a template, then sends it `WM_QUERYENDSESSION` on a key press; `Get-Help .agents/session-ending.ps1` prints the whole story |
 | `py/` | analysis and rewriting helpers; each one documents itself (`python py/<tool>.py --help`) |
 | `tmp/` | the scratch directory — throwaway files, staged work and the session tools; ignored by git, never committed |
 | `handoff.md` | session handoff notes — untracked, ignored by git, deleted once absorbed |

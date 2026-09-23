@@ -38,12 +38,13 @@ public class DisposalFlowTests
 
 
   /// <summary>The internal ctor needs reflection — the translator only reads <see cref="WindowClosingEventArgs.Cancel" />.</summary>
-  private static WindowClosingEventArgs NewClosingArgs()
+  private static WindowClosingEventArgs NewClosingArgs(
+    WindowCloseReason reason = WindowCloseReason.WindowClosing)
     => (WindowClosingEventArgs)System.Activator.CreateInstance(
       typeof(WindowClosingEventArgs),
       System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic,
       null,
-      [Avalonia.Controls.WindowCloseReason.WindowClosing, false],
+      [reason, false],
       null)!;
 
   // ── Lifetime signals ─────────────────────────────
@@ -128,5 +129,33 @@ public class DisposalFlowTests
     shell.Shell.WindowClosingToTryCloseIntent(e);
 
     Assert.False(e.Cancel, "A disposed shell must not hold the close.");
+  }
+
+  // ── A shutdown the OS or the lifetime initiates is not a user close ──
+
+  [AvaloniaFact]
+  public async Task WindowClosing_OsShutdown_FallsThrough()
+  {
+    var shell = RealShell.Create<VetoingDirector>();
+    var e = NewClosingArgs(WindowCloseReason.OSShutdown);
+
+    shell.Shell.WindowClosingToTryCloseIntent(e);
+
+    // Holding it would abort the shutdown (the window stays in the lifetime's
+    // set), and the intent chain has no say in an OS shutdown.
+    Assert.False(e.Cancel, "An OS shutdown must not be held by the close chain.");
+    await shell.Shell.DisposeAsync();
+  }
+
+  [AvaloniaFact]
+  public async Task WindowClosing_ApplicationShutdown_FallsThrough()
+  {
+    var shell = RealShell.Create<VetoingDirector>();
+    var e = NewClosingArgs(WindowCloseReason.ApplicationShutdown);
+
+    shell.Shell.WindowClosingToTryCloseIntent(e);
+
+    Assert.False(e.Cancel, "A lifetime-initiated shutdown must not be held by the close chain.");
+    await shell.Shell.DisposeAsync();
   }
 }

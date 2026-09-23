@@ -4,7 +4,7 @@ using Xunit;
 namespace Everlong.Nester.Tests.Routing;
 
 /// <summary>
-///   The release invariant (`docs/design/routing.md` §9): the
+///   The release invariant (`docs/design/routing.md`): the
 ///   departure ceremonies belong to leaving the presentation — a trimmed
 ///   (history-evicted) node already ran them when it left, so the trim
 ///   release runs the <see cref="IReleasable" /> hook only, never a second

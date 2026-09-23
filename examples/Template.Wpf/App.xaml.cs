@@ -120,8 +120,8 @@ public partial class App : IErrorHandler
     // The user's own Shell class: ONE class for every window kind, the kind
     // declared per instance through the DirectorType thread (set before
     // Start — the framework resolves the Director; the host window comes
-    // from PrepareHost — direct creation here, or the view locator by
-    // default).  Start() presents the window and runs the Director's
+    // from PrepareHost — this shell creates it per Director kind).  Start()
+    // presents the window and runs the Director's
     // startup coroutine (first navigation).  The main window is created by
     // LoginPageModel after a successful login (same path, written out
     // there).
@@ -165,5 +165,16 @@ public partial class App : IErrorHandler
     });
   }
 
+  protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+  {
+    base.OnSessionEnding(e);
+    if (e.Cancel)
+      return;
+
+    // The orchestration owns the re-entrancy guard; the app only decides where
+    // the hub comes from and (optionally) the prompt surface.
+    if (AppLifetime.Current?.Services?.GetService<IMessageHub>() is { } hub)
+      e.Cancel = !hub.RequestSessionEnding(null);   // pass a factory to customize
+  }
 }
 

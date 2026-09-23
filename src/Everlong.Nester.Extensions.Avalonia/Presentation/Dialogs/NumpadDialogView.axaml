@@ -1,0 +1,91 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:Everlong.Nester.Dialog"
+             mc:Ignorable="d"
+             d:DesignWidth="430"
+             d:DesignHeight="660"
+             x:Class="Everlong.Nester.Presentation.NumpadDialogView"
+             x:DataType="vm:NumpadDialogSession"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+  <Design.DataContext>
+    <vm:NumpadDialogSession />
+  </Design.DataContext>
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          TextElement.Foreground="{DynamicResource Nester.DialogChrome.Foreground}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="{DynamicResource Nester.DialogChrome.Padding}"
+          BoxShadow="{DynamicResource Nester.DialogChrome.Shadow}">
+
+  <Grid RowDefinitions="Auto,Auto,Auto,*" MinWidth="{DynamicResource Nester.Dialog.Width.Medium}" MaxWidth="{DynamicResource Nester.Dialog.MaxWidth.Medium}">
+      <Grid Grid.Row="0" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" Margin="0,0,0,16">
+        <TextBlock Grid.Row="0" Grid.Column="0" Classes="DialogTitle" Text="{Binding Title}"
+                   IsVisible="{Binding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"  />
+        <Button Grid.Row="0" Grid.Column="1" Classes="DialogClose" Content="✕"
+                VerticalAlignment="Center"
+                ToolTip.Tip="{Binding CloseText}"
+                AutomationProperties.Name="{Binding CloseText}"
+                Command="{Binding CloseCommand}" />
+        <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Classes="DialogMessage" Text="{Binding Message}"
+                   IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"  />
+      </Grid>
+      <Border Grid.Row="1"
+              BorderBrush="{DynamicResource Nester.Border}"
+              BorderThickness="1"
+              CornerRadius="{DynamicResource Nester.CornerRadius.Medium}"
+              Padding="14,10"
+              Margin="0,0,0,10">
+        <StackPanel Spacing="4">
+          <TextBlock Text="{Binding DisplayValue}"
+                     FontSize="32"
+                     FontWeight="SemiBold"
+                     TextAlignment="Right"
+                     HorizontalAlignment="Stretch" />
+          <TextBlock Text="{Binding ResultHint}"
+                     FontSize="{DynamicResource Nester.FontSize.Body}"
+                     TextAlignment="Right"
+                     Opacity="0.75"
+                     HorizontalAlignment="Stretch" />
+        </StackPanel>
+      </Border>
+      <Grid Grid.Row="2" ColumnDefinitions="*" Margin="0,0,0,10">
+        <TextBlock Grid.Column="0"
+                   Text="{Binding RangeHint}"
+                   VerticalAlignment="Center"
+                   Opacity="0.75" />
+      </Grid>
+      <Grid Grid.Row="3" RowDefinitions="*,*,*,*,*" ColumnDefinitions="*,*,*,*">
+        <Button Grid.Row="0" Grid.Column="0" Classes="Keypad" Content="C" Command="{Binding ClearCommand}" ToolTip.Tip="{Binding ClearToolTip}" />
+        <Button Grid.Row="0" Grid.Column="1" Classes="Keypad" Content="÷" Command="{Binding AppendKeyCommand}" CommandParameter="/" />
+        <Button Grid.Row="0" Grid.Column="2" Classes="Keypad" Content="×" Command="{Binding AppendKeyCommand}" CommandParameter="*" />
+        <Button Grid.Row="0" Grid.Column="3" Classes="Keypad" Content="⌫" Command="{Binding BackspaceCommand}" ToolTip.Tip="{Binding BackspaceToolTip}" />
+
+        <Button Grid.Row="1" Grid.Column="0" Classes="Keypad" Content="7" Command="{Binding AppendKeyCommand}" CommandParameter="7" />
+        <Button Grid.Row="1" Grid.Column="1" Classes="Keypad" Content="8" Command="{Binding AppendKeyCommand}" CommandParameter="8" />
+        <Button Grid.Row="1" Grid.Column="2" Classes="Keypad" Content="9" Command="{Binding AppendKeyCommand}" CommandParameter="9" />
+        <Button Grid.Row="1" Grid.Column="3" Classes="Keypad" Content="-" Command="{Binding AppendKeyCommand}" CommandParameter="-" />
+
+        <Button Grid.Row="2" Grid.Column="0" Classes="Keypad" Content="4" Command="{Binding AppendKeyCommand}" CommandParameter="4" />
+        <Button Grid.Row="2" Grid.Column="1" Classes="Keypad" Content="5" Command="{Binding AppendKeyCommand}" CommandParameter="5" />
+        <Button Grid.Row="2" Grid.Column="2" Classes="Keypad" Content="6" Command="{Binding AppendKeyCommand}" CommandParameter="6" />
+        <Button Grid.Row="2" Grid.Column="3" Classes="Keypad" Content="+" Command="{Binding AppendKeyCommand}" CommandParameter="+" />
+
+        <Button Grid.Row="3" Grid.Column="0" Classes="Keypad" Content="1" Command="{Binding AppendKeyCommand}" CommandParameter="1" />
+        <Button Grid.Row="3" Grid.Column="1" Classes="Keypad" Content="2" Command="{Binding AppendKeyCommand}" CommandParameter="2" />
+        <Button Grid.Row="3" Grid.Column="2" Classes="Keypad" Content="3" Command="{Binding AppendKeyCommand}" CommandParameter="3" />
+        
+        <Button Grid.Row="3" Grid.Column="3" Grid.RowSpan="2" Classes="Keypad Primary"
+                Content="{Binding SmartButtonText}"
+                Command="{Binding SmartConfirmCommand}"
+                Height="NaN"
+                VerticalAlignment="Stretch" />
+
+        <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Classes="Keypad" Content="0" Command="{Binding AppendKeyCommand}" CommandParameter="0" />
+        <Button Grid.Row="4" Grid.Column="2" Classes="Keypad" Content="." Command="{Binding AppendKeyCommand}" CommandParameter="." />
+      </Grid>
+    </Grid>
+  </Border>
+</UserControl>

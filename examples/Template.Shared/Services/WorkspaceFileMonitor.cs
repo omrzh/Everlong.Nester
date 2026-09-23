@@ -69,7 +69,7 @@ public sealed record WorkspaceChangedMessage(IReadOnlyList<WorkspaceChange> Chan
 ///   <para>
 ///     Facts leave through <see cref="IMessageHub" />; the watcher publishes on
 ///     its own thread, and a recipient that touches a surface hops itself
-///     (<c>docs/design/messaging.md</c> §5).
+///     (<c>docs/design/messaging.md</c>).
 ///   </para>
 ///   <para>
 ///     Your seam: where the workspace is, what is noise (the ignore list) and

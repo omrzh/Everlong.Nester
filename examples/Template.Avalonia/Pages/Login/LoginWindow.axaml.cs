@@ -3,9 +3,8 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.VisualTree;
-using Everlong.Nester.Controls;
-using Everlong.Nester.Shell;
 using Everlong.Nester.Presentation;
+using Everlong.Nester.Shell;
 
 namespace NesterApp.Pages.Login;
 

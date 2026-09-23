@@ -39,7 +39,7 @@
     </Border>
 
     <!-- Content -->
-    <n:LayoutBody x:Name="Body" Grid.Column="1" Margin="20,0,0,0" />
+    <n:BodyPanel x:Name="Body" Grid.Column="1" Margin="20,0,0,0" />
   </Grid>
 
 

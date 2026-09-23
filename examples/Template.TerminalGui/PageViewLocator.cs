@@ -15,8 +15,15 @@ namespace NesterApp;
 ///   types fall back to a placeholder so navigation never hits a missing
 ///   view.
 /// </summary>
-public sealed class PageViewLocator : IViewLocator<View>
+public sealed class PageViewLocator : IViewLocator
 {
+  /// <inheritdoc />
+  /// <remarks>
+  ///   The locator is total: every non-null participant resolves — a mapped
+  ///   type to its view, anything else to the placeholder.
+  /// </remarks>
+  public bool Match(object? data) => data is not null;
+
   /// <inheritdoc />
   public View? Build(object? data) => data switch
   {

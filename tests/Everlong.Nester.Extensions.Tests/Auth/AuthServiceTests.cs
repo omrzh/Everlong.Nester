@@ -2,7 +2,7 @@ using Everlong.Nester.Auth;
 using Microsoft.Extensions.Time.Testing;
 using Xunit;
 
-namespace Everlong.Nester.Tests.Auth;
+namespace Everlong.Nester.Extensions.Tests.Auth;
 
 /// <summary>
 ///   Authorize/authenticate flow of <see cref="AuthService" />: short-circuit

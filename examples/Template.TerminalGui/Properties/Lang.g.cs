@@ -504,6 +504,10 @@ public sealed class PagesStrings : StringSectionBase
   public string ProfileLeaveConfirmYes => GetString("ProfileLeaveConfirmYes", "是");
   /// <summary>留下</summary>
   public string ProfileLeaveConfirmStay => GetString("ProfileLeaveConfirmStay", "留下");
+  /// <summary>会话即将结束</summary>
+  public string SessionEndingTitle => GetString("SessionEndingTitle", "会话即将结束");
+  /// <summary>系统正在结束会话。关闭首页吗？</summary>
+  public string SessionEndingMessage => GetString("SessionEndingMessage", "系统正在结束会话。关闭首页吗？");
 }
 
 /// <summary>String section for the <c>Settings</c> module.</summary>

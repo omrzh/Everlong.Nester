@@ -1,7 +1,5 @@
 using System.Collections;
 using Everlong.Nester.Layer;
-using Everlong.Nester.Presentation;
-using Everlong.Nester.Shell;
 
 namespace Everlong.Nester.Notice;
 
@@ -9,12 +7,13 @@ namespace Everlong.Nester.Notice;
 ///   The WPF notice tenant — rents the notice band and hands every show
 ///   call to the <see cref="NoticeEngine" />.
 /// </summary>
-internal sealed class NoticeService(ILayerBroker broker, IShell shell, NoticeServiceOptions options,
-                                    IViewLocator<PControl>? viewLocator = null)
-  : NoticeServiceBase(broker, new NoticeEngine(viewLocator ?? shell.GetPlatformService<IViewLocator<PControl>>()
-      ?? throw new InvalidOperationException(
-        "The shell provides no view locator — GetPlatformService<IViewLocator<T>>() is not implemented.")), options)
+internal sealed class NoticeService(ILayerBroker broker, NoticeServiceOptions options)
+  : NoticeServiceBase(broker, new NoticeEngine(), options)
 {
+  /// <summary>The host is mounted — the notice views resolve from it, from now on.</summary>
+  protected override void OnHostMounted(object host)
+    => ((NoticeEngine)Engine).AttachHost((PControl)host);
+
   protected override object CreateHost()
   {
     var host = new PGrid();

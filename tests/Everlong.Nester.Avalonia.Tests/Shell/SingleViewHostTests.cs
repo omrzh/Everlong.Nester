@@ -79,11 +79,10 @@ public sealed class SingleViewHostTests
   private static async Task<IShell> BuildSingleViewShell()
   {
     // Rebuild the chain deterministically (serialized by the RealShell
-    // collection).  CompositeViewLocator scans FORWARDS (first wins), so
-    // the host template must be FIRST: the Director's host template →
-    // app template → framework views (a single-view root control IS a host).
+    // collection): the page template → the framework views.  No host
+    // template: a single-view shell declares no host, so the stage is the
+    // MainView.
     Application.Current!.DataTemplates.Clear();
-    Application.Current!.DataTemplates.Add(new FuncDataTemplate<MainViewModel>((_, _) => new TestHostView()));
     Application.Current!.DataTemplates.Add(RealAppHarness.PageTemplate);
     Application.Current!.DataTemplates.Add(new NesterExtendedViewLocator());
 
@@ -94,15 +93,15 @@ public sealed class SingleViewHostTests
     {
       TestAppServices.AddWindowAuth(s);
       s.AddServices(new AppServices());
-    }, directMount: true);   // single-view: no host assigned — the view locator contract applies (the Director's host template matches → a host root is resolved)
+    }, directMount: true);   // single-view: no host declared — the stage itself is the MainView
     shell.Start();
     await shell.Lifetime.Startup;
     return shell;
   }
 
-  /// <summary>The host currently connected by the single-view host (the locator-resolved host — a ContentControl).</summary>
-  private static ContentControl MainViewOf(ISingleViewApplicationLifetime sv)
-    => Assert.IsAssignableFrom<ContentControl>(sv.MainView);
+  /// <summary>The single-view MainView — the shell's own stage (direct mount: no host is declared).</summary>
+  private static Control MainViewOf(ISingleViewApplicationLifetime sv)
+    => Assert.IsAssignableFrom<Control>(sv.MainView);
 
   /// <summary>
   ///   Page-mapping template that EXCLUDES the Director: pages resolve, the
@@ -119,23 +118,21 @@ public sealed class SingleViewHostTests
          && data.GetType() != typeof(MainViewModel);
   }
 
-  // ── start resolves the root view via the locator (mapping present) ──
+  // ── no host declared: the stage IS the MainView ──
 
   [AvaloniaFact]
-  public async Task SingleViewHost_Start_ResolvesHostViaLocator_WhenNotAssigned()
+  public async Task SingleViewHost_Start_NoHostDeclared_DirectMountsTheStage()
   {
     var (sv, original, impl) = InstallSingleViewLifetime();
     try
     {
       var shell = await BuildSingleViewShell();
 
-      // No CreateHost override = the locator default: the Director's
-      // host template resolves the single-view root (a host — the
-      // same end-to-end contract as pages).  The host becomes the
-      // MainView, the stage mounts into its content layer.
-      var mainView = Assert.IsType<TestHostView>(MainViewOf(sv));
-      Assert.IsType<MainViewModel>(mainView.DataContext);   // the framework wired the Director
-      Assert.Same(((AvaloniaShell)shell).StagePanel, mainView.ContentLayer.Content);   // the stage is mounted into the host's content layer
+      // The host is the concrete shell's to declare.  Declaring none in a
+      // single view means direct mount: the stage itself is the top level
+      // (the browser host puts it into its AvaloniaView.Content), and the
+      // stage carries the Director the shell presents.
+      Assert.Same(((AvaloniaShell)shell).StagePanel, MainViewOf(sv));
 
       // The browser Director's startup coroutine ran: first navigation = login.
       Assert.IsType<LoginPageModel>(RealAppHarness.GroundEntry(shell));
@@ -224,7 +221,6 @@ public sealed class SingleViewHostTests
     {
       // Real visual stack (the harness template set — see BuildSingleViewShell).
       Application.Current!.DataTemplates.Clear();
-      Application.Current!.DataTemplates.Add(new FuncDataTemplate<MainViewModel>((_, _) => new TestHostView()));
       Application.Current!.DataTemplates.Add(RealAppHarness.PageTemplate);
       Application.Current!.DataTemplates.Add(new NesterExtendedViewLocator());
 
@@ -248,9 +244,9 @@ public sealed class SingleViewHostTests
       await b.Lifetime.Startup;
 
       var bView = MainViewOf(sv);
-      Assert.NotSame(aView, bView);   // each shell's own resolved root view
-      Assert.IsType<MainViewModel>(bView.DataContext);   // the framework wired the Director (locator-resolved root view)
-      Assert.Null(aView.Parent);   // the old shell's view left the live tree
+      Assert.NotSame(aView, bView);   // each shell's own stage
+      Assert.Same(b.StagePanel, bView);   // the new shell's stage is the MainView
+      Assert.Null(aView.Parent);   // the old shell's stage left the live tree
 
       // The new shell is live — the rebuild's next step is the settings page.
       await RealAppHarness.RouteAsync(b, typeof(SettingsPageModel));

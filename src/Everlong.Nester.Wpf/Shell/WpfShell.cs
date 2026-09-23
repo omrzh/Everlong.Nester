@@ -2,8 +2,8 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using Everlong.Nester.Activation;
-using Everlong.Nester.Controls;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Intent;
 using Everlong.Nester.Layer;
@@ -27,42 +27,15 @@ public abstract partial class WpfShell : ShellBase
 
   /// <summary>
   ///   Platform services: the WPF clipboard contract (synchronous text
-  ///   surface); the view locator is a framework-built capability — the
-  ///   shell scans the application's resources and wraps them; anything
-  ///   unknown is null.
+  ///   surface); anything unknown is null.  View resolution is not a shell
+  ///   service — it starts at the asking control.
   /// </summary>
   public override T? GetPlatformService<T>() where T : class
   {
-    if (typeof(T) == typeof(IViewLocator<PControl>))
-      return (T?)(object?)GetOrCreateViewLocator();
     if (typeof(T) == typeof(IClipboardService))
       return (T)(object)_clipboard;
 
     return null;
-  }
-
-  private IViewLocator<PControl>? _viewLocator;
-  private PApp? _locatorAppSnapshot;
-
-  /// <summary>
-  ///   The shell's view locator — a thin translator over the application's
-  ///   resources, rebuilt when the application instance changes (tests
-  ///   rebuild it per test; a stale snapshot would pin a dead resource
-  ///   collection).  Views themselves are always <c>new</c>'d by the
-  ///   locator — the container never instantiates views.
-  /// </summary>
-  private IViewLocator<PControl>? GetOrCreateViewLocator()
-  {
-    PApp? app = PApp.Current;
-    if (app is null)
-      return null;
-    if (!ReferenceEquals(_locatorAppSnapshot, app))
-    {
-      _locatorAppSnapshot = app;
-      _viewLocator = new CompositeViewLocator();
-    }
-
-    return _viewLocator;
   }
 
   private readonly IClipboardService _clipboard = new WpfClipboardService();
@@ -79,11 +52,11 @@ public abstract partial class WpfShell : ShellBase
   protected override ILayerLease CreateLease(ILayerLedger ledger, int z)
     => new ContentLayerLease(new ContentLayer(), ledger, z);
 
-  /// <summary>Creates the stage panel, hands it its owner and connects the broker ledger to it.</summary>
+  /// <summary>Creates the stage panel, binds it to its owner and the shell's flying layer, and connects the broker ledger to it.</summary>
   protected override void PrepareStage()
   {
     _stagePanel ??= new StagePanel();
-    _stagePanel.Shell = this;
+    _stagePanel.BindShell(this, ShellServiceScope?.ServiceProvider.GetService<IFlyingLayer>());
     ConnectLedger(_stagePanel);
   }
 
@@ -95,18 +68,29 @@ public abstract partial class WpfShell : ShellBase
   }
 
   /// <summary>
-  ///   Resolves the host window from the Director via the view locator
-  ///   (the <c>[ViewFor&lt;T&gt;]</c> contract).  WPF has no single-view — a
-  ///   host-less shell fails fast.
+  ///   The host window is the concrete shell's to declare — override this and
+  ///   assign <see cref="HostWindow" /> (e.g.
+  ///   <c>HostWindow = new MainWindow { Shell = this };</c>).  The default
+  ///   declares none, and WPF has no single-view, so a host-less shell fails
+  ///   fast.
   /// </summary>
   protected override void PrepareHost()
   {
-    HostWindow = GetPlatformService<IViewLocator<PControl>>()?.Build(Director!) as PWindow;
+    HostWindow = null;
+    EnsureHostWindow();
+  }
+
+  /// <summary>
+  ///   Fails fast when no host window exists — a host-less WPF shell must
+  ///   never touch the visual root.
+  /// </summary>
+  protected void EnsureHostWindow()
+  {
     if (HostWindow is not IWpfShellHost)
     {
       throw new InvalidOperationException(
-        "WPF shell requires a host window: override PrepareHost (e.g. HostWindow = new MainWindow { Shell = this };)" +
-        " or provide a [ViewFor<DirectorType>] mapping the view locator resolves — the window must " +
+        "WPF shell requires a host window: override PrepareHost and assign HostWindow " +
+        "(e.g. HostWindow = new MainWindow { Shell = this };) — the window must " +
         "implement IWpfShellHost.  The window presents itself via OnAssembled — " +
         "the framework never falls back for uncooperative views.");
     }
@@ -134,6 +118,15 @@ public abstract partial class WpfShell : ShellBase
     // assignment only; the window presents itself via OnAssembled).
     if (PApp.Current?.MainWindow != HostWindow)
       PApp.Current!.MainWindow = HostWindow;
+
+    HookSessionEnding();
+  }
+
+  /// <inheritdoc />
+  public override async ValueTask DisposeAsync()
+  {
+    UnhookSessionEnding();
+    await base.DisposeAsync();
   }
 
   /// <inheritdoc />
@@ -146,11 +139,11 @@ public abstract partial class WpfShell : ShellBase
   {
     await next(context);
     if (context.IsTerminated
-      || context.Intent is not IShellIntent intent
+      || context.Intent is not IWindowIntent and not IShellIntent
       || HostWindow is not { } window)
       return;
 
-    switch (intent)
+    switch (context.Intent)
     {
       case TryCloseIntent:
       case CloseIntent:
@@ -210,6 +203,30 @@ public abstract partial class WpfShell : ShellBase
 
   // ── Window close plumbing ──
 
+  private bool _sessionEnding;
+
+  /// <summary>Hooks the application's session-ending signal — a close the OS initiates is not a user close.</summary>
+  private void HookSessionEnding()
+  {
+    if (PApp.Current is { } app)
+      app.SessionEnding += OnSessionEnding;
+  }
+
+  private void UnhookSessionEnding()
+  {
+    if (PApp.Current is { } app)
+      app.SessionEnding -= OnSessionEnding;
+  }
+
+  private void OnSessionEnding(object sender, SessionEndingCancelEventArgs e)
+  {
+    _sessionEnding = true;
+
+    // A shutdown another handler cancels runs no Closing — clear the flag once
+    // the dispatcher has drained the shutdown it may have queued.
+    PApp.Current?.Dispatcher.InvokeAsync(() => _sessionEnding = false, DispatcherPriority.Background);
+  }
+
   /// <summary>
   ///   Translates a window-closing notification into a <see cref="TryCloseIntent" />
   ///   for unified arbitration through the shell dispatch chain.  The host
@@ -221,8 +238,13 @@ public abstract partial class WpfShell : ShellBase
     if (e.Cancel || Lifetime.Lifecycle != ShellLifecycle.Started)
       return;
 
+    // WPF closes the window on session ending regardless of e.Cancel, so
+    // arbitration there is a no-op — let the close fall through.
+    if (_sessionEnding)
+      return;
+
     e.Cancel = true;
-    await this.DispatchIntent(_stagePanel, new TryCloseIntent());
+    await this.DispatchIntent(this, new TryCloseIntent());
   }
 
   /// <summary>

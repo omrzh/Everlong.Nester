@@ -5,7 +5,7 @@ using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Input;
 using Avalonia.VisualTree;
-using Everlong.Nester.Controls;
+using Everlong.Nester.Presentation;
 using Everlong.Nester.Dialog;
 using Everlong.Nester.Routing;
 using Everlong.Nester.Shell;
@@ -64,10 +64,10 @@ public sealed class DialogTabExclusionTests
     return (window, real.Panel, real.Services);
   }
 
-  private static NavigationHost? TryGroundHost(StagePanel panel)
+  private static RoutingView? TryGroundHost(StagePanel panel)
     => panel.Children.OfType<ContentLayer>()
         .Select(cc => cc.Content)
-        .OfType<NavigationHost>()
+        .OfType<RoutingView>()
         .FirstOrDefault(h => h.Location?.Instance is GroundVm);
 
   private static async Task<Button> WaitForButtonAsync(Control root, string content)
@@ -106,7 +106,7 @@ public sealed class DialogTabExclusionTests
       // A real alert overlay reveals above the ground (its default view carries an OK button).
       Task<bool> alert = router.AlertAsync("message", "title", "OK");
       await WaitUntilAsync(() => panel.DerivedHosts().Count() == 1);
-      NavigationHost overlay = panel.DerivedHosts().Single();
+      RoutingView overlay = panel.DerivedHosts().Single();
       await WaitForButtonAsync(window, "OK");
 
       // The dialog takes no focus at reveal — no focus ring on its button.
@@ -149,13 +149,13 @@ public sealed class DialogTabExclusionTests
     {
       await router.RouteAsync(new Locator([Target.Of(typeof(GroundVm), instance: new GroundVm())]));
       await WaitUntilAsync(() => TryGroundHost(panel) is not null);
-      NavigationHost ground = TryGroundHost(panel)!;
+      RoutingView ground = TryGroundHost(panel)!;
       Button ground1 = await WaitForButtonAsync(window, "Ground 1");
       Button ground2 = await WaitForButtonAsync(window, "Ground 2");
 
       Task<bool> alert = router.AlertAsync("message", "title", "OK");
       await WaitUntilAsync(() => panel.DerivedHosts().Count() == 1);
-      NavigationHost overlay = panel.DerivedHosts().Single();
+      RoutingView overlay = panel.DerivedHosts().Single();
       await WaitForButtonAsync(window, "OK");
 
       // Enter the overlay (first Tab), then close it with Enter on the OK.

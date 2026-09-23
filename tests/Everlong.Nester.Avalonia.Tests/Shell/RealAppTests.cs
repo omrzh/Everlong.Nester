@@ -36,8 +36,8 @@ public sealed class RealAppTests
   private static IShell BuildMainShell(Action<IServiceCollection>? extra = null)
   {
     // Rebuild the chain deterministically (serialized by the RealShell
-    // collection).  CompositeViewLocator scans FORWARDS (first wins), so
-    // the app template must be FIRST: app template → framework views,
+    // collection).  The DataTemplates collection is read FORWARDS (first
+    // wins), so the app template must be FIRST: app template → framework views,
     // i.e. index 0 is checked first.
     Application.Current!.DataTemplates.Clear();
     Application.Current!.DataTemplates.Add(RealAppHarness.PageTemplate);

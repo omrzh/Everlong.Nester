@@ -12,8 +12,8 @@ public static class ControlExtensions
 {
   /// <summary>
   ///   Waits until the control is LOADED (returns immediately when already
-  ///   loaded).  Cancellation detaches the handler (no leak) and cancels the
-  ///   returned task.
+  ///   loaded).  Cancellation detaches the handler and cancels the returned
+  ///   task; the wait releases the cancellation registration when it settles.
   /// </summary>
   public static Task EnsureLoadedAsync(this PControl control, CancellationToken cancellationToken = default)
   {
@@ -22,19 +22,22 @@ public static class ControlExtensions
       return Task.CompletedTask;
 
     var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-    EventHandler<RoutedEventArgs>? handler = null;
-    handler = (_, _) =>
+    CancellationTokenRegistration registration = default;
+
+    void OnLoaded(object? sender, RoutedEventArgs e)
     {
+      control.Loaded -= OnLoaded;
+      registration.Dispose();
       tcs.TrySetResult();
-      control.Loaded -= handler;
-    };
-    control.Loaded += handler;
+    }
+
+    control.Loaded += OnLoaded;
 
     if (cancellationToken.CanBeCanceled)
     {
-      cancellationToken.Register(() =>
+      registration = cancellationToken.Register(() =>
       {
-        control.Loaded -= handler;
+        control.Loaded -= OnLoaded;
         tcs.TrySetCanceled();
       });
     }

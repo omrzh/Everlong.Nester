@@ -1,7 +1,7 @@
-using Everlong.Nester.Presentation;
 // NOTE: Single-source file — the Extensions WPF project compiles this exact
 // file via <Compile Include> in Everlong.Nester.Extensions.Wpf.csproj.
 // Edit it here only; never create a WPF-side copy (the two builds would drift).
+using Everlong.Nester.Presentation;
 using System.Collections;
 using System.Collections.ObjectModel;
 
@@ -16,15 +16,18 @@ namespace Everlong.Nester.Notice;
 /// </summary>
 internal sealed class NoticeEngine : INoticeEngine
 {
-  private readonly IViewLocator<PControl> _viewLocator;
+  private PControl? _host;
+
   private readonly ObservableCollection<PControl> _toastEntries = [];
   private readonly ObservableCollection<PControl> _snackbarEntries = [];
   private readonly ObservableCollection<PControl> _bannerEntries = [];
 
-  internal NoticeEngine(IViewLocator<PControl> viewLocator)
-  {
-    _viewLocator = viewLocator;
-  }
+  /// <summary>
+  ///   Attaches the mounted notice host — from now on every view resolves
+  ///   from it, so the lookup starts in the tree the host sits in.  A show
+  ///   that lands before the host exists falls back to the placeholder below.
+  /// </summary>
+  internal void AttachHost(PControl host) => _host = host;
 
   /// <summary>Toast entry views, in display order.</summary>
   public IList<PControl> ToastEntries => _toastEntries;
@@ -102,7 +105,7 @@ internal sealed class NoticeEngine : INoticeEngine
                                 ObservableCollection<PControl> stack,
                                 NoticePosition position)
   {
-    PControl view = _viewLocator.Build(entry) ?? new PTextBlock
+    PControl view = (_host is null ? null : ViewResolution.Build(_host, entry)) ?? new PTextBlock
     {
       Text = "Cannot resolve notice view"
     };
@@ -155,9 +158,9 @@ internal sealed class NoticeEngine : INoticeEngine
     try
     {
       if (view is ISceneTransition director)
-        await director.AnimateEnterAsync(new TransitionContext(null!, TransitionKind.Enter) { ArrivingChain = [view] }, token);
+        await director.AnimateEnterAsync(new TransitionContext(null, TransitionKind.Enter) { ArrivingChain = [view] }, token);
       else
-        await DefaultNoticeDirector.Instance.AnimateEnterAsync(new TransitionContext(null!, TransitionKind.Enter) { ArrivingChain = [view] }, position, token);
+        await DefaultNoticeDirector.Instance.AnimateEnterAsync(new TransitionContext(null, TransitionKind.Enter) { ArrivingChain = [view] }, position, token);
     }
     catch (OperationCanceledException)
     {
@@ -193,9 +196,9 @@ internal sealed class NoticeEngine : INoticeEngine
     try
     {
       if (view is ISceneTransition director)
-        await director.AnimateExitAsync(new TransitionContext(null!, TransitionKind.Dismiss) { DepartingChain = [view] }, token);
+        await director.AnimateExitAsync(new TransitionContext(null, TransitionKind.Dismiss) { DepartingChain = [view] }, token);
       else
-        await DefaultNoticeDirector.Instance.AnimateExitAsync(new TransitionContext(null!, TransitionKind.Dismiss) { DepartingChain = [view] }, position, token);
+        await DefaultNoticeDirector.Instance.AnimateExitAsync(new TransitionContext(null, TransitionKind.Dismiss) { DepartingChain = [view] }, position, token);
     }
     catch (OperationCanceledException)
     {

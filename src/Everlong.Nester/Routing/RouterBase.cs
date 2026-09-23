@@ -77,7 +77,7 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
     Model = model;
     View.SetRouter(this);
 
-    // The member connection — the router mounts its navigation view into
+    // The member connection — the router mounts its routing view into
     // its own lease slot.
     _lease = _broker.Acquire(this, View, seed.Band, seed.Policy);
     _lease.IntentHandler = this;
@@ -115,7 +115,7 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
   /// <summary>The router's navigation model — the base's main stack or a derived router's overlay stack; the role discriminates which.</summary>
   internal RouterStack Model { get; }
 
-  /// <summary>The router's navigation view — the surface this router mounts as its lease body.</summary>
+  /// <summary>The router's routing view — the surface this router mounts as its lease body.</summary>
   internal IRoutingView View => Model.View;
 
   /// <summary>The presented site this overlay router borrowed at its derivation, or <see langword="null" /> for the base router.</summary>

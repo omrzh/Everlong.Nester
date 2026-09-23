@@ -1,6 +1,6 @@
 name: release
 
-# A release is a tag: `git tag v0.1.7 && git push origin v0.1.7`.  The version
+# A release is a tag: `git tag v0.1.8 && git push origin v0.1.8`.  The version
 # lives in `NesterVersion.props`, the tag must be that version, and the first
 # step refuses to publish anything when the two disagree — a package whose
 # number and tag diverge is a version nobody can name again.

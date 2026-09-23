@@ -1,4 +1,3 @@
-using Everlong.Nester.Controls;
 using System.Windows;
 
 namespace Everlong.Nester.Presentation;
@@ -26,6 +25,19 @@ public abstract class ViewLocatorBase : ResourceDictionary, IViewLocator
       return null;
     var key = new DataTemplateKey(data.GetType());
     return this[key] is DataTemplate t ? t.LoadContent() as FrameworkElement : null;
+  }
+
+  /// <inheritdoc/>
+  /// <remarks>
+  ///   Claims exactly the data types this dictionary holds a
+  ///   <see cref="DataTemplate"/> for, so <see cref="Match(object?)"/> and
+  ///   <see cref="Build(object?)"/> agree on the default path.
+  /// </remarks>
+  public virtual bool Match(object? data)
+  {
+    if (data is null)
+      return false;
+    return this[new DataTemplateKey(data.GetType())] is DataTemplate;
   }
 
   /// <summary>

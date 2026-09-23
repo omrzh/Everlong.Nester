@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using Everlong.Nester.Controls;
+using Everlong.Nester.Presentation;
 using Everlong.Nester.RouteSync;
 using Everlong.Nester.Routing;
 using Everlong.Nester.Tests.Routing;
@@ -38,7 +38,7 @@ public class HighlightOverrideTests
   private static (RouteLink Link, Window Window, TestRouter Router) MountLink()
   {
     var shell = new FakeShell();
-    var host = new NavigationHost();
+    var host = new RoutingView();
     var router = new TestRouter(shell, host);
     var link = new RouteLink { DataContext = PostsItem() };
     host.Children.Add(link);
@@ -130,7 +130,7 @@ public class HighlightOverrideTests
   public async Task TreeItem_Override_WinsOverTheRoute()
   {
     var shell = new FakeShell();
-    var host = new NavigationHost();
+    var host = new RoutingView();
     var router = new TestRouter(shell, host);
     var item = new RouteTreeItem { DataContext = PostsItem(), IsHighlighted = true };
     host.Children.Add(item);

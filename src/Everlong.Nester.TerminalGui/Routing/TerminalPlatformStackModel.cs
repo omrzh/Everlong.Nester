@@ -16,7 +16,7 @@ internal sealed class TerminalPlatformStackModel(IServiceProvider services) : Ro
 
 /// <summary>
 ///   The Terminal.Gui realized node — the terminal view behind the base
-///   visual slot and the mount child of its parent's layout body.
+///   visual slot and the mount child of its parent's body panel.
 /// </summary>
 internal sealed class TerminalLocation(Type type, IArgs? args, object instance)
   : Location(type, args, instance), IViewLocation<View>
@@ -25,5 +25,5 @@ internal sealed class TerminalLocation(Type type, IArgs? args, object instance)
   public View? View { get => Presenter as View; set => Presenter = value; }
 
   /// <summary>The mount point inside this node's view — where the inner node's view mounts.</summary>
-  public ILayoutBody<View>? Body { get; set; }
+  public IBodyPanel<View>? Body { get; set; }
 }

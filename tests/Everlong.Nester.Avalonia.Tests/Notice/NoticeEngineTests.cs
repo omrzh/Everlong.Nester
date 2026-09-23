@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 using Avalonia.Headless.XUnit;
 using Everlong.Nester.Notice;
 using Everlong.Nester.Presentation;
@@ -33,13 +34,27 @@ public class NoticeEngineTests
     public List<string> Calls { get; } = [];
   }
 
-  private sealed class FakeViewLocator : IViewLocator
+  private sealed class FakeTemplate : IDataTemplate
   {
     public required Func<object?, Control?> Factory { get; init; }
 
     public bool Match(object? data) => true;
 
     public Control? Build(object? data) => Factory(data);
+  }
+
+  /// <summary>
+  ///   The engine over a host that resolves every entry through
+  ///   <paramref name="factory" /> — the resolver the notice service installs
+  ///   on the mounted host.
+  /// </summary>
+  private static NoticeEngine Engine(Func<object?, Control?> factory)
+  {
+    var host = new Panel();
+    host.DataTemplates.Add(new FakeTemplate { Factory = factory });
+    var engine = new NoticeEngine();
+    engine.AttachHost(host);
+    return engine;
   }
 
   private static NoticeServiceOptions Options => new();
@@ -54,8 +69,7 @@ public class NoticeEngineTests
     var entry = ToastEntry(TimeSpan.FromMilliseconds(100));
     entry.TimeProvider = time;
     var view = new FakeNoticeView();
-    var locator = new FakeViewLocator { Factory = _ => view };
-    var engine = new NoticeEngine(locator);
+    var engine = Engine(_ => view);
 
     engine.ShowToast(entry, Options);
 
@@ -78,8 +92,7 @@ public class NoticeEngineTests
   public async Task Toast_WithoutTransitionDirector_SkipsAnimations()
   {
     var view = new PlainView();
-    var locator = new FakeViewLocator { Factory = _ => view };
-    var engine = new NoticeEngine(locator);
+    var engine = Engine(_ => view);
 
     engine.ShowToast(ToastEntry(TimeSpan.FromMilliseconds(100)), Options);
 
@@ -91,8 +104,7 @@ public class NoticeEngineTests
   [AvaloniaFact]
   public async Task Snackbar_And_Notification_UseTheirOwnStacks()
   {
-    var locator = new FakeViewLocator { Factory = _ => new Control() };
-    var engine = new NoticeEngine(locator);
+    var engine = Engine(_ => new Control());
 
     engine.ShowSnackbar(new SnackbarEntry { Message = "snack", Duration = TimeSpan.FromMilliseconds(50) },
                         Options);
@@ -117,8 +129,7 @@ public class NoticeEngineTests
     var view1 = new FakeNoticeView();
     var view2 = new FakeNoticeView();
     int built = 0;
-    var locator = new FakeViewLocator { Factory = _ => built++ == 0 ? view1 : view2 };
-    var engine = new NoticeEngine(locator);
+    var engine = Engine(_ => built++ == 0 ? view1 : view2);
 
     engine.ShowToast(shortEntry, Options);
     engine.ShowToast(longEntry, Options);
@@ -138,8 +149,7 @@ public class NoticeEngineTests
   public async Task SnackbarEntry_CompletesWithTimeoutResult()
   {
     var entry = new SnackbarEntry { Message = "hello", Duration = TimeSpan.FromMilliseconds(100) };
-    var locator = new FakeViewLocator { Factory = _ => new Control() };
-    var engine = new NoticeEngine(locator);
+    var engine = Engine(_ => new Control());
 
     engine.ShowSnackbar(entry, Options);
 
@@ -153,8 +163,7 @@ public class NoticeEngineTests
     var options = new NoticeServiceOptions { ToastMaxCount = 1 };
     var first = ToastEntry(TimeSpan.FromSeconds(30));
     var second = ToastEntry(TimeSpan.FromSeconds(30));
-    var locator = new FakeViewLocator { Factory = _ => new Control() };
-    var engine = new NoticeEngine(locator);
+    var engine = Engine(_ => new Control());
 
     engine.ShowToast(first, options);
     Assert.Single(engine.ToastEntries);
@@ -172,8 +181,7 @@ public class NoticeEngineTests
     var time = new FakeTimeProvider();
     var entry = ToastEntry(Timeout.InfiniteTimeSpan);
     entry.TimeProvider = time;
-    var locator = new FakeViewLocator { Factory = _ => new Control() };
-    var engine = new NoticeEngine(locator);
+    var engine = Engine(_ => new Control());
 
     engine.ShowToast(entry, Options);
 

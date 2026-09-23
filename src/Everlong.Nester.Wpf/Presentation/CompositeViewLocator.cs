@@ -3,18 +3,21 @@ using System.Windows;
 namespace Everlong.Nester.Presentation;
 
 /// <summary>
-///   Internal composite that chains <see cref="IViewLocator"/> instances for the imperative
-///   <c>Build()</c> path.
+///   Internal composite that chains the application's <see cref="IViewLocator" />
+///   instances — the declared mapping table, consulted before the tree's plain
+///   templates.
 /// </summary>
 /// <remarks>
 ///   <para>
-///     <see cref="Build"/> tries each locator's own resource dictionary first (fast path),
-///     then falls back to <see cref="System.Windows.Application.TryFindResource"/> to catch
-///     any plain XAML <see cref="DataTemplate"/> entries not covered by a registered locator.
+///     The chain is discovered by scanning
+///     <see cref="System.Windows.Application.Current" /> resources, merged
+///     dictionaries included.  A merged dictionary is searched last entry
+///     first, and the chain walks the same way, so the last registration wins.
 ///   </para>
 ///   <para>
-///     This class is constructed automatically by <c>AddNesterWpf()</c> by scanning
-///     <see cref="System.Windows.Application.Current"/> resources — users do not interact with it directly.
+///     This class is constructed automatically by the tree's view resolution
+///     from <see cref="System.Windows.Application.Current" /> resources —
+///     users do not interact with it directly.
 ///   </para>
 /// </remarks>
 internal sealed class CompositeViewLocator : IViewLocator
@@ -28,30 +31,40 @@ internal sealed class CompositeViewLocator : IViewLocator
   public CompositeViewLocator(ResourceDictionary? dataTemplateSource = null)
   {
     dataTemplateSource ??= PApp.Current.Resources;
-    var locators = ScanLocators(dataTemplateSource).ToList();
-    _locators = locators;
+    _locators = [.. ScanLocators(dataTemplateSource)];
   }
 
+  /// <inheritdoc />
+  public bool Match(object? data)
+  {
+    if (data is null)
+      return false;
 
-  /// <inheritdoc/>
+    for (var i = _locators.Count - 1; i >= 0; i--)
+    {
+      if (_locators[i].Match(data))
+        return true;
+    }
+
+    return false;
+  }
+
+  /// <inheritdoc />
   public PControl? Build(object? data)
   {
     if (data is null)
       return null;
 
-    // Fast path: each locator's self-dictionary lookup
+    // Last entry first — the same order a merged dictionary resolves in.
     for (var i = _locators.Count - 1; i >= 0; i--)
     {
-      var result = _locators[i].Build(data);
-      if (result is not null)
-        return result;
+      if (!_locators[i].Match(data))
+        continue;
+      if (_locators[i].Build(data) is { } view)
+        return view;
     }
 
-    // Fallback: WPF resource system (catches plain XAML DataTemplates)
-    var key = new DataTemplateKey(data.GetType());
-    return PApp.Current.TryFindResource(key) is DataTemplate t
-             ? t.LoadContent() as PControl
-             : null;
+    return null;
   }
 
   private static IEnumerable<IViewLocator> ScanLocators(ResourceDictionary dict)

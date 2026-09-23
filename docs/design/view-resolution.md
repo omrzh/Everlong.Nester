@@ -9,12 +9,19 @@ A Nester application declares its view bindings once — `[ViewFor<TViewModel>]`
 `[Mapping<TModel, TView>]` on the locator trigger — and the generator turns those declarations into
 **one** locator instance whose match claims all of them and whose build serves each data type the view
 it declared. That instance joins the application's template list, which the platform reads as its own:
-one table, one entry point, read the same way by the shell and by any presenter resolving a view model
-on its own.
+one table, one entry point.
 
 The union is the point. The mapping set is the application's, and a locator that claimed only part of it
 would make the declaration order carry meaning it does not have. It is also the property that makes the
-platform's recycling contract unanswerable (§3).
+platform's recycling contract unanswerable (why the union locator cannot answer, below).
+
+**Resolution starts at the asking control, not at the application.** A view is resolved from the tree the
+control that needs it sits in — so the nearest scope wins and the application's own table is the last
+stop, exactly as the platform resolves a template. Nothing resolves through the shell: the shell owns no
+mapping, and the host surface a shell presents is not a mapping at all (a shell declares its own host).
+The vocabulary follows each platform's own: on Avalonia the entry point *is* `IDataTemplate` (a Nester
+locator is one, and `FindDataTemplate` is the lookup), while WPF and Terminal.Gui declare their own
+non-generic locator whose build returns their own control type.
 
 ## 2. What a recycling template asks
 
@@ -116,8 +123,10 @@ application gets its reuse; a list that needs more says so at the list.
 
 ## 5. What a locator looks like
 
+On Avalonia the contract is the platform's own — a locator is an `IDataTemplate`:
+
 ```csharp
-partial class AppViewProvider : IViewLocator          // match + Build(object?) — no recycling
+partial class AppViewProvider : IDataTemplate          // match + Build(object?) — no recycling
 {
   private readonly FrozenSet<Type> _supportedTypes;   // one entry per declaration
 
@@ -138,6 +147,11 @@ partial class AppViewProvider : IViewLocator          // match + Build(object?) 
 }
 ```
 
+WPF and Terminal.Gui declare the same two members on their own non-generic `IViewLocator`, whose build
+returns `FrameworkElement` and `View` respectively: those platforms have no template the framework can
+ask to build, so the mapping has to be a contract of its own.  On WPF a locator is also a
+`ResourceDictionary`, so the plain `DataTemplate`s it registers stay resolvable from the tree.
+
 ## 6. Constraints
 
 - **A locator is a pure builder.** It claims the application's mapping set and serves a view per data
@@ -146,3 +160,19 @@ partial class AppViewProvider : IViewLocator          // match + Build(object?) 
   per-item reuse says so at the list, through the platform's own template shapes.
 - **The declaration is about types, not about instances.** A recycling switch on a mapping would be a
   platform-only knob on a cross-platform, single-source declaration.
+- **A declared mapping outranks a plain template.** A locator can build a view no template can express — a
+  control configured in code, or one whose shape depends on the instance — so on a platform whose locator
+  is not the template (WPF, Terminal.Gui) it is consulted *before* the tree's plain templates. The reverse
+  order would hand the mount a template's wrapper instead, and a wrapper hides the view's own
+  `ISceneTransition` from the reveal.
+- **A locator answers before it builds.** `Match` claims the data type and `Build` serves it, so a chain
+  reads claim-then-build and a data type no locator claims is a fact the caller can report rather than a
+  silent miss.  Avalonia's `IDataTemplate` already carries both members; WPF and Terminal.Gui declare them
+  on their own locator.
+- **A miss is not an error.** `Build` returning `null` says no view claims the data *yet*. The routing
+  view leaves the node unassembled and assembles it on the next convergence, so a mapping registered
+  after the first navigation still resolves; a visible placeholder would mount into the chain and could
+  never be replaced by the real view. A surface with nowhere to retry answers differently — the notice
+  host, which mounts once, reports the miss in place instead.
+- **A shell presents a host; it does not map one.** The host surface is declared by the concrete shell,
+  never resolved from the mapping table — a window is the shell's container, not a view of a Director.

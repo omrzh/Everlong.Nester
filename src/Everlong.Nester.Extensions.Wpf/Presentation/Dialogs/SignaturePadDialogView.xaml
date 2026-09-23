@@ -1,0 +1,77 @@
+<UserControl x:Class="Everlong.Nester.Presentation.SignaturePadDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+              xmlns:c="clr-namespace:Everlong.Nester.Dialog;assembly=Everlong.Nester.Extensions"
+             mc:Ignorable="d"
+             d:DesignHeight="420"
+             d:DesignWidth="700"
+             d:DataContext="{d:DesignInstance c:SignaturePadDialogSession}"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          TextElement.Foreground="{DynamicResource Nester.DialogChrome.Foreground}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="{DynamicResource Nester.DialogChrome.Padding}">
+    <Border.Effect>
+      <DropShadowEffect BlurRadius="{DynamicResource Nester.BlurRadius}"
+                        ShadowDepth="2"
+                        Opacity="0.2" />
+    </Border.Effect>
+
+  <Grid MinWidth="{DynamicResource Nester.Dialog.Width.Large}" MaxWidth="{DynamicResource Nester.Dialog.MaxWidth.Large}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="Auto" />
+      </Grid.RowDefinitions>
+      <TextBlock Grid.Row="0" Style="{DynamicResource Nester.DialogTitle.Style}" Text="{Binding Title}"
+                 Margin="0,0,40,8"
+                 Visibility="{Binding Title, Converter={StaticResource StringToVisibilityConverter}}" />
+      <Button Grid.Row="0" Style="{DynamicResource Nester.DialogClose.Style}" Content="✕"
+              HorizontalAlignment="Right" VerticalAlignment="Top"
+              ToolTip="{Binding CloseText}"
+              AutomationProperties.Name="{Binding CloseText}"
+              Command="{Binding CloseCommand}" />
+      <TextBlock Grid.Row="1" Style="{DynamicResource Nester.DialogMessage.Style}" Text="{Binding Message}"
+                 Margin="0,0,0,12"
+                 Visibility="{Binding Message, Converter={StaticResource StringToVisibilityConverter}}" />
+      <!--
+        The pad is paper: it stays light in either theme variant, so the ink a
+        user writes stays readable over it.
+      -->
+      <Border Grid.Row="2"
+              BorderBrush="{DynamicResource Nester.Border}"
+              BorderThickness="1"
+              CornerRadius="{DynamicResource Nester.CornerRadius.Medium}"
+              Background="White"
+              MinHeight="240">
+        <InkCanvas x:Name="SignatureCanvas"
+                   Background="White"
+                   EditingMode="Ink"
+                   StrokeCollected="OnStrokeCollected" />
+      </Border>
+      <Grid Grid.Row="3" Margin="0,12,0,0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,12"
+                   Opacity="0.75"
+                   Text="{Binding StrokeCountText}" />
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+          <Button Style="{DynamicResource Nester.DialogAction.Style}" Content="{Binding ClearText}" Margin="0,0,10,0"
+                  Click="OnClearClick" />
+          <Button Style="{DynamicResource Nester.PrimaryButton.Style}" Content="{Binding ConfirmText}"
+                  IsEnabled="{Binding CanSubmit}"
+                  Click="OnConfirmClick" />
+        </StackPanel>
+      </Grid>
+    </Grid>
+  </Border>
+</UserControl>

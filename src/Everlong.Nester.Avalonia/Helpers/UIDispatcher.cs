@@ -51,8 +51,39 @@ internal static class UIDispatcher
   public static void VerifyAccess() => Dispatcher.UIThread.VerifyAccess();
 
   // ── Private helpers ──
-  internal static async Task WaitForLoadedAsync()
+
+  /// <summary>
+  ///   Gives the dispatcher the pass that drains everything queued above
+  ///   <see cref="DispatcherPriority.Background" /> — the layout and render
+  ///   work included.  It checks no condition: the caller owns the predicate.
+  /// </summary>
+  internal static Task WaitForLoadedAsync()
   {
-    await Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background);
+    return Dispatcher.UIThread.InvokeAsync(static () => { }, DispatcherPriority.Background).GetTask();
+  }
+
+  /// <summary>
+  ///   Gives the dispatcher the pass that lays <paramref name="view" /> out,
+  ///   and waits for the view's Loaded event when one pass was not enough.
+  /// </summary>
+  /// <remarks>
+  ///   One pass realizes the layer the view was mounted into and measures the
+  ///   cascade inside it; the event is the fallback for a cascade that takes
+  ///   more than that.  Loaded is raised after arrange, so both paths return a
+  ///   laid-out view.  The post-pass guard tests arrangement alone on purpose:
+  ///   a view the pass did lay out must never wait on an event that a detached
+  ///   or already-consumed attachment may not raise.
+  /// </remarks>
+  internal static async Task WaitForLayoutAsync(PControl view, CancellationToken token)
+  {
+    if (view.IsLoaded && view.IsArrangeValid)
+      return;
+
+    await WaitForLoadedAsync();
+
+    if (view.IsArrangeValid)
+      return;
+
+    await view.EnsureLoadedAsync(token);
   }
 }

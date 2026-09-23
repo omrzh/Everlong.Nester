@@ -9,13 +9,13 @@ namespace NesterApp.Pages.Shell;
 ///   The main layout — the chrome (title + nav buttons) around the layout's
 ///   <c>Body</c> slot, which hosts the inner chain.
 /// </summary>
-public sealed class MainLayoutView : NesterView, ITerminalBodyHost
+public sealed class MainLayoutView : NesterView, IBodyHolder
 {
   private readonly Button _backButton;
   private readonly Button _forwardButton;
   private readonly Button _refreshButton;
   private readonly Button _landingButton;
-  private readonly TuiLayoutBody _body;
+  private readonly TuiBodyPanel _body;
 
   public MainLayoutView()
   {
@@ -24,7 +24,7 @@ public sealed class MainLayoutView : NesterView, ITerminalBodyHost
     _refreshButton = new Button { Text = "F5 Refresh", X = Pos.Right(_forwardButton) + 2, Y = 2 };
     _landingButton = new Button { Text = "Landing", X = Pos.Right(_refreshButton) + 2, Y = 2 };
 
-    _body = new TuiLayoutBody { X = 0, Y = 4 };
+    _body = new TuiBodyPanel { X = 0, Y = 4 };
 
     Add(
       new Label { Text = "Nester · Terminal.Gui (MainLayout)", X = 1, Y = 0 },
@@ -42,7 +42,7 @@ public sealed class MainLayoutView : NesterView, ITerminalBodyHost
   }
 
   /// <inheritdoc />
-  public TuiLayoutBody Body => _body;
+  public IBodyPanel GetBodyPanel() => _body;
 
   private void Act(Action<MainLayoutModel> action)
   {

@@ -6,16 +6,16 @@ namespace NesterApp.Dialogs;
 ///   The default dimmer's view — the full-screen backdrop layer that hosts
 ///   the dialog session above the navigation surface.
 /// </summary>
-public sealed class DialogDimmerView : NesterView, ITerminalBodyHost
+public sealed class DialogDimmerView : NesterView, IBodyHolder
 {
-  private readonly TuiLayoutBody _body;
+  private readonly TuiBodyPanel _body;
 
   public DialogDimmerView()
   {
-    _body = new TuiLayoutBody();
+    _body = new TuiBodyPanel();
     Add(_body);
   }
 
   /// <inheritdoc />
-  public TuiLayoutBody Body => _body;
+  public IBodyPanel GetBodyPanel() => _body;
 }

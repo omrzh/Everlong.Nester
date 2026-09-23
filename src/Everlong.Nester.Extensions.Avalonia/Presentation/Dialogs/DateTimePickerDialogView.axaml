@@ -1,0 +1,91 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:c="using:Everlong.Nester.Dialog"
+             mc:Ignorable="d"
+             d:DesignWidth="520"
+             d:DesignHeight="320"
+             x:Class="Everlong.Nester.Presentation.DateTimePickerDialogView"
+             x:DataType="c:DateTimePickerDialogSession"
+             HorizontalAlignment="Center" VerticalAlignment="Center">
+  <Design.DataContext>
+    <c:DateTimePickerDialogSession />
+  </Design.DataContext>
+  <Border Background="{DynamicResource Nester.DialogChrome.Background}"
+          TextElement.Foreground="{DynamicResource Nester.DialogChrome.Foreground}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.DialogChrome.CornerRadius}"
+          Padding="{DynamicResource Nester.DialogChrome.Padding}"
+          BoxShadow="{DynamicResource Nester.DialogChrome.Shadow}">
+
+  <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+        MinWidth="{DynamicResource Nester.Dialog.Width.Large}"
+        MaxWidth="{DynamicResource Nester.Dialog.MaxWidth.Large}">
+      <Grid Grid.Row="0" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" Margin="0,0,0,16">
+        <TextBlock Grid.Row="0" Grid.Column="0" Classes="DialogTitle" Text="{Binding Title}"
+                   IsVisible="{Binding Title, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"  />
+        <Button Grid.Row="0" Grid.Column="1" Classes="DialogClose" Content="✕"
+                VerticalAlignment="Center"
+                ToolTip.Tip="{Binding CloseText}"
+                AutomationProperties.Name="{Binding CloseText}"
+                Command="{Binding CloseCommand}" />
+        <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Classes="DialogMessage" Text="{Binding Message}"
+                   IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"  />
+      </Grid>
+
+      <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+        <StackPanel Spacing="4">
+          <TextBlock Classes="DialogFieldLabel" Text="{Binding YearLabel}" />
+          <TextBox Width="{DynamicResource Nester.Dialog.Field.Width}"
+                   HorizontalContentAlignment="Center"
+                   Text="{Binding YearText}" />
+        </StackPanel>
+        <StackPanel Spacing="4">
+          <TextBlock Classes="DialogFieldLabel" Text="{Binding MonthLabel}" />
+          <TextBox Width="{DynamicResource Nester.Dialog.Field.Width}"
+                   HorizontalContentAlignment="Center"
+                   Text="{Binding MonthText}" />
+        </StackPanel>
+        <StackPanel Spacing="4">
+          <TextBlock Classes="DialogFieldLabel" Text="{Binding DayLabel}" />
+          <TextBox Width="{DynamicResource Nester.Dialog.Field.Width}"
+                   HorizontalContentAlignment="Center"
+                   Text="{Binding DayText}" />
+        </StackPanel>
+        <Border Width="1" Margin="8,0" Opacity="0.6"
+                Background="{DynamicResource Nester.Border}" />
+        <StackPanel Spacing="4">
+          <TextBlock Classes="DialogFieldLabel" Text="{Binding HourLabel}" />
+          <TextBox Width="{DynamicResource Nester.Dialog.Field.Width}"
+                   HorizontalContentAlignment="Center"
+                   Text="{Binding HourText}" />
+        </StackPanel>
+        <StackPanel Spacing="4">
+          <TextBlock Classes="DialogFieldLabel" Text="{Binding MinuteLabel}" />
+          <TextBox Width="{DynamicResource Nester.Dialog.Field.Width}"
+                   HorizontalContentAlignment="Center"
+                   Text="{Binding MinuteText}" />
+        </StackPanel>
+        <StackPanel Spacing="4">
+          <TextBlock Classes="DialogFieldLabel" Text="{Binding SecondLabel}" />
+          <TextBox Width="{DynamicResource Nester.Dialog.Field.Width}"
+                   HorizontalContentAlignment="Center"
+                   Text="{Binding SecondText}" />
+        </StackPanel>
+      </StackPanel>
+
+      <TextBlock Grid.Row="2" Classes="DialogPreview" Margin="0,16,0,4" Text="{Binding PreviewText}" />
+      <TextBlock Grid.Row="3" Margin="0,0,0,16" Opacity="0.7"
+                 HorizontalAlignment="Center" Text="{Binding RangeHint}" />
+
+      <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+        <Button Classes="DialogAction" Content="{Binding NowText}"
+                Command="{Binding SetNowCommand}" />
+        <Button Classes="DialogAction Primary" Content="{Binding ConfirmText}"
+                Command="{Binding ConfirmCommand}" />
+      </StackPanel>
+    </Grid>
+  </Border>
+</UserControl>

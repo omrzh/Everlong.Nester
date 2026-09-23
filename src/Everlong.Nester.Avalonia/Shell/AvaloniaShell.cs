@@ -6,7 +6,6 @@ using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Everlong.Nester.Activation;
-using Everlong.Nester.Controls;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Hosting;
 using Everlong.Nester.Intent;
@@ -52,15 +51,10 @@ public abstract partial class AvaloniaShell : ShellBase
 
   /// <summary>
   ///   Platform services: Avalonia native services pass through as-is
-  ///   (the probe type IS the contract); the view locator is a framework-built
-  ///   capability — the shell scans the application's global template
-  ///   collection (the platform singleton's knowledge) and wraps it;
-  ///   anything unknown is null.
+  ///   (the probe type IS the contract); anything unknown is null.
   /// </summary>
   public override T? GetPlatformService<T>() where T : class
   {
-    if (typeof(T) == typeof(IViewLocator<PControl>))
-      return (T?)GetOrCreateViewLocator();
     if (typeof(T) == typeof(IClipboard))
       return (T?)TopLevel?.Clipboard;
     if (typeof(T) == typeof(IStorageProvider))
@@ -71,42 +65,17 @@ public abstract partial class AvaloniaShell : ShellBase
     return null;
   }
 
-  private IViewLocator<PControl>? _viewLocator;
-
-  private PApp? _locatorAppSnapshot;
-
-  /// <summary>
-  ///   The shell's view locator — a thin translator over the application's
-  ///   global template collection, rebuilt when the application instance
-  ///   changes (tests rebuild it per test; a stale snapshot would pin a dead
-  ///   template collection).  Views themselves are always <c>new</c>'d by
-  ///   the locator — the container never instantiates views.
-  /// </summary>
-  private IViewLocator<PControl>? GetOrCreateViewLocator()
-  {
-    PApp? app = PApp.Current;
-    if (app is null)
-      return null;
-    if (!ReferenceEquals(_locatorAppSnapshot, app))
-    {
-      _locatorAppSnapshot = app;
-      _viewLocator = new CompositeViewLocator(app.DataTemplates);
-    }
-
-    return _viewLocator;
-  }
-
   // ── ILayerBroker (the shell is the broker of its own stage) ──
 
   /// <inheritdoc />
   protected override ILayerLease CreateLease(ILayerLedger ledger, int z)
     => new ContentLayerLease(new ContentLayer(), ledger, z);
 
-  /// <summary>Creates the stage panel, hands it its owner and connects the broker ledger to it.</summary>
+  /// <summary>Creates the stage panel, binds it to its owner and the shell's flying layer, and connects the broker ledger to it.</summary>
   protected override void PrepareStage()
   {
     StagePanel ??= new StagePanel();
-    StagePanel.Shell = this;
+    StagePanel.BindShell(this, ShellServiceScope?.ServiceProvider.GetService<IFlyingLayer>());
     ConnectLedger(StagePanel);
   }
 
@@ -118,19 +87,13 @@ public abstract partial class AvaloniaShell : ShellBase
   }
 
   /// <summary>
-  ///   Resolves the host surface from the Director via the view locator
-  ///   (the <c>[ViewFor&lt;T&gt;]</c> contract).  Single-view with no mapping
-  ///   = direct mount (the stage itself becomes the MainView); desktop
-  ///   without a host fails fast.
+  ///   The host surface is the concrete shell's to declare — override this
+  ///   and assign <see cref="ShellHost" /> (the window, or the single-view
+  ///   host view).  The default declares none: single-view direct-mounts the
+  ///   stage as the MainView, desktop fails fast.
   /// </summary>
   protected override void PrepareHost()
   {
-    ShellHost = GetPlatformService<IViewLocator<PControl>>()?.Build(Director!) as PContentControl;
-    if (ShellHost is IAvaloniaShellHost)
-      return;
-
-    // No usable host: single-view direct-mounts (the framework connects the
-    // stage as the MainView); desktop has no fallback — fail fast.
     ShellHost = null;
     EnsureDesktopHost();
   }
@@ -144,8 +107,8 @@ public abstract partial class AvaloniaShell : ShellBase
     if (ShellHost is null && !SingleViewLifetime.IsSingleView(PApp.Current?.ApplicationLifetime))
     {
       throw new InvalidOperationException(
-        "Desktop shell requires a host: override PrepareHost (e.g. HostSurface = new MainWindow { Shell = this };)" +
-        " or provide a [ViewFor<DirectorType>] mapping the view locator resolves — the host must " +
+        "Desktop shell requires a host: override PrepareHost and assign ShellHost " +
+        "(e.g. ShellHost = new MainWindow { Shell = this };) — the host must " +
         "implement IAvaloniaShellHost (a Window).  The window presents itself via OnAssembled — " +
         "the framework never falls back for uncooperative views.");
     }
@@ -245,14 +208,17 @@ public abstract partial class AvaloniaShell : ShellBase
     return HandleDesktopIntent(context, next);
   }
 
-  /// <summary>The desktop branch — walks the tunnel, then handles the window-intent family.</summary>
+  /// <summary>
+  ///   The desktop branch — walks the tunnel, then handles the window intents
+  ///   and the shell-lifecycle pair.
+  /// </summary>
   protected virtual async ValueTask HandleDesktopIntent(IntentContext context, IntentDelegate next)
   {
     await next(context);
     if (context.IsTerminated)
       return;
 
-    if (context.Intent is not IShellIntent)
+    if (context.Intent is not IWindowIntent and not IShellIntent)
       return;
 
     if (Window is not { } window)
@@ -360,8 +326,13 @@ public abstract partial class AvaloniaShell : ShellBase
     if (e.Cancel || Lifetime.Lifecycle != ShellLifecycle.Started)
       return;
 
+    // A shutdown the OS or the lifetime initiates is not a user close: holding
+    // it would abort the shutdown, and the intent chain has no say in it.
+    if (e.CloseReason is WindowCloseReason.OSShutdown or WindowCloseReason.ApplicationShutdown)
+      return;
+
     e.Cancel = true;
-    await this.DispatchIntent(StagePanel, new TryCloseIntent());
+    await this.DispatchIntent(this, new TryCloseIntent());
   }
 
   /// <summary>

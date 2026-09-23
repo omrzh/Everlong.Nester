@@ -4,7 +4,6 @@ using Everlong.Nester.Tests.Hosting;
 using NesterApp;
 using Avalonia.Headless.XUnit;
 using Everlong.Nester.Auth;
-using Everlong.Nester.Controls;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Dialog;
 using Everlong.Nester.Layer;
@@ -46,8 +45,8 @@ public sealed class MultiWindowTests
   private static async Task<TwoWindows> BuildTwoWindows()
   {
     // Rebuild the chain deterministically (serialized by the RealShell
-    // collection).  CompositeViewLocator scans FORWARDS (first wins), so
-    // the app template must be FIRST: app template → framework views,
+    // collection).  The DataTemplates collection is read FORWARDS (first
+    // wins), so the app template must be FIRST: app template → framework views,
     // i.e. index 0 is checked first.
     Application.Current!.DataTemplates.Clear();
     Application.Current!.DataTemplates.Add(RealAppHarness.PageTemplate);
@@ -82,7 +81,7 @@ public sealed class MultiWindowTests
     => ((AvaloniaShell)shell).LeaseOrder().Where(c => KnownLayers.Dialog.Contains(c.Z)).ToList();
 
   /// <summary>The dialog overlays currently mounted on a window's stage.</summary>
-  private static List<NavigationHost> DialogHosts(IShell shell)
+  private static List<RoutingView> DialogHosts(IShell shell)
     => ((AvaloniaShell)shell).StagePanel!.DerivedHosts().ToList();
 
   // ── coexistence ───────────────────────────────────────────────────

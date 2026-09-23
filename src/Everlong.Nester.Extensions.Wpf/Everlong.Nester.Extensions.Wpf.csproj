@@ -36,15 +36,15 @@
     <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Helpers\ResourceKeyHelper.cs" Link="Helpers\ResourceKeyHelper.cs" />
     <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Notice\NoticeEngine.cs" Link="Notice\NoticeEngine.cs" />
     <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Notice\NoticeTransition.cs" Link="Notice\NoticeTransition.cs" />
-    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Controls\Responsive.shared.cs" Link="Controls\Responsive.shared.cs" />
-    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Controls\RouteLink.shared.cs" Link="Controls\RouteLink.shared.cs" />
-    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Controls\RouteTreeControl.shared.cs" Link="Controls\RouteTreeControl.shared.cs" />
-    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Controls\RouteTreeItem.shared.cs" Link="Controls\RouteTreeItem.shared.cs" />
-    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Controls\RoutingSurface.cs" Link="Controls\RoutingSurface.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Controls\Responsive.shared.cs" Link="Presentation\Controls\Responsive.shared.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Controls\RouteLink.shared.cs" Link="Presentation\Controls\RouteLink.shared.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Controls\RouteTreeControl.shared.cs" Link="Presentation\Controls\RouteTreeControl.shared.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Controls\RouteTreeItem.shared.cs" Link="Presentation\Controls\RouteTreeItem.shared.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Controls\RoutingSurface.cs" Link="Presentation\Controls\RoutingSurface.cs" />
     <!-- Presentation: the animation kit both platforms drive -->
-    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transition\DialogTransitions.cs" Link="Presentation\Transition\DialogTransitions.cs" />
-    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transition\SlideDirection.cs" Link="Presentation\Transition\SlideDirection.cs" />
-    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transition\TransitionContextExtensions.cs" Link="Presentation\Transition\TransitionContextExtensions.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transitions\DialogTransitions.cs" Link="Presentation\Transitions\DialogTransitions.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transitions\SlideDirection.cs" Link="Presentation\Transitions\SlideDirection.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transitions\TransitionContextExtensions.cs" Link="Presentation\Transitions\TransitionContextExtensions.cs" />
   </ItemGroup>
 
 </Project>

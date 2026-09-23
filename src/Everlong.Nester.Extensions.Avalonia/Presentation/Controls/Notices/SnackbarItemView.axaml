@@ -1,0 +1,34 @@
+<c:BottomSlideItemViewBase xmlns="https://github.com/avaloniaui"
+                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                        xmlns:c="using:Everlong.Nester.Presentation"
+                        xmlns:s="using:Everlong.Nester.Notice"
+                        mc:Ignorable="d" HorizontalAlignment="Center"
+                        x:Class="Everlong.Nester.Presentation.SnackbarItemView"
+                        x:DataType="s:SnackbarEntry"
+                        Background="Transparent">
+  <Design.DataContext>
+    <s:SnackbarEntry />
+  </Design.DataContext>
+  <Border Background="{DynamicResource Nester.Snackbar.Background}"
+          BorderBrush="{DynamicResource Nester.Border}"
+          BorderThickness="1"
+          CornerRadius="{DynamicResource Nester.CornerRadius.Small}"
+          Padding="{DynamicResource Nester.Padding.Small}"
+          Margin="{DynamicResource Nester.Margin.Small}"
+          BoxShadow="{DynamicResource Nester.Shadow}"
+          MinWidth="200">
+    <DockPanel>
+
+      <Button DockPanel.Dock="Right" Content="{Binding ActionText}" Command="{Binding ActionCommand}"
+              IsVisible="{Binding ActionText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+              Background="Transparent" Foreground="{DynamicResource Nester.Snackbar.Action.Foreground}"
+              BorderThickness="0" Padding="10 5" VerticalAlignment="Center" />
+
+      <TextBlock Text="{Binding Message}" Foreground="{DynamicResource Nester.Snackbar.Foreground}"
+                 VerticalAlignment="Center" />
+
+    </DockPanel>
+  </Border>
+</c:BottomSlideItemViewBase>
