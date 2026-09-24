@@ -286,6 +286,39 @@ public abstract class AppLifetimeBase : IAppLifetime
     }
   }
 
+  /// <summary>
+  ///   Drives the app-exit teardown to completion, pumping the platform's
+  ///   message loop while the cascade settles.
+  /// </summary>
+  /// <remarks>
+  ///   The platform's exit hook must call this instead of awaiting the
+  ///   cascade.  Both desktop toolkits tear the dispatcher down the moment
+  ///   the exit handler returns and abort every continuation still queued, so
+  ///   an <c>async void</c> handler strands the cascade at its first await —
+  ///   the platform's loop has to keep running until the teardown settles.
+  ///   A failing cascade is reported, never thrown into the exit path.
+  /// </remarks>
+  /// <param name="pump">Pumps the platform's message loop until the teardown task settles.</param>
+  protected void RunExitTeardown(Action<Task> pump)
+  {
+    ArgumentNullException.ThrowIfNull(pump);
+
+    Task teardown = DisposeManagedResources().AsTask();
+    try
+    {
+      if (!teardown.IsCompleted)
+      {
+        pump(teardown);
+      }
+
+      teardown.GetAwaiter().GetResult();
+    }
+    catch (Exception ex)
+    {
+      ReportAppError(ex);
+    }
+  }
+
   /// <summary>Releases one owned component (async-aware, best-effort).</summary>
   private static async ValueTask DisposeComponentAsync(object? component)
   {

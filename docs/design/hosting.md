@@ -63,6 +63,12 @@ Two rules follow from that shape. The cascade is **not retryable**: the guard is
 starts, so a pass that failed halfway is not run again. And a broken participant must not strand the
 rest: the shells beneath it are still released.
 
+The hook that starts the cascade **does not await it**. The platform tears its loop down the moment
+the hook returns and aborts every continuation still queued, so an awaiting hook strands teardown at
+its first hop; the hook therefore keeps the platform's loop running until the cascade settles, and
+returns only once teardown is complete. A failure in that path is reported, never thrown into the
+exit path.
+
 ## 5. The facade
 
 A participant deep in the tree needs the process host without passing a reference through every

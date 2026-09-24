@@ -74,15 +74,19 @@ internal sealed class AppLifetimeImpl : AppLifetimeBase
     e.Handled = true;
   }
 
-  private async void OnDesktopLifetimeExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
+  /// <summary>
+  ///   Drives the app-exit teardown to completion before Avalonia shuts the
+  ///   dispatcher down — an <c>async void</c> handler would be cut off when
+  ///   the dispatcher aborts its queue.
+  /// </summary>
+  private void OnDesktopLifetimeExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
+    => RunExitTeardown(PumpUntil);
+
+  /// <summary>Pumps this dispatcher until the exit teardown settles — the platform shuts it down the moment the exit handler returns.  Internal so the headless suite can pin the pump against the real dispatcher.</summary>
+  internal static void PumpUntil(Task teardown)
   {
-    try
-    {
-      await DisposeManagedResources();
-    }
-    catch (Exception ex)
-    {
-      ReportAppError(ex);
-    }
+    var frame = new DispatcherFrame();
+    teardown.ContinueWith(_ => frame.Continue = false, TaskScheduler.Default);
+    Avalonia.Threading.Dispatcher.UIThread.PushFrame(frame);
   }
 }
