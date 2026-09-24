@@ -151,7 +151,7 @@ public interface ITarget
 ///   A location descriptor — an instance that describes a destination
 ///   (its target chain) without navigating it.
 /// </summary>
-public interface ILocator
+public interface ILocator : IImpulse
 {
   /// <summary>The described target chain, outermost first — the content target last.</summary>
   /// <remarks>The value is fixed for the descriptor's lifetime.</remarks>

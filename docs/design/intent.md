@@ -10,7 +10,8 @@ Nester's axiom is `state' = f(impulse)`: the level describes what *is*, and only
 
 > The level never moves the level — only an impulse does.
 
-`IIntent` is its only implementation. Passing input through an intent buys **provenance**: when a
+The Intent domain is one opinionated design under that axiom — it makes the causal input
+consultable. Passing input through an intent buys **provenance**: when a
 control's own state drives the transfer directly, that state can no longer tell whether it is the
 driver or the driven — it would have to be display state and input at once. A translated intent makes
 the cause explicit, consultable and refusable.
