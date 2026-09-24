@@ -333,7 +333,7 @@ public abstract partial class WpfShell : ShellBase
     {
       // Bounds components carry a single value with no window instance — the
       // shell reads its own window for the full geometry.
-      status.Bounds = new ShellBounds(Window.Left, Window.Top, Window.Width, Window.Height);
+      status.Bounds = new Bounds(Window.Left, Window.Top, Window.Width, Window.Height);
     }
   }
 

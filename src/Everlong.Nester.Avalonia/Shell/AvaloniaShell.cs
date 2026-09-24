@@ -463,8 +463,8 @@ public abstract partial class AvaloniaShell : ShellBase
       status.Title = e.NewValue as string ?? string.Empty;
     else if (e.Property == PVisual.BoundsProperty)
       status.Bounds = e.NewValue is PRect rect
-                        ? new ShellBounds(rect.X, rect.Y, rect.Width, rect.Height)
-                        : ShellBounds.Empty;
+                        ? new Bounds(rect.X, rect.Y, rect.Width, rect.Height)
+                        : Bounds.Empty;
     else if (e.Property == PVisual.IsVisibleProperty)
       status.IsVisible = e.NewValue is true;
     else if (e.Property == Window.WindowStateProperty)

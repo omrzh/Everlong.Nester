@@ -30,7 +30,7 @@ public abstract class HostPropertyBase : INotifyPropertyChanged
   public string Title { get; set => SetField(ref field, value); } = string.Empty;
 
   /// <summary>Gets the bounds of the shell host.</summary>
-  public ShellBounds Bounds { get; set => SetField(ref field, value); }
+  public Bounds Bounds { get; set => SetField(ref field, value); }
 
   /// <summary>Gets a value indicating whether the shell is currently visible.</summary>
   public bool IsVisible { get; set => SetField(ref field, value); }
