@@ -1,3 +1,4 @@
+using Everlong.Nester.Layer;
 using Everlong.Nester.Routing;
 
 namespace Everlong.Nester.Dialog;
@@ -12,14 +13,15 @@ public static partial class RouterDialogExtensions
   ///   its result — a dismissal yields <see langword="null" />.
   /// </summary>
   public static async Task<object?> ShowAsync(this IRouter router, object model)
-    => await router.PresentOnDerivedAsync(new DefaultDimmerModel(), model);
+    => await router.ShowAsync(model, new DefaultDimmerModel());
 
   /// <summary>
   ///   Presents the model on a derived router under the given dimmer,
   ///   awaiting its result — a dismissal yields <see langword="null" />.
   /// </summary>
   public static async Task<object?> ShowAsync(this IRouter router, object model, DefaultDimmerModel dimmer)
-    => await router.PresentOnDerivedAsync(dimmer, model);
+    => await router.PresentOnDerivedAsync(
+         new DeriveOptions { Band = KnownLayers.Dialog, Parents = [dimmer] }, model);
 
   /// <summary>
   ///   Presents a model and awaits its result, returning it cast

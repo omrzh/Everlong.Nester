@@ -281,23 +281,6 @@ public class RouteAsyncTests
   }
 
   [Fact]
-  public async Task RoutedToNotifyThrow_OnIntentDispatch_FaultsTheDispatchCaller()
-  {
-    var reported = new List<Exception>();
-    (FakeShell shell, TestRouter router) = RouterTestHost.Create(reporter: reported.Add);
-
-    // A truth-pipeline fault is not the router's to report or consume — it
-    // propagates out of the intent dispatch into the chain's error handling
-    // (the fake shell has no layers catch, so the caller sees it).
-    var failure = await Assert.ThrowsAsync<InvalidOperationException>(
-      () => shell.DispatchIntent(null, new RouteIntent(ChainOf(typeof(ThrowingOnRoutedTo)))).AsTask());
-
-    Assert.Contains("routed-to boom", failure.Message);
-    Assert.Empty(reported);            // the router did not report it
-    Assert.Equal(0, router.Stack.Count);   // nothing committed
-  }
-
-  [Fact]
   public async Task RoutedFromNotifyThrow_OnTraversalIntent_FaultsTheDispatchCaller()
   {
     var reported = new List<Exception>();

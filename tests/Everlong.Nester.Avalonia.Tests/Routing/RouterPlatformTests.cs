@@ -109,23 +109,22 @@ public class RouterPlatformTests
   }
 
   [AvaloniaFact]
-  public void Derive_LeasesTheBandItsLifetimeImplies()
+  public void Derive_LeasesTheRequestedBand()
   {
     (AvaloniaShell shell, Router router) = Create();
     var panel = Assert.IsType<StagePanel>(shell.StagePanel);
 
-    // A full navigator — a derived router that pushes and traverses — shares
-    // the ground router's navigation band, one slot above its floor.
-    var navigator = (Router)router.Derive();
+    // A navigator rents the navigation band, above the ground's floor.
+    var navigator = (Router)router.Derive(new DeriveOptions { Band = KnownLayers.Navigation });
     var navigatorLayer = Assert.Single(panel.Children.OfType<ContentControl>(),
       c => ReferenceEquals(c.Content, navigator.View));
     Assert.True(navigatorLayer.ZIndex > KnownLayers.Navigation.Floor);
     Assert.True(KnownLayers.Navigation.Contains(navigatorLayer.ZIndex));
 
-    // A one-shot dialog rents the dialog band, above every navigator.
-    var oneShot = (Router)router.Derive(isEphemeral: true);
+    // A dialog rents the dialog band, above every navigator.
+    var dialog = (Router)router.Derive(new DeriveOptions { Band = KnownLayers.Dialog });
     var dialogLayer = Assert.Single(panel.Children.OfType<ContentControl>(),
-      c => ReferenceEquals(c.Content, oneShot.View));
+      c => ReferenceEquals(c.Content, dialog.View));
     Assert.True(KnownLayers.Dialog.Contains(dialogLayer.ZIndex));
   }
 

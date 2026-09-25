@@ -48,8 +48,9 @@ a derived router, and a request-scoped `IFeatureCollection` keyed by interface t
 
 The lifecycle contracts are the two halves of a navigation. Before the commit: `IRoutable`,
 `IParameterized`, `IAdaptiveParameterized`, `IBodyChanged`. After the commit: `IArriving`, `IArrived`,
-`IDeparting`, `IDeparted`, and `IReleasable` for the end of the chain's hold. `IRouteIntent` marks a
-routing intent, and `RouteIntent` — carrying a descriptor — is the consulted form of a navigation.
+`IDeparting`, `IDeparted`, and `IReleasable` for the end of the chain's hold. `ITraversalIntent` marks
+the traversal and refresh commands a router interprets; a route is an addressed directive
+(`RouteAsync`) and is never dispatched as an intent.
 
 ## 3. From descriptor to site
 
@@ -265,11 +266,12 @@ never commits while the overlay is still empty completes it with `null`. The clo
 close transaction, its convergence and the release drain before the lease returns, so a creator
 awaiting the result observes a free layer.
 
-An **ephemeral** overlay is one-shot: it accepts a single route request, and every later request is
-re-dispatched as the consulted form of a navigation for a navigable surface to take. It answers no
-route consultation at all — the skip happens before the chain is asked, which is what keeps stacked
-one-shot surfaces from handing the same request to each other forever. A back is still answered,
-because a back concerns the surface's own content.
+`Derive` takes the overlay's creation parameters: the band its lease is granted in, the position
+asked for inside it, and the **parents** every route is completed with. The parents are the overlay's
+default layouts — the router holds the targets, so the nodes they resolve to are the shared prefix of
+every entry, never a fresh node per entry. A route the caller sends names only its own participants;
+the overlay completes it. A dialog is exactly that: a derived router at the dialog band with the
+dimmer as its parent.
 
 The round trip out of a presentation is explicit: a jump records a fresh visit to the live entry that
 presents a site, and a site converts back into a descriptor from its trail, with arguments kept and

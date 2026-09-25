@@ -60,7 +60,7 @@ public class ConfirmAsyncTests
 
     public Task<bool> JumpAsync(ILocation site) => Task.FromResult(false);
 
-    public IRouter Derive(bool isEphemeral = false) => new CapturingDerived(this);
+    public IRouter Derive(DeriveOptions options) => new CapturingDerived(this);
 
     public IRouterCompletion? Completion => null;
 
@@ -92,7 +92,7 @@ public class ConfirmAsyncTests
 
       public Task<bool> JumpAsync(ILocation site) => Task.FromResult(false);
 
-      public IRouter Derive(bool isEphemeral = false) => throw new NotSupportedException();
+      public IRouter Derive(DeriveOptions options) => throw new NotSupportedException();
 
       /// <summary>The channel of the captured derived router — pending at hand-off, settled with the show result when routed.</summary>
       private sealed class CompletionChannel(TaskCompletionSource<object?> settlement) : IRouterCompletion

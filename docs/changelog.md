@@ -7,6 +7,22 @@ migration, a renamed package, a raised framework floor — not what the commit l
 Below 1.0 nothing is promised stable: a minor version may rename a type or change a contract, and an
 entry says so when it does. That is the one thing a consumer should assume rather than read here.
 
+## 0.1.11 — 2026-09-25
+
+**Migrate.** `IRouter.Derive(bool isEphemeral)` is gone. A derived router is created from
+`DeriveOptions` — the band its lease is granted in, the `LayerPolicy` that positions it, and the
+`Parents` every route is completed with. The one-shot surface is retired: a derived router stacks,
+traverses and closes like any other, and a caller that wants the ground addresses it directly.
+
+**Migrate.** `RouteIntent` is removed. A route is an addressed directive — `RouteAsync` — and is never
+dispatched as an intent; the consulted form survives for traversal alone. `IRouteIntent` is renamed
+`ITraversalIntent` — it marks `BackIntent`, `ForwardIntent` and `RefreshIntent`.
+
+**Migrate.** `IRouterSeed.IsEphemeral` is replaced by `IRouterSeed.Parents`, and
+`PresentOnDerivedAsync` takes the options first. `DeriveOptions.Parents` is the overlay's default
+layouts: prepended to every route the overlay computes and reused across its entries, so a dialog's
+dimmer outlives the stages it wraps.
+
 ## 0.1.10 — 2026-09-22
 
 Nothing between 0.1.7 and this one shipped — the only tag is `v0.1.7` — so this entry carries the whole

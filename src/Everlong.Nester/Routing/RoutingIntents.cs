@@ -2,20 +2,14 @@ using Everlong.Nester.Intent;
 
 namespace Everlong.Nester.Routing;
 
-/// <summary>
-///   The routing domain's route command — carries the location to route;
-///   a dispatched command consults the chain (pages may veto).
-/// </summary>
-public sealed record RouteIntent(ILocator Locator) : IRouteIntent;
-
 /// <summary>Represents an intent to go back.</summary>
-public record BackIntent(object? RetValue = null) : IRouteIntent;
+public record BackIntent(object? RetValue = null) : ITraversalIntent;
 
 /// <summary>Represents an intent to go forward.</summary>
-public sealed record ForwardIntent : IRouteIntent;
+public sealed record ForwardIntent : ITraversalIntent;
 
 /// <summary>Represents an intent to refresh the current view.</summary>
-public sealed record RefreshIntent : IRouteIntent;
+public sealed record RefreshIntent : ITraversalIntent;
 
 /// <summary>
 ///   Extension methods for classifying and inspecting shell intents.
@@ -27,6 +21,6 @@ public static class IIntentExtensions
     /// <summary>
     /// Indicates whether the intent is about routing.
     /// </summary>
-    public bool IsRouting => intent is IRouteIntent;
+    public bool IsRouting => intent is ITraversalIntent;
   }
 }

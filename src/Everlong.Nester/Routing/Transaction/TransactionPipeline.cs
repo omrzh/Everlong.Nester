@@ -91,14 +91,20 @@ internal partial class TransactionPipeline
   }
 
   /// <summary>
-  ///   Resolves the transaction's locator into its spec — the stage that closes
-  ///   the request window: after this the ordered chain the decision phases
-  ///   read stands, and nothing may rewrite it.
+  ///   Resolves the transaction's locator into its spec — the router's
+  ///   parents are prepended first, so every route the overlay computes is
+  ///   completed with its default layouts.  The stage closes the request
+  ///   window: after this the ordered chain the decision phases read stands,
+  ///   and nothing may rewrite it.
   /// </summary>
   private void ExpandLocator(TransactionContext ctx, TransactNext next)
   {
     if (ctx.Locator is { } location)
-      ctx.ExpandedLocator = location.Path;
+    {
+      IReadOnlyList<ITarget> parents = router.Parents;
+      ctx.ExpandedLocator = parents.Count == 0 ? location.Path : [.. parents, .. location.Path];
+    }
+
     next(ctx);
   }
 

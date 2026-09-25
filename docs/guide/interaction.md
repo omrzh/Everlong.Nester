@@ -131,13 +131,16 @@ A page presented over the dimmer and its own chrome chain, with no independent h
 presentation, not a stack entry:
 
 ```csharp
-IRouter result = Router.Derive();
-await result.RouteAsync(new Locator(
-[
-  new DefaultDimmerModel { LightDismiss = true },
-  Target.Of(typeof(PostDetailChromeLayoutModel)),
-  Target.Of(typeof(PostDetailPageModel), new PostDetailArgs(post))
-]));
+IRouter result = Router.Derive(new DeriveOptions
+{
+  Band = KnownLayers.Navigation,
+  Parents =
+  [
+    new DefaultDimmerModel { LightDismiss = true },
+    Target.Of(typeof(PostDetailChromeLayoutModel))
+  ],
+});
+await result.RouteAsync(new Locator([Target.Of(typeof(PostDetailPageModel), new PostDetailArgs(post))]));
 ```
 
 ## 2. Feedback
