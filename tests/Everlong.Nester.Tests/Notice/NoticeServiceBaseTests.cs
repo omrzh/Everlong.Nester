@@ -111,6 +111,8 @@ public class NoticeServiceBaseTests : IDisposable
 
     public void Start() => throw new NotSupportedException();
 
+    public ValueTask CloseAsync() => ValueTask.CompletedTask;
+
     public ValueTask<IntentResult> DispatchIntent(object? sender, IIntent intent) => throw new NotSupportedException();
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;

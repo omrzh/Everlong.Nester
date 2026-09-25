@@ -70,7 +70,7 @@ public partial class SettingsPageModel : RoutableModel
 
       if (!AppLifetime.IsSingleView)
       {
-        await Shell.DispatchIntent(this, new CloseIntent());
+        await Shell.CloseAsync();
       }
     }
   }

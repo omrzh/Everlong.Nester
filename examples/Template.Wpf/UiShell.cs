@@ -229,23 +229,11 @@ public sealed partial class UiShell(IActivationIntent? startupIntent = null) : W
         Window.Topmost = top;
         context.Handle(this);
         break;
-      case TryCloseIntent:
       case CloseIntent:
-        // The intent reached the last link = nobody vetoed: destroy the
-        // shell, then close the window (the re-entrant OnClosing falls
-        // through — the shell is already disposed).  The close translation
-        // is the framework's only window hook; veto lives in the intent
-        // chain.
-        await DisposeAsync();
-        try
-        {
-          Window.Close();
-        }
-        catch
-        {
-          // best-effort: the window may already be closed
-        }
-
+        // The intent reached the last link = nobody vetoed: end the shell
+        // and its window.  The close translation is the framework's only
+        // window hook; veto lives in the intent chain.
+        await CloseAsync();
         context.Handle(this);
         break;
     }

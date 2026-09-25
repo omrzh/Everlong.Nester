@@ -19,11 +19,11 @@ namespace Everlong.Nester.Shell;
 public interface IAvaloniaShell : IShell
 {
   /// <summary>
-  ///   Translates a window-closing notification into a <see cref="TryCloseIntent" />
+  ///   Translates a window-closing notification into a <see cref="CloseIntent" />
   ///   for unified arbitration through the intent chain.  The host window's
   ///   <c>OnClosing</c> override calls this.
   /// </summary>
-  void WindowClosingToTryCloseIntent(WindowClosingEventArgs e);
+  void WindowClosingToCloseIntent(WindowClosingEventArgs e);
 
   /// <summary>Translates mouse side buttons (XButton1 / XButton2) into <c>BackIntent</c> / <c>ForwardIntent</c>.</summary>
   void MouseSideButtonToRoutingIntent(object? sender, PointerReleasedEventArgs e);

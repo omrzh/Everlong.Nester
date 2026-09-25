@@ -198,7 +198,7 @@ public partial class ProfilePageModel : RoutableModel, IIntentHandler
 ```
 
 The router asks the presented chain first — view, then instance, outermost first — so a page vetoes a
-shell close probe (`TryCloseIntent`) or an intent-dispatched route command (`RouteIntent`) the same
+shell close probe (`CloseIntent`) or an intent-dispatched route command (`RouteIntent`) the same
 way. A direct `Router.RouteAsync(locator)` is an addressed directive that consults no one; a layer
 that must block navigation behind it does so at the input level (a modal focus trap).
 

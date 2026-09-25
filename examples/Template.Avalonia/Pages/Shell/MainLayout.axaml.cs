@@ -60,6 +60,6 @@ public partial class MainLayout : UserControl, IBodyHolder, ISceneTransition
                            : HostState.Maximized));
 
   private void OnCloseClicked(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    => this.PostIntent(new TryCloseIntent());
+    => this.PostIntent(new CloseIntent());
 
 }

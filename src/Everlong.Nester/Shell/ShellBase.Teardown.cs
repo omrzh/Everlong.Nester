@@ -8,6 +8,35 @@ partial class ShellBase
   private int _disposed;
 
   /// <summary>
+  ///   Ends the shell imperatively — the addressed close: teardown
+  ///   (<see cref="DisposeAsync" />) followed by the platform's presentation
+  ///   end.  It consults no handler: no Director or page can refuse a close
+  ///   the caller itself decided.  A user close affordance dispatches
+  ///   <see cref="CloseIntent" /> through the chain instead.
+  /// </summary>
+  /// <remarks>
+  ///   Idempotent and re-entrant: <see cref="DisposeAsync" />'s guard makes a
+  ///   second call no-op, and ending an already-ended presentation is
+  ///   best-effort.  NO LOCK — by design: the disposal guard is set
+  ///   synchronously before the first await, so a re-entrant entrant (the
+  ///   window-close translation, a concurrent dispatch) no-ops at the entry;
+  ///   an async lock would deadlock the UI thread.
+  /// </remarks>
+  public async ValueTask CloseAsync()
+  {
+    await DisposeAsync();
+    await EndPresentationAsync();
+  }
+
+  /// <summary>
+  ///   Platform hook: ends the host presentation after teardown — the desktop
+  ///   window's close, the terminal session's stop.  Default is a no-op, the
+  ///   correct answer where <see cref="DisposeAsync" /> already detaches the
+  ///   surface (single-view).
+  /// </summary>
+  protected virtual ValueTask EndPresentationAsync() => ValueTask.CompletedTask;
+
+  /// <summary>
   ///   Destroys the shell — the single teardown entry: flips the lifecycle to
   ///   <see cref="ShellLifecycle.Disposed"/>, stops the shell's token,
   ///   evicts the layer leases (<see cref="ILayerTenant.OnEvictedAsync"/>

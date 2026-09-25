@@ -126,6 +126,8 @@ internal sealed class FakeShell : IShell, ILayerBroker
   {
   }
 
+  public ValueTask CloseAsync() => ValueTask.CompletedTask;
+
   public void ReportError(Exception exception) => ErrorReporter?.Invoke(exception);
 
   public ValueTask<IntentResult> DispatchIntent(object? sender, IIntent intent)

@@ -130,6 +130,24 @@ public abstract partial class WpfShell : ShellBase
   }
 
   /// <inheritdoc />
+  protected override ValueTask EndPresentationAsync()
+  {
+    // Best-effort: the window may already be closed.
+    if (HostWindow is { } window)
+    {
+      try
+      {
+        window.Close();
+      }
+      catch
+      {
+      }
+    }
+
+    return ValueTask.CompletedTask;
+  }
+
+  /// <inheritdoc />
   protected override IIntentHandler? HostHandler => HostWindow as IIntentHandler;
 
   // ── Fallback intent handling ──
@@ -145,31 +163,12 @@ public abstract partial class WpfShell : ShellBase
 
     switch (context.Intent)
     {
-      case TryCloseIntent:
       case CloseIntent:
-        // The intent reached the last link = nobody vetoed: destroy the
-        // shell, then close the window (the re-entrant OnClosing falls
-        // through — the shell is already disposed).  Awaiting makes the
-        // close deterministic for the caller (e.g. the window-close
-        // translation returns with the shell destroyed).
-        //
-        // NO LOCK — by design: DisposeAsync's Interlocked guard is set
-        // synchronously BEFORE its first await, so any second entrant
-        // (re-entrant OnClosing or a concurrent dispatch) no-ops at the
-        // entry and the teardown sequence runs exactly once; a repeated
-        // window.Close() is either a platform exception (caught below) or
-        // a harmless OnClosing re-entry gated by Lifecycle.  An async lock
-        // here would DEADLOCK (the first await yields the UI thread, a
-        // re-entrant UI-thread waiter blocks the continuation).
-        await DisposeAsync();
-        try
-        {
-          window.Close();
-        }
-        catch
-        {
-          // best-effort: the window may already be closed
-        }
+        // The intent reached the last link = nobody vetoed: end the shell
+        // and its window.  Awaiting makes the close deterministic for the
+        // caller (the window-close translation returns with the shell
+        // destroyed).
+        await CloseAsync();
         context.Handle(this);
         break;
       case HideIntent:
@@ -228,12 +227,12 @@ public abstract partial class WpfShell : ShellBase
   }
 
   /// <summary>
-  ///   Translates a window-closing notification into a <see cref="TryCloseIntent" />
+  ///   Translates a window-closing notification into a <see cref="CloseIntent" />
   ///   for unified arbitration through the shell dispatch chain.  The host
   ///   window's <c>OnClosing</c> override calls this; a destroyed shell lets
   ///   the close fall through (no arbitration — the window is already going).
   /// </summary>
-  public async void ClosingToTryCloseIntent(CancelEventArgs e)
+  public async void ClosingToCloseIntent(CancelEventArgs e)
   {
     if (e.Cancel || Lifetime.Lifecycle != ShellLifecycle.Started)
       return;
@@ -244,7 +243,7 @@ public abstract partial class WpfShell : ShellBase
       return;
 
     e.Cancel = true;
-    await this.DispatchIntent(this, new TryCloseIntent());
+    await this.DispatchIntent(this, new CloseIntent());
   }
 
   /// <summary>

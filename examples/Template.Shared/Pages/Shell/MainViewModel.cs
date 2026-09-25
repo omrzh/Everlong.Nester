@@ -116,7 +116,7 @@ public partial class MainViewModel : ObservableObject, IShellDirector
         await Router.ShowAsync<string>(new WorkspacePaletteSession());
         context.Handle(this);
         return;
-      case TryCloseIntent:
+      case CloseIntent:
         // veto the close request (true); allow it by passing through.
         if (await CancelClosing())
         {

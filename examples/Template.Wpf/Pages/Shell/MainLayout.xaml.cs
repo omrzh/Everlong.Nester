@@ -62,5 +62,5 @@ public partial class MainLayout : UserControl, IBodyHolder, ISceneTransition
                          _hostWindow?.WindowState == WindowState.Maximized ? HostState.Normal : HostState.Maximized));
 
   private void OnCloseClicked(object sender, RoutedEventArgs e)
-    => this.PostIntent(new TryCloseIntent());
+    => this.PostIntent(new CloseIntent());
 }

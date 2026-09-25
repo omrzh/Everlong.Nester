@@ -16,11 +16,11 @@ namespace Everlong.Nester.Shell;
 public interface IWpfShell : IShell
 {
   /// <summary>
-  ///   Translates a window-closing notification into a <see cref="TryCloseIntent" />
+  ///   Translates a window-closing notification into a <see cref="CloseIntent" />
   ///   for unified arbitration through the intent chain.  The host window's
   ///   <c>OnClosing</c> override calls this.
   /// </summary>
-  void ClosingToTryCloseIntent(CancelEventArgs e);
+  void ClosingToCloseIntent(CancelEventArgs e);
 
   /// <summary>Translates mouse side buttons (XButton1 / XButton2) into <see cref="BackIntent" /> / <see cref="ForwardIntent" />.</summary>
   void MouseSideButtonToRoutingIntent(object? sender, MouseButtonEventArgs e);

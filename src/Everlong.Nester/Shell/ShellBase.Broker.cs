@@ -237,8 +237,8 @@ partial class ShellBase : ILayerBroker, ILayerLedger
   {
     // An inactive shell must not answer intents: before the pipeline
     // activation (OnAssembled — the pre-flight assembly window) and after
-    // disposal (the window-close re-entry path: OnClosing → TryCloseIntent →
-    // DisposeAsync → window.Close → OnClosing) dispatches pass — the second
+    // disposal (the window-close re-entry path: OnClosing → CloseIntent →
+    // CloseAsync → window.Close → OnClosing) dispatches pass — the second
     // pass falls through immediately.
     if (_lifetime.Lifecycle != ShellLifecycle.Started || _shellPipeline is not { } pipeline)
       return IntentResult.Pass;

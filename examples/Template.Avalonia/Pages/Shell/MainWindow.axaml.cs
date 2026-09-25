@@ -95,14 +95,14 @@ public partial class MainWindow : Window, IAvaloniaShellHost
   }
 
   /// <summary>
-  /// Translate window closing to TryClose intent for unified arbitration.
+  /// Translate window closing to Close intent for unified arbitration.
   /// Nester never hooks <c>Window.Closing</c>.
   /// (no hidden interception, no black magic).
   /// </summary>
   protected override void OnClosing(WindowClosingEventArgs e)
   {
     base.OnClosing(e);
-    Shell?.WindowClosingToTryCloseIntent(e);
+    Shell?.WindowClosingToCloseIntent(e);
     var snapshot = AppSettings.Default.Snapshot();
     snapshot.Shadow.WindowWidth = (int)Width;
     snapshot.Shadow.WindowHeight = (int)Height;

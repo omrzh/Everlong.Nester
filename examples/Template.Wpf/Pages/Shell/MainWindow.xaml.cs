@@ -38,7 +38,7 @@ public partial class MainWindow : Window, IWpfShellHost
   /// <summary>
   ///   The window owns its close — the framework doesn't hook <c>Window.Closing</c>.
   ///   Every close path (X button, Alt+F4, <c>Close()</c>) funnels into this override: the close is translated
-  ///   into a <c>TryCloseIntent</c> and arbitrated through the intent chain,
+  ///   into a <c>CloseIntent</c> and arbitrated through the intent chain,
   ///   so the shell can shut down gracefully — or the window stays open when
   ///   a guard vetoes.
   /// </summary>
@@ -46,9 +46,9 @@ public partial class MainWindow : Window, IWpfShellHost
   ///   Chain of effects:
   ///   <list type="number">
   ///     <item><c>base.OnClosing(e)</c> raises the <c>Closing</c> event for any remaining subscribers.</item>
-  ///     <item><c>ClosingToTryCloseIntent</c> holds the close (<c>e.Cancel = true</c>) and dispatches <c>TryCloseIntent</c>.</item>
+  ///     <item><c>ClosingToCloseIntent</c> holds the close (<c>e.Cancel = true</c>) and dispatches <c>CloseIntent</c>.</item>
   ///     <item>The intent walks the chain — layers → Director → the shell fallback.  A link that answers keeps the window open (veto, e.g. an unsaved-changes guard).</item>
-  ///     <item>Nobody answers → the shell fallback disposes the shell (<c>DisposeAsync</c>: stop token, layer leases, window container), then calls <c>Close()</c>.</item>
+  ///     <item>Nobody answers → the shell fallback calls <c>CloseAsync</c>: the shell is torn down (<c>DisposeAsync</c>: stop token, layer leases, window container), then the window is closed.</item>
   ///     <item>The re-entrant <c>OnClosing</c> falls through — the shell is already disposed, so no arbitration runs — and the window closes.</item>
   ///   </list>
   ///   Disposal always completes before the window's visual death: no
@@ -57,7 +57,7 @@ public partial class MainWindow : Window, IWpfShellHost
   protected override void OnClosing(CancelEventArgs e)
   {
     base.OnClosing(e);
-    Shell?.ClosingToTryCloseIntent(e);
+    Shell?.ClosingToCloseIntent(e);
   }
 
   /// <summary>

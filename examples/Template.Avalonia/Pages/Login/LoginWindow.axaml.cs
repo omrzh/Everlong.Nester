@@ -65,13 +65,13 @@ public partial class LoginWindow : Window, IAvaloniaShellHost
   private void OnCloseClicked(object? sender, RoutedEventArgs e) => Close();
 
   /// <summary>
-  ///   Translate window closing to TryCloseIntent for unified arbitration.
+  ///   Translate window closing to CloseIntent for unified arbitration.
   ///   Nester never hooks <c>Window.Closing</c>.
   /// </summary>
   protected override void OnClosing(WindowClosingEventArgs e)
   {
     base.OnClosing(e);
-    Shell.WindowClosingToTryCloseIntent(e);
+    Shell.WindowClosingToCloseIntent(e);
   }
 
   /// <summary>Drags the chrome-less window — the rounded Border is the drag zone (the close button is not).</summary>

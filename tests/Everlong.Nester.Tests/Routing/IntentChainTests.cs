@@ -10,7 +10,7 @@ internal sealed class VetoClosePage : IIntentHandler
 {
   public ValueTask HandleAsync(IntentContext context, IntentDelegate next)
   {
-    if (context.Intent is TryCloseIntent)
+    if (context.Intent is CloseIntent)
     {
       context.Veto();
       return ValueTask.CompletedTask;
@@ -52,7 +52,7 @@ public class IntentChainTests
     await router.RouteAsync(ChainOf(typeof(VetoClosePage)));
 
     // The shell probes a close — the page vetoes it.
-    Assert.Equal(IntentResult.Vetoed, await shell.DispatchIntent(null, new TryCloseIntent()));
+    Assert.Equal(IntentResult.Vetoed, await shell.DispatchIntent(null, new CloseIntent()));
     Assert.IsType<VetoClosePage>(router.Model!.Current);
   }
 
