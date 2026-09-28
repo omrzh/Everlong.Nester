@@ -32,7 +32,6 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
 
   private readonly ILayerLease _lease;
   private readonly ResultChannel? _completion;
-  private readonly Location? _borrowed;
 
   // ── the folded pipes — the router's own stage lists, folded once at
   //    construction; each stage owns a file, per-transaction state travels
@@ -65,7 +64,6 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
     IRouterSeed seed = services.GetRequiredService<IRouterSeed>();
     Role = seed.Role;
     _ownScope = seed.OwnScope;
-    _borrowed = seed.Borrowed;
     Parents = seed.Parents;
 
     Model = model;
@@ -112,15 +110,12 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
   /// <summary>The router's routing view — the surface this router mounts as its lease body.</summary>
   internal IRoutingView View => Model.View;
 
-  /// <summary>The presented site this overlay router borrowed at its derivation, or <see langword="null" /> for the base router.</summary>
-  protected internal Location? Borrowed => _borrowed;
-
   /// <summary>The parent targets every route this router computes is completed with, outermost first; empty for the base router.</summary>
   internal IReadOnlyList<ITarget> Parents { get; }
 
   /// <summary>Creates the convergence context of a landed transaction.</summary>
   protected internal virtual IConvergenceContext CreateConvergenceContext(TransactionContext context)
-    => new ConvergenceContext(context, _borrowed);
+    => new ConvergenceContext(context);
 
   /// <summary>The error channel the pipes' stages report through.</summary>
   internal IErrorReporter ErrorReporter { get; }
@@ -188,8 +183,7 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
     IServiceScope scope = _scopeFactory.CreateScope();
     IRouterSeed seed = scope.ServiceProvider.GetRequiredService<IRouterSeed>();
 
-    seed.Initialize(RouterRole.Derived, options.Band, options.Policy, scope, BorrowedEnvironment(),
-                    options.Parents);
+    seed.Initialize(RouterRole.Derived, options.Band, options.Policy, scope, options.Parents);
 
     IRouter wrapped = scope.ServiceProvider.GetRequiredService<IRouter>();
     try
@@ -208,10 +202,6 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
       throw;
     }
   }
-
-  /// <summary>The presented site a derived router borrows — the presented content at the derivation, or <see langword="null" /> when nothing is presented.</summary>
-  private Location? BorrowedEnvironment()
-    => Model.CurrentChain is { Length: > 0 } chain ? chain[^1] : null;
 
   /// <summary>
   ///   Runs a navigation transaction — queued and pumped: its transaction pipe runs

@@ -258,8 +258,7 @@ its state intact.
 ## 10. Derived routers
 
 `Derive` creates a router that presents an overlay with its own stack, its own scope, its own lease and
-its own result channel. The overlay borrows the presenting site at derivation, so it knows what it
-covers, and its completion channel is always present where a base router's is `null`.
+its own result channel. Its completion channel is always present where a base router's is `null`.
 
 A back at the overlay's foot completes the overlay with the back's return value, and a request that
 never commits while the overlay is still empty completes it with `null`. The close sequence runs the

@@ -35,10 +35,10 @@ public class RunContextSeamTests
 
     /// <inheritdoc />
     protected internal override IConvergenceContext CreateConvergenceContext(TransactionContext context)
-      => new RecordingConvergenceContext(context, Borrowed);
+      => new RecordingConvergenceContext(context);
   }
 
   /// <summary>The seam's product — memberless; its type pins the factory path.</summary>
-  private sealed class RecordingConvergenceContext(TransactionContext context, Location? borrowed)
-    : ConvergenceContext(context, borrowed);
+  private sealed class RecordingConvergenceContext(TransactionContext context)
+    : ConvergenceContext(context);
 }

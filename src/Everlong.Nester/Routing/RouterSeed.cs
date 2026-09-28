@@ -20,14 +20,11 @@ public interface IRouterSeed
   /// <summary>The scope this router owns, or <see langword="null" /> for the base router.</summary>
   IServiceScope? OwnScope { get; }
 
-  /// <summary>The site the overlay borrows — the presenting router's presented content when the seed initialized a derived router; <see langword="null" /> for the base router.</summary>
-  Location? Borrowed { get; }
-
   /// <summary>The parent targets every route the router computes is completed with, outermost first; empty for the base router.</summary>
   IReadOnlyList<ITarget> Parents { get; }
 
   /// <summary>Initializes the seed for a router.</summary>
-  void Initialize(RouterRole role, LayerBand band, LayerPolicy policy, IServiceScope? ownScope, Location? borrowed = null,
+  void Initialize(RouterRole role, LayerBand band, LayerPolicy policy, IServiceScope? ownScope,
                  IReadOnlyList<ITarget>? parents = null);
 }
 
@@ -51,20 +48,16 @@ public sealed class RouterSeed : IRouterSeed
   public IServiceScope? OwnScope { get; private set; }
 
   /// <inheritdoc />
-  public Location? Borrowed { get; private set; }
-
-  /// <inheritdoc />
   public IReadOnlyList<ITarget> Parents { get; private set; } = [];
 
   /// <inheritdoc />
-  public void Initialize(RouterRole role, LayerBand band, LayerPolicy policy, IServiceScope? ownScope, Location? borrowed = null,
+  public void Initialize(RouterRole role, LayerBand band, LayerPolicy policy, IServiceScope? ownScope,
                          IReadOnlyList<ITarget>? parents = null)
   {
     Role = role;
     Band = band;
     Policy = policy;
     OwnScope = ownScope;
-    Borrowed = borrowed;
     Parents = parents ?? [];
   }
 }
