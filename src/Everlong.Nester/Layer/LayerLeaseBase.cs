@@ -7,12 +7,15 @@ namespace Everlong.Nester.Layer;
 ///   The lease skeleton: the slot members are abstract; liveness and the
 ///   exit path are shared.
 /// </summary>
-/// <remarks>Creates the lease over its ledger channel at the granted z.</remarks>
+/// <remarks>Creates the lease over its ledger channel at the granted plane and z.</remarks>
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class LayerLeaseBase(ILayerLedger ledger, int z) : ILayerLease
+public abstract class LayerLeaseBase(ILayerLedger ledger, LayerPlane plane, int z) : ILayerLease
 {
   /// <inheritdoc />
-  public bool IsActive => ledger.IsLive(this);
+  public bool IsLive => ledger.IsLive(this);
+
+  /// <inheritdoc />
+  public LayerPlane Plane { get; } = plane;
 
   /// <inheritdoc />
   public int Z { get; } = z;

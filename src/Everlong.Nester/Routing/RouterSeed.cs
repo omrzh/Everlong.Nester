@@ -11,11 +11,8 @@ public interface IRouterSeed
   /// <summary>The router's role.</summary>
   RouterRole Role { get; }
 
-  /// <summary>The band this router's lease is granted in.</summary>
-  LayerBand Band { get; }
-
-  /// <summary>The policy this router's lease is granted under.</summary>
-  LayerPolicy Policy { get; }
+  /// <summary>The plane this router's lease is granted in.</summary>
+  LayerPlane Plane { get; }
 
   /// <summary>The scope this router owns, or <see langword="null" /> for the base router.</summary>
   IServiceScope? OwnScope { get; }
@@ -24,13 +21,13 @@ public interface IRouterSeed
   IReadOnlyList<ITarget> Parents { get; }
 
   /// <summary>Initializes the seed for a router.</summary>
-  void Initialize(RouterRole role, LayerBand band, LayerPolicy policy, IServiceScope? ownScope,
+  void Initialize(RouterRole role, LayerPlane plane, IServiceScope? ownScope,
                  IReadOnlyList<ITarget>? parents = null);
 }
 
 /// <summary>
 ///   The default router seed — uninitialized it describes the base router:
-///   role <see cref="RouterRole.Base" /> at the navigation band's floor, no
+///   role <see cref="RouterRole.Base" /> in <see cref="LayerPlane.Base" />, no
 ///   owner.
 /// </summary>
 public sealed class RouterSeed : IRouterSeed
@@ -39,10 +36,7 @@ public sealed class RouterSeed : IRouterSeed
   public RouterRole Role { get; private set; } = RouterRole.Base;
 
   /// <inheritdoc />
-  public LayerBand Band { get; private set; } = KnownLayers.Navigation;
-
-  /// <inheritdoc />
-  public LayerPolicy Policy { get; private set; } = LayerPolicy.Floor;
+  public LayerPlane Plane { get; private set; } = LayerPlane.Base;
 
   /// <inheritdoc />
   public IServiceScope? OwnScope { get; private set; }
@@ -51,12 +45,11 @@ public sealed class RouterSeed : IRouterSeed
   public IReadOnlyList<ITarget> Parents { get; private set; } = [];
 
   /// <inheritdoc />
-  public void Initialize(RouterRole role, LayerBand band, LayerPolicy policy, IServiceScope? ownScope,
+  public void Initialize(RouterRole role, LayerPlane plane, IServiceScope? ownScope,
                          IReadOnlyList<ITarget>? parents = null)
   {
     Role = role;
-    Band = band;
-    Policy = policy;
+    Plane = plane;
     OwnScope = ownScope;
     Parents = parents ?? [];
   }

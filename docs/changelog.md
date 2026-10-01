@@ -7,6 +7,32 @@ migration, a renamed package, a raised framework floor — not what the commit l
 Below 1.0 nothing is promised stable: a minor version may rename a type or change a contract, and an
 entry says so when it does. That is the one thing a consumer should assume rather than read here.
 
+## 0.1.12 — 2026-10-01
+
+**Migrate.** `KnownLayers`, `LayerBand` and `LayerPolicy` are gone. A lease is granted in a
+`LayerPlane` — `Ground`, `Base`, `Dock`, `Overlay`, `Notice`, `Debug` or `Ghost` — and the plane
+decides both the reserved z slice and the stacking behaviour. A stacking plane (`Dock`, `Overlay`,
+`Debug`) grants one above its highest live lease; every other plane grants its floor. Callers name a
+plane and nothing else.
+
+**Migrate.** `ILayerBroker` has one grant: `Acquire(tenant, content, plane)`. The `(band, policy)`
+overload and the exact-`z` overload are removed — the position policy is the plane's business, and an
+exact slot is a platform seam, not a public entry.
+
+**Migrate.** `ILayerLease.IsActive` is renamed `IsLive` (liveness), and the lease now reports its
+`Plane`. "Active" was already spoken for by the app-activation domain and by the window's active
+state, and the layer domain's new foreground concept is **layer focus**, not activation.
+
+**New.** Layer focus is the single foreground grant: `ILayerBroker.Focused` reports the holder and
+`ILayerBroker.RequestFocus` lets a live layer claim it. A tenant opts in by implementing
+`IFocusableLayer` — `TryFocus` accepts or declines per transfer, and `OnFocusing` / `OnFocused` /
+`OnUnfocusing` / `OnUnfocused` are the pre/post transfer hooks. A layer that does not implement the
+capability never takes focus.
+
+**Migrate.** `DeriveOptions.Band` and `DeriveOptions.Policy` collapse to `DeriveOptions.Plane`
+(default `Overlay`), and `IRouterSeed` follows (`Plane`, no `Policy`). The platform lease factory is
+`CreateLease(ledger, plane, z)`.
+
 ## 0.1.11 — 2026-09-25
 
 **Migrate.** `IRouter.Derive(bool isEphemeral)` is gone. A derived router is created from

@@ -21,7 +21,7 @@ public static partial class RouterDialogExtensions
   /// </summary>
   public static async Task<object?> ShowAsync(this IRouter router, object model, DefaultDimmerModel dimmer)
     => await router.PresentOnDerivedAsync(
-         new DeriveOptions { Band = KnownLayers.Dialog, Parents = [dimmer] }, model);
+         new DeriveOptions { Plane = LayerPlane.Overlay, Parents = [dimmer] }, model);
 
   /// <summary>
   ///   Presents a model and awaits its result, returning it cast

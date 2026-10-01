@@ -23,7 +23,7 @@ public class OverlayParentsTests
 
     IRouter overlay = router.Derive(new DeriveOptions
     {
-      Band = KnownLayers.Dialog,
+      Plane = LayerPlane.Overlay,
       Parents = [Target.Of(typeof(TestContent), instance: layout)],
     });
 
@@ -50,7 +50,7 @@ public class OverlayParentsTests
     var shell = new FakeShell();
     var router = new TestRouter(shell);
 
-    IRouter overlay = router.Derive(new DeriveOptions { Band = KnownLayers.Dialog });
+    IRouter overlay = router.Derive(new DeriveOptions { Plane = LayerPlane.Overlay });
     await overlay.RouteAsync(new Locator(typeof(TestContent)));
 
     Assert.Single(overlay.Stack.Location!.Trail);

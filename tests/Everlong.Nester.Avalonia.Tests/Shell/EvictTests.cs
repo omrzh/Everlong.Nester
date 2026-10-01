@@ -56,7 +56,7 @@ public sealed class EvictTests
     // mode (slots unmounted); ConnectStage back-fills them onto the panel.
     var panel = new StagePanel();
     var broker = new BareShell();
-    broker.Acquire(new Tenant(), new object(), 100);
+    broker.AcquireAt(new Tenant(), new object(), LayerPlane.Overlay, 100);
 
     ILayerLease lease = broker.LeaseOrder().Single();
     Assert.DoesNotContain(((ContentLayerLease)lease).Surface, panel.Children);   // virtual: not mounted yet
@@ -156,7 +156,7 @@ public sealed class EvictTests
   {
     var stage = Broker();
     var op = new Operator();
-    var lease = stage.Acquire(op, new object(), 100);
+    var lease = stage.AcquireAt(op, new object(), LayerPlane.Overlay, 100);
     lease.IntentHandler = op;
 
     Assert.True(await stage.DispatchToLayerLeases(null, new TestIntent()));
@@ -172,9 +172,9 @@ public sealed class EvictTests
     var low = new Operator { HandleResult = false, AskedOrder = asked };
     var first = new Operator { HandleResult = false, AskedOrder = asked };
     var second = new Operator { HandleResult = false, AskedOrder = asked };
-    stage.Acquire(low, new object(), 0).IntentHandler = low;
-    stage.Acquire(first, new object(), 100).IntentHandler = first;
-    stage.Acquire(second, new object(), 100).IntentHandler = second;
+    stage.AcquireAt(low, new object(), LayerPlane.Ground, 100).IntentHandler = low;
+    stage.AcquireAt(first, new object(), LayerPlane.Notice, 8000).IntentHandler = first;
+    stage.AcquireAt(second, new object(), LayerPlane.Notice, 8000).IntentHandler = second;
 
     Assert.False(await stage.DispatchToLayerLeases(null, new TestIntent()));
 
@@ -188,8 +188,8 @@ public sealed class EvictTests
   {
     var shell = new BareShell();
     var log = new List<string>();
-    shell.Acquire(new RecordingTenant("low", log), new object(), 0);
-    shell.Acquire(new RecordingTenant("high", log), new object(), 100);
+    shell.AcquireAt(new RecordingTenant("low", log), new object(), LayerPlane.Ground, 100);
+    shell.AcquireAt(new RecordingTenant("high", log), new object(), LayerPlane.Notice, 8000);
 
     await shell.DisposeAsync();
 
@@ -202,8 +202,8 @@ public sealed class EvictTests
     var shell = new BareShell();
     var broken = new ThrowingTenant();
     var healthy = new Tenant();
-    shell.Acquire(healthy, new object(), 0);
-    shell.Acquire(broken, new object(), 100);
+    shell.AcquireAt(healthy, new object(), LayerPlane.Ground, 100);
+    shell.AcquireAt(broken, new object(), LayerPlane.Notice, 8000);
 
     await shell.DisposeAsync();
 

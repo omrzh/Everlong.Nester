@@ -133,7 +133,7 @@ presentation, not a stack entry:
 ```csharp
 IRouter result = Router.Derive(new DeriveOptions
 {
-  Band = KnownLayers.Navigation,
+  Plane = LayerPlane.Overlay,
   Parents =
   [
     new DefaultDimmerModel { LightDismiss = true },

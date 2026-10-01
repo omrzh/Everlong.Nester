@@ -8,8 +8,8 @@ internal sealed class TestLease : LayerLeaseBase
   private object? _content;
   private bool _visible = true;   // a mounted surface is visible by default
 
-  internal TestLease(ILayerLedger ledger, int z)
-    : base(ledger, z)
+  internal TestLease(ILayerLedger ledger, LayerPlane plane, int z)
+    : base(ledger, plane, z)
   {
   }
 

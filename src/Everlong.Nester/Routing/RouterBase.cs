@@ -17,7 +17,7 @@ namespace Everlong.Nester.Routing;
 ///   carries the result channel.
 /// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
-public class RouterBase : IRouter, IIntentHandler, ILayerTenant
+public class RouterBase : IRouter, IIntentHandler, ILayerTenant, IFocusableLayer
 {
   /// <inheritdoc />
   public RouterRole Role { get; }
@@ -71,7 +71,7 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
 
     // The member connection — the router mounts its routing view into
     // its own lease slot.
-    _lease = _broker.Acquire(this, View, seed.Band, seed.Policy);
+    _lease = _broker.Acquire(this, View, seed.Plane);
     _lease.IntentHandler = this;
 
     if (Role == RouterRole.Derived)
@@ -183,7 +183,7 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
     IServiceScope scope = _scopeFactory.CreateScope();
     IRouterSeed seed = scope.ServiceProvider.GetRequiredService<IRouterSeed>();
 
-    seed.Initialize(RouterRole.Derived, options.Band, options.Policy, scope, options.Parents);
+    seed.Initialize(RouterRole.Derived, options.Plane, scope, options.Parents);
 
     IRouter wrapped = scope.ServiceProvider.GetRequiredService<IRouter>();
     try
@@ -491,6 +491,33 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
 
     CloseSync(null);
     return ValueTask.CompletedTask;
+  }
+
+  // ── layer focus — every router competes for the single foreground grant;
+  //    the element-focus side of the transfer is the platform view's concern
+  //    (RoutingView), wired where the platform supplies a focus manager.
+
+  /// <inheritdoc />
+  bool IFocusableLayer.TryFocus(LayerFocusContext context) => true;
+
+  /// <inheritdoc />
+  void IFocusableLayer.OnFocusing(LayerFocusContext context)
+  {
+  }
+
+  /// <inheritdoc />
+  void IFocusableLayer.OnFocused(LayerFocusContext context)
+  {
+  }
+
+  /// <inheritdoc />
+  void IFocusableLayer.OnUnfocusing(LayerFocusContext context)
+  {
+  }
+
+  /// <inheritdoc />
+  void IFocusableLayer.OnUnfocused(LayerFocusContext context)
+  {
   }
 
   // ── intent handling — the router's own domain commands ───────────────────────

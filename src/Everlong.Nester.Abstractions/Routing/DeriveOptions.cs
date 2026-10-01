@@ -3,9 +3,8 @@ using Everlong.Nester.Layer;
 namespace Everlong.Nester.Routing;
 
 /// <summary>
-///   The creation parameters of a derived router — the band its lease is
-///   granted in, the position asked for inside it, and the parent targets
-///   every routed chain is completed with.
+///   The creation parameters of a derived router — the plane its lease is
+///   granted in and the parent targets every routed chain is completed with.
 /// </summary>
 /// <remarks>
 ///   The parents are the overlay's default layouts: the router holds the
@@ -15,11 +14,8 @@ namespace Everlong.Nester.Routing;
 /// </remarks>
 public sealed record DeriveOptions
 {
-  /// <summary>The band the derived router's lease is granted in.</summary>
-  public required LayerBand Band { get; init; }
-
-  /// <summary>The position asked for inside <see cref="Band" />.</summary>
-  public LayerPolicy Policy { get; init; } = LayerPolicy.AboveHighest;
+  /// <summary>The plane the derived router's lease is granted in.</summary>
+  public LayerPlane Plane { get; init; } = LayerPlane.Overlay;
 
   /// <summary>
   ///   The parent targets every route the derived router computes is

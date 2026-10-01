@@ -117,17 +117,15 @@ public class NoticeServiceBaseTests : IDisposable
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
-    public ILayerLease Acquire(ILayerTenant tenant, object content, LayerBand band, LayerPolicy policy)
+    public ILayerLease Acquire(ILayerTenant tenant, object content, LayerPlane plane)
     {
       trace.Add("acquire");
-      return _broker.Acquire(tenant, content, band, policy);
+      return _broker.Acquire(tenant, content, plane);
     }
 
-    public ILayerLease Acquire(ILayerTenant tenant, object content, int z)
-    {
-      trace.Add("acquire");
-      return _broker.Acquire(tenant, content, z);
-    }
+    public ILayerLease? Focused => _broker.Focused;
+
+    public void RequestFocus(ILayerLease lease) => _broker.RequestFocus(lease);
 
     public void ReportError(Exception exception)
     {

@@ -78,7 +78,7 @@ public sealed class MultiWindowTests
 
   /// <summary>The dialog-domain slices of a window (its own leases — nothing shared).</summary>
   private static List<ILayerLease> DialogSlices(IShell shell)
-    => ((AvaloniaShell)shell).LeaseOrder().Where(c => KnownLayers.Dialog.Contains(c.Z)).ToList();
+    => ((AvaloniaShell)shell).LeaseOrder().Where(c => LayerPlanes.Range(LayerPlane.Overlay).Contains(c.Z)).ToList();
 
   /// <summary>The dialog overlays currently mounted on a window's stage.</summary>
   private static List<RoutingView> DialogHosts(IShell shell)

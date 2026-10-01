@@ -38,8 +38,8 @@ public sealed class FloatingPlayerHost : ILayerTenant
     vm.StartPlaybackLoop();
 
     _vm = vm;
-    // The floating band's ceiling sits immediately below the dialog band.
-    _lease ??= _broker.Acquire(this, vm, KnownLayers.Floating, LayerPolicy.Ceiling);
+    // The dock plane holds persistent floating surfaces below the interaction chain.
+    _lease ??= _broker.Acquire(this, vm, LayerPlane.Dock);
     _lease.Content = vm;
   }
 

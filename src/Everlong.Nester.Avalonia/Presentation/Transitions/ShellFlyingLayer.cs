@@ -7,9 +7,8 @@ using Everlong.Nester.Layer;
 namespace Everlong.Nester.Presentation;
 
 /// <summary>
-///   The flying layer's tenant — rents the top band
-///   (<see cref="KnownLayers.Flying" />) from the shell and delivers its
-///   plane figure.
+///   The flying layer's tenant — rents the ghost plane from the shell and
+///   delivers its plane figure.
 /// </summary>
 internal sealed class ShellFlyingLayer : ILayerTenant, IFlyingLayer
 {
@@ -19,9 +18,9 @@ internal sealed class ShellFlyingLayer : ILayerTenant, IFlyingLayer
   {
     // The void-penthouse contract: acquiring before the visual stack is
     // connected is a pure ledger entry; the shell's stage connects it
-    // later.  The slot's z (KnownLayers.Flying) keeps the canvas above
-    // every floor (navigation, dialog, notice).
-    _lease = broker.Acquire(this, Canvas, KnownLayers.Flying, LayerPolicy.Floor);
+    // later.  The slot's z (the ghost plane) keeps the canvas above
+    // every plane.
+    _lease = broker.Acquire(this, Canvas, LayerPlane.Ghost);
   }
 
   /// <inheritdoc />

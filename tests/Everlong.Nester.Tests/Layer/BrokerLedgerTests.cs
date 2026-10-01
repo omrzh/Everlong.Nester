@@ -5,12 +5,12 @@ using Xunit;
 namespace Everlong.Nester.Tests.Layer;
 
 /// <summary>
-///   Contract tests for the z-ledger lease model: every acquire cuts a
-///   fresh lease and carries its content (no empty-slot window), same-z
-///   bands host multiple tenants on independent slots, the z is granted once
-///   and never moves, placement resolves to the closest feasible position
-///   inside the requested band, release is reference-only and idempotent,
-///   and the intent order is z desc then grant desc.
+///   Contract tests for the plane-ledger lease model: every acquire cuts a
+///   fresh lease and carries its content (no empty-slot window), a
+///   non-stacking plane hosts every tenant on its floor, a stacking plane
+///   grants one above its highest live lease and never leaves the plane,
+///   the z is granted once and never moves, release is reference-only and
+///   idempotent, and the intent order is z desc then grant desc.
 /// </summary>
 public class BrokerLedgerTests
 {
@@ -24,25 +24,25 @@ public class BrokerLedgerTests
     var core = NewCore();
     var tenant = new LayerTestTenant();
 
-    var first = core.Acquire(tenant, 100);
-    var second = core.Acquire(tenant, 100);
+    var first = core.Acquire(tenant, LayerPlane.Notice);
+    var second = core.Acquire(tenant, LayerPlane.Notice);
 
     Assert.NotSame(first, second);
-    Assert.Equal(2, core.BottomUp().Count(l => l.Z == 100));
+    Assert.Equal(2, core.BottomUp().Count(l => l.Z == LayerPlanes.Range(LayerPlane.Notice).Floor));
   }
 
   [Fact]
-  public void Acquire_SameZ_DifferentTenants_Coexist()
+  public void Acquire_NonStackingPlane_SameZ_DifferentTenants_Coexist()
   {
     var core = NewCore();
 
-    var first = core.Acquire(new LayerTestTenant(), 100);
-    var second = core.Acquire(new LayerTestTenant(), 100);
+    var first = core.Acquire(new LayerTestTenant(), LayerPlane.Notice);
+    var second = core.Acquire(new LayerTestTenant(), LayerPlane.Notice);
 
     Assert.NotSame(first, second);
-    Assert.Equal(100, first.Z);
-    Assert.Equal(100, second.Z);
-    Assert.True(first.IsActive && second.IsActive);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Notice).Floor, first.Z);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Notice).Floor, second.Z);
+    Assert.True(first.IsLive && second.IsLive);
   }
 
   [Fact]
@@ -68,7 +68,7 @@ public class BrokerLedgerTests
     lease.Content = latest;
 
     Assert.Same(latest, lease.Content);
-    Assert.True(lease.IsActive);
+    Assert.True(lease.IsLive);
     Assert.Equal(100, lease.Z);
   }
 
@@ -84,7 +84,7 @@ public class BrokerLedgerTests
 
     lease.Release();
 
-    Assert.False(lease.IsActive);
+    Assert.False(lease.IsLive);
     Assert.Contains(lease, stage.Unmounted);
     Assert.Empty(core.BottomUp());
   }
@@ -97,7 +97,7 @@ public class BrokerLedgerTests
     lease.Release();
     lease.Release();
 
-    Assert.False(lease.IsActive);
+    Assert.False(lease.IsLive);
   }
 
   [Fact]
@@ -120,112 +120,92 @@ public class BrokerLedgerTests
 
     victim.Release();
 
-    Assert.True(coLease.IsActive);
+    Assert.True(coLease.IsLive);
     Assert.Same(coTenant.Content, coLease.Content);
   }
 
-  // ── Placement: the grant is the closest feasible z inside the band ──
+  // ── Placement: the plane decides the grant ──
 
   [Fact]
-  public void Placement_At_LandsExactly()
+  public void Placement_NonStackingPlane_LandsEveryLeaseOnTheFloor()
   {
     var core = NewCore();
 
-    var lease = core.Acquire(new LayerTestTenant(), new object(), 100);
+    var lease = core.Acquire(new LayerTestTenant(), LayerPlane.Notice);
 
-    Assert.Equal(100, lease.Z);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Notice).Floor, lease.Z);
   }
 
   [Fact]
-  public void Placement_Bottom_TakesTheFloor()
+  public void Placement_StackingPlane_EmptyTakesTheFloor()
+  {
+    var lease = NewCore().Acquire(new LayerTestTenant(), LayerPlane.Overlay);
+
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor, lease.Z);
+  }
+
+  [Fact]
+  public void Placement_StackingPlane_TakesOneAboveTheHighestLive()
   {
     var core = NewCore();
-    core.Acquire(new LayerTestTenant(), new object(), KnownLayers.Dialog.Floor);
+    var first = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
 
-    var lease = core.Acquire(new LayerTestTenant(), new object(), KnownLayers.Dialog, LayerPolicy.Floor);
+    var second = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
 
-    Assert.Equal(KnownLayers.Dialog.Floor, lease.Z);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor, first.Z);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor + 1, second.Z);
   }
 
   [Fact]
-  public void Placement_Ceiling_TakesTheCeiling()
+  public void Placement_StackingPlane_IgnoresOtherPlanes()
   {
     var core = NewCore();
+    core.Acquire(new LayerTestTenant(), LayerPlane.Notice);
 
-    var lease = core.Acquire(new LayerTestTenant(), new object(), KnownLayers.Floating, LayerPolicy.Ceiling);
+    var lease = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
 
-    Assert.Equal(KnownLayers.Floating.Ceiling, lease.Z);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor, lease.Z);
   }
 
   [Fact]
-  public void Placement_Top_EmptyBand_TakesTheFloor()
-  {
-    var lease = NewCore().Acquire(new LayerTestTenant(), new object(), KnownLayers.Dialog, LayerPolicy.AboveHighest);
-
-    Assert.Equal(KnownLayers.Dialog.Floor, lease.Z);
-  }
-
-  [Fact]
-  public void Placement_Top_TakesOneAboveTheHighestLiveInTheBand()
+  public void Placement_StackingPlane_DoesNotReuseHoles()
   {
     var core = NewCore();
-    var first = core.Acquire(new LayerTestTenant(), new object(), KnownLayers.Dialog, LayerPolicy.AboveHighest);
+    var range = LayerPlanes.Range(LayerPlane.Overlay);
+    var floor = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
+    var raised = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
+    floor.Release();
 
-    var second = core.Acquire(new LayerTestTenant(), new object(), KnownLayers.Dialog, LayerPolicy.AboveHighest);
+    var lease = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
 
-    Assert.Equal(KnownLayers.Dialog.Floor, first.Z);
-    Assert.Equal(KnownLayers.Dialog.Floor + 1, second.Z);
+    Assert.Equal(range.Floor + 2, lease.Z);
+    Assert.Equal(range.Floor, floor.Z);
+    Assert.Equal(range.Floor + 1, raised.Z);
   }
 
   [Fact]
-  public void Placement_Top_IgnoresOtherBands()
+  public void Placement_StackingPlane_FullPlane_SharesTheCeiling()
   {
     var core = NewCore();
-    core.Acquire(new LayerTestTenant(), new object(), KnownLayers.Notice.Floor);
+    var range = LayerPlanes.Range(LayerPlane.Dock);
 
-    var lease = core.Acquire(new LayerTestTenant(), new object(), KnownLayers.Dialog, LayerPolicy.AboveHighest);
+    ILayerLease? last = null;
+    for (int i = 0; i <= range.Ceiling - range.Floor + 1; i++)
+      last = core.Acquire(new LayerTestTenant(), LayerPlane.Dock);
 
-    Assert.Equal(KnownLayers.Dialog.Floor, lease.Z);
+    Assert.Equal(range.Ceiling, last!.Z);
   }
 
   [Fact]
-  public void Placement_Top_DoesNotReuseHoles()
+  public void Placement_NeverLeavesThePlane()
   {
     var core = NewCore();
-    var band = new LayerBand(10, 20);
-    core.Acquire(new LayerTestTenant(), new object(), 10);
-    core.Acquire(new LayerTestTenant(), new object(), 12);
+    var range = LayerPlanes.Range(LayerPlane.Overlay);
 
-    var lease = core.Acquire(new LayerTestTenant(), new object(), band, LayerPolicy.AboveHighest);
-
-    Assert.Equal(13, lease.Z);
-  }
-
-  [Fact]
-  public void Placement_Top_FullBand_SharesTheCeiling()
-  {
-    var core = NewCore();
-    var band = new LayerBand(10, 12);
-
-    var first = core.Acquire(new LayerTestTenant(), new object(), band, LayerPolicy.AboveHighest);
-    var second = core.Acquire(new LayerTestTenant(), new object(), band, LayerPolicy.AboveHighest);
-    var third = core.Acquire(new LayerTestTenant(), new object(), band, LayerPolicy.AboveHighest);
-    var fourth = core.Acquire(new LayerTestTenant(), new object(), band, LayerPolicy.AboveHighest);
-
-    Assert.Equal(new[] { 10, 11, 12, 12 }, new[] { first.Z, second.Z, third.Z, fourth.Z });
-    Assert.All(new[] { first, second, third, fourth }, l => Assert.True(l.IsActive));
-  }
-
-  [Fact]
-  public void Placement_Top_NeverLeavesTheBand()
-  {
-    var core = NewCore();
-    var band = new LayerBand(10, 12);
-
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 8; i++)
     {
-      var lease = core.Acquire(new LayerTestTenant(), new object(), band, LayerPolicy.AboveHighest);
-      Assert.True(band.Contains(lease.Z));
+      var lease = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
+      Assert.InRange(lease.Z, range.Floor, range.Ceiling);
     }
   }
 
@@ -326,7 +306,7 @@ public class BrokerLedgerTests
     lease.IsVisible = false;
 
     Assert.False(lease.IsVisible);
-    Assert.True(lease.IsActive);
+    Assert.True(lease.IsLive);
     Assert.Same(tenant.Content, lease.Content);
     Assert.Equal(100, lease.Z);
 

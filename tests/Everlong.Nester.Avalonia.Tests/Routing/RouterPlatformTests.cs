@@ -105,7 +105,7 @@ public class RouterPlatformTests
     var groundLayer = Assert.Single(
       panel.Children.OfType<ContentControl>(),
       c => ReferenceEquals(c.Content, router.View));
-    Assert.Equal(KnownLayers.Navigation.Floor, groundLayer.ZIndex);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Base).Floor, groundLayer.ZIndex);
   }
 
   [AvaloniaFact]
@@ -114,18 +114,18 @@ public class RouterPlatformTests
     (AvaloniaShell shell, Router router) = Create();
     var panel = Assert.IsType<StagePanel>(shell.StagePanel);
 
-    // A navigator rents the navigation band, above the ground's floor.
-    var navigator = (Router)router.Derive(new DeriveOptions { Band = KnownLayers.Navigation });
+    // A navigator rents the dock plane, above the ground's floor.
+    var navigator = (Router)router.Derive(new DeriveOptions { Plane = LayerPlane.Dock });
     var navigatorLayer = Assert.Single(panel.Children.OfType<ContentControl>(),
       c => ReferenceEquals(c.Content, navigator.View));
-    Assert.True(navigatorLayer.ZIndex > KnownLayers.Navigation.Floor);
-    Assert.True(KnownLayers.Navigation.Contains(navigatorLayer.ZIndex));
+    Assert.True(navigatorLayer.ZIndex > LayerPlanes.Range(LayerPlane.Base).Floor);
+    Assert.True(LayerPlanes.Range(LayerPlane.Dock).Contains(navigatorLayer.ZIndex));
 
-    // A dialog rents the dialog band, above every navigator.
-    var dialog = (Router)router.Derive(new DeriveOptions { Band = KnownLayers.Dialog });
+    // A dialog rents the overlay plane, above every navigator.
+    var dialog = (Router)router.Derive(new DeriveOptions { Plane = LayerPlane.Overlay });
     var dialogLayer = Assert.Single(panel.Children.OfType<ContentControl>(),
       c => ReferenceEquals(c.Content, dialog.View));
-    Assert.True(KnownLayers.Dialog.Contains(dialogLayer.ZIndex));
+    Assert.True(LayerPlanes.Range(LayerPlane.Overlay).Contains(dialogLayer.ZIndex));
   }
 
   [AvaloniaFact]

@@ -70,7 +70,7 @@ public partial class PostsPageModel : RoutableModel
     // non-light-dismiss, so the overlay closes by back alone.
     IRouter result = Router.Derive(new DeriveOptions
     {
-      Band = KnownLayers.Navigation,
+      Plane = LayerPlane.Overlay,
       Parents =
       [
         new DefaultDimmerModel { LightDismiss = true },

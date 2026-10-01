@@ -9,7 +9,7 @@ namespace Everlong.Nester.Tests;
 /// </summary>
 internal static class TestDeriveExtensions
 {
-  /// <summary>Derives a navigable overlay at the navigation band.</summary>
+  /// <summary>Derives a navigable overlay in the overlay plane.</summary>
   internal static IRouter Derive(this IRouter router)
-    => router.Derive(new DeriveOptions { Band = KnownLayers.Navigation });
+    => router.Derive(new DeriveOptions { Plane = LayerPlane.Overlay });
 }

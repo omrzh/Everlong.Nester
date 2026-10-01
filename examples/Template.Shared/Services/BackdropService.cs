@@ -76,10 +76,10 @@ public sealed class BackdropService : ILayerTenant, IIntentHandler
     if (profile is BackdropProfile.Login)
       Lab.UseLoginPreset();
 
-    _fieldLease = Rent(_surfaces.CreateField(Lab), KnownLayers.Backdrop, LayerPolicy.Floor);
+    _fieldLease = Rent(_surfaces.CreateField(Lab), LayerPlane.Ground);
 
     if (profile is BackdropProfile.Main)
-      _panelLease = Rent(_surfaces.CreatePanel(Lab), KnownLayers.DevTool, LayerPolicy.AboveHighest);
+      _panelLease = Rent(_surfaces.CreatePanel(Lab), LayerPlane.Debug);
 
     _ = PublishInitialVisibilityAsync();
   }
@@ -87,7 +87,7 @@ public sealed class BackdropService : ILayerTenant, IIntentHandler
   /// <inheritdoc />
   public ValueTask HandleAsync(IntentContext context, IntentDelegate next)
   {
-    if (context.Intent is not ToggleBackdropPanelIntent || _panelLease is not { IsActive: true } lease)
+    if (context.Intent is not ToggleBackdropPanelIntent || _panelLease is not { IsLive: true } lease)
       return next(context);
 
     lease.IsVisible = !lease.IsVisible;
@@ -107,10 +107,10 @@ public sealed class BackdropService : ILayerTenant, IIntentHandler
     return ValueTask.CompletedTask;
   }
 
-  /// <summary>Rents one band and presents this service as the lease's intent handler.</summary>
-  private ILayerLease Rent(object content, LayerBand band, LayerPolicy policy)
+  /// <summary>Rents one plane and presents this service as the lease's intent handler.</summary>
+  private ILayerLease Rent(object content, LayerPlane plane)
   {
-    ILayerLease lease = _broker.Acquire(this, content, band, policy);
+    ILayerLease lease = _broker.Acquire(this, content, plane);
     lease.IntentHandler = this;
     return lease;
   }

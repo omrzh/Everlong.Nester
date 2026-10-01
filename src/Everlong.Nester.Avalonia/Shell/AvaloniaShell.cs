@@ -68,8 +68,8 @@ public abstract partial class AvaloniaShell : ShellBase
   // ── ILayerBroker (the shell is the broker of its own stage) ──
 
   /// <inheritdoc />
-  protected override ILayerLease CreateLease(ILayerLedger ledger, int z)
-    => new ContentLayerLease(new ContentLayer(), ledger, z);
+  protected override ILayerLease CreateLease(ILayerLedger ledger, LayerPlane plane, int z)
+    => new ContentLayerLease(new ContentLayer(), ledger, plane, z);
 
   /// <summary>Creates the stage panel, binds it to its owner and the shell's flying layer, and connects the broker ledger to it.</summary>
   protected override void PrepareStage()

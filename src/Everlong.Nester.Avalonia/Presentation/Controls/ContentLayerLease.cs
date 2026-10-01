@@ -12,8 +12,8 @@ namespace Everlong.Nester.Presentation;
 /// </summary>
 internal sealed class ContentLayerLease : LayerLeaseBase
 {
-  internal ContentLayerLease(ContentLayer surface, ILayerLedger ledger, int z)
-    : base(ledger, z)
+  internal ContentLayerLease(ContentLayer surface, ILayerLedger ledger, LayerPlane plane, int z)
+    : base(ledger, plane, z)
   {
     Surface = surface;
 #if AVALONIA

@@ -9,8 +9,8 @@ namespace Everlong.Nester.Presentation;
 /// </summary>
 internal sealed class TuiLayerLease : LayerLeaseBase
 {
-  internal TuiLayerLease(TuiLayer surface, ILayerLedger ledger, int z)
-    : base(ledger, z)
+  internal TuiLayerLease(TuiLayer surface, ILayerLedger ledger, LayerPlane plane, int z)
+    : base(ledger, plane, z)
   {
     Surface = surface;
   }

@@ -5,21 +5,24 @@ namespace Everlong.Nester.Shell;
 
 partial class ShellBase : ILayerBroker, ILayerLedger
 {
-  // ── Layer face ── ILayerBroker grants leases; ILayerLedger is the
-  //    lease-facing channel (liveness and removal).  The platform supplies
-  //    the lease factory and the stage; the stage is platform-internal and
-  //    ConnectLedger hands it to the host at start.
+  // ── Layer face ── ILayerBroker grants leases and owns layer focus;
+  //    ILayerLedger is the lease-facing channel (liveness and removal).  The
+  //    platform supplies the lease factory and the stage; the stage is
+  //    platform-internal and ConnectLedger hands it to the host at start.
 
   private readonly List<LeaseEntry> _entries = [];
   private ILayerStage? _stage;
+  private ILayerLease? _focused;
+  private bool _electing;
+  private bool _focusDirty;
 
   private sealed record LeaseEntry(ILayerLease Lease, ILayerTenant Tenant);
 
   /// <summary>
   ///   The lease-construction contract: the platform builds its lease
-  ///   implementation over the ledger channel at the granted z.
+  ///   implementation over the ledger channel at the granted plane and z.
   /// </summary>
-  protected abstract ILayerLease CreateLease(ILayerLedger ledger, int z);
+  protected abstract ILayerLease CreateLease(ILayerLedger ledger, LayerPlane plane, int z);
 
   /// <summary>
   ///   Connects the ledger to the stage: unmounts the live leases from a
@@ -44,47 +47,58 @@ partial class ShellBase : ILayerBroker, ILayerLedger
   }
 
   /// <inheritdoc />
-  public ILayerLease Acquire(ILayerTenant tenant, object content, LayerBand band, LayerPolicy policy)
-    => AcquireAt(tenant, content, ResolveZ(band, policy));
+  public ILayerLease Acquire(ILayerTenant tenant, object content, LayerPlane plane)
+    => AcquireAt(tenant, content, plane, ResolveZ(plane));
 
   /// <inheritdoc />
-  public ILayerLease Acquire(ILayerTenant tenant, object content, int z)
-    => AcquireAt(tenant, content, z);
+  public ILayerLease? Focused => _focused;
+
+  /// <inheritdoc />
+  public void RequestFocus(ILayerLease lease)
+  {
+    if (!IsLive(lease) || TenantOf(lease) is not IFocusableLayer)
+      return;
+    ApplyFocus(lease, LayerFocusCause.Requested);
+  }
 
   /// <summary>Grants a lease at the resolved z: content first, then mount, then record — a failed mount leaks no entry.</summary>
-  private ILayerLease AcquireAt(ILayerTenant tenant, object content, int z)
+  internal ILayerLease AcquireAt(ILayerTenant tenant, object content, LayerPlane plane, int z)
   {
     if (_lifetime.Lifecycle == ShellLifecycle.Disposed)
       throw new InvalidOperationException("The shell is disposed — it grants no leases.");
 
-    ILayerLease lease = CreateLease(this, z);
+    ILayerLease lease = CreateLease(this, plane, z);
     lease.Content = content;
     _stage?.MountLease(lease);
     _entries.Add(new LeaseEntry(lease, tenant));
+    ReelectFocus(LayerFocusCause.Granted);
     return lease;
   }
 
   /// <inheritdoc />
   bool ILayerLedger.IsLive(ILayerLease lease)
+    => IsLive(lease);
+
+  /// <summary>Whether <paramref name="lease" /> is still recorded.</summary>
+  private bool IsLive(ILayerLease lease)
     => _entries.Any(e => ReferenceEquals(e.Lease, lease));
 
   /// <inheritdoc />
   void ILayerLedger.Drop(ILayerLease lease) => DropLease(lease);
 
-  /// <summary>Resolves the granted z: the closest position to the policy that stays inside the band.</summary>
-  private int ResolveZ(LayerBand band, LayerPolicy policy)
+  /// <summary>Resolves the granted z: the plane's floor, or one above the plane's highest live z when the plane stacks.</summary>
+  private int ResolveZ(LayerPlane plane)
   {
-    if (policy == LayerPolicy.Ceiling)
-      return band.Ceiling;
-    if (policy != LayerPolicy.AboveHighest)
-      return band.Floor;
+    LayerRange range = LayerPlanes.Range(plane);
+    if (!LayerPlanes.Stacks(plane))
+      return range.Floor;
 
-    int top = band.Floor;
+    int top = range.Floor;
     bool any = false;
     foreach (var entry in _entries)
     {
       int z = entry.Lease.Z;
-      if (!band.Contains(z))
+      if (!range.Contains(z))
         continue;
       if (!any || z > top)
       {
@@ -94,15 +108,91 @@ partial class ShellBase : ILayerBroker, ILayerLedger
     }
 
     if (!any)
-      return band.Floor;
-    // A full band degrades by sharing the ceiling (the later acquisition
+      return range.Floor;
+    // A full plane degrades by sharing the ceiling (the later acquisition
     // sits above at equal z).
-    return top >= band.Ceiling ? band.Ceiling : top + 1;
+    return top >= range.Ceiling ? range.Ceiling : top + 1;
   }
+
+  // ── layer focus — the single foreground grant ──────────────────────────────
+
+  /// <summary>Runs the focus election; a re-entrant call marks the run dirty and the outer loop re-elects.</summary>
+  private void ReelectFocus(LayerFocusCause cause)
+  {
+    if (_electing)
+    {
+      _focusDirty = true;
+      return;
+    }
+
+    _electing = true;
+    try
+    {
+      do
+      {
+        _focusDirty = false;
+        ApplyFocus(Elect(cause), cause);
+      } while (_focusDirty);
+    }
+    finally
+    {
+      _electing = false;
+    }
+  }
+
+  /// <summary>The election: the highest live layer whose tenant accepts layer focus, or none.</summary>
+  private ILayerLease? Elect(LayerFocusCause cause)
+  {
+    var context = new LayerFocusContext(cause);
+    foreach (var entry in BottomUp())
+    {
+      if (entry.Tenant is IFocusableLayer focusable && focusable.TryFocus(context))
+        return entry.Lease;
+    }
+
+    return null;
+  }
+
+  /// <summary>Transfers layer focus: the outgoing pre-hook, the incoming pre-hook, the commit, then both post-hooks.</summary>
+  private void ApplyFocus(ILayerLease? winner, LayerFocusCause cause)
+  {
+    if (ReferenceEquals(winner, _focused))
+      return;
+
+    var context = new LayerFocusContext(cause);
+    ILayerLease? outgoing = _focused;
+    IFocusableLayer? outgoingFocus = TenantOf(outgoing) as IFocusableLayer;
+    IFocusableLayer? incomingFocus = TenantOf(winner) as IFocusableLayer;
+
+    outgoingFocus?.OnUnfocusing(context);
+    incomingFocus?.OnFocusing(context);
+
+    _focused = winner;
+
+    outgoingFocus?.OnUnfocused(context);
+    incomingFocus?.OnFocused(context);
+  }
+
+  /// <summary>Fires the focus-lost pair for a lease that leaves the stack while focused, then clears the holder.</summary>
+  private void DepartFocus(ILayerLease lease, ILayerTenant tenant)
+  {
+    if (!ReferenceEquals(_focused, lease) || tenant is not IFocusableLayer focusable)
+      return;
+
+    var context = new LayerFocusContext(LayerFocusCause.Departed);
+    focusable.OnUnfocusing(context);
+    _focused = null;
+    focusable.OnUnfocused(context);
+  }
+
+  /// <summary>The tenant recorded against <paramref name="lease" />, or <see langword="null" /> when the lease is not live.</summary>
+  private ILayerTenant? TenantOf(ILayerLease? lease)
+    => lease is null ? null : _entries.FirstOrDefault(e => ReferenceEquals(e.Lease, lease))?.Tenant;
 
   /// <summary>Evicts every live lease, topmost first; a failing tenant callback is reported and the cascade continues.</summary>
   private async ValueTask EvictAllAsync()
   {
+    _focused = null;
     foreach (var entry in BottomUp().ToList())
     {
       if (RemoveEntry(entry.Lease) is null)
@@ -128,11 +218,15 @@ partial class ShellBase : ILayerBroker, ILayerLedger
     }
   }
 
-  /// <summary>Ends a lease (tenant-initiated): removed, slot unmounted, no notice.</summary>
+  /// <summary>Ends a lease (tenant-initiated): removed, slot unmounted, focus re-elected, no notice.</summary>
   private void DropLease(ILayerLease lease)
   {
-    if (RemoveEntry(lease) is not null)
-      _stage?.UnmountLease(lease);
+    var entry = RemoveEntry(lease);
+    if (entry is null)
+      return;
+    _stage?.UnmountLease(lease);
+    DepartFocus(lease, entry.Tenant);
+    ReelectFocus(LayerFocusCause.Departed);
   }
 
   private LeaseEntry? RemoveEntry(ILayerLease lease)

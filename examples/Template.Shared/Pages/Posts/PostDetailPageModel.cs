@@ -116,7 +116,7 @@ public partial class PostDetailPageModel
     // only retention there is).
     //
     // A derived *overlay* is the other lever, and it is derived explicitly —
-    // `router.Derive(new DeriveOptions { Band = KnownLayers.Dialog })` opens
+    // `router.Derive(new DeriveOptions { Plane = LayerPlane.Overlay })` opens
     // an overlay at a chosen band, which is the shape `PresentOnDerivedAsync`
     // uses for dialogs.
     if (context.Direction == RoutingDirection.Back)

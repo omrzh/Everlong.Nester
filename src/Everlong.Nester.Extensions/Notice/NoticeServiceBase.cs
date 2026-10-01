@@ -118,7 +118,7 @@ public abstract class NoticeServiceBase(ILayerBroker broker, INoticeEngine engin
       return;
 
     _noticeHost = CreateHost();
-    broker.Acquire(this, _noticeHost, KnownLayers.Notice, LayerPolicy.Floor);
+    broker.Acquire(this, _noticeHost, LayerPlane.Notice);
     OnHostMounted(_noticeHost);
   }
 
