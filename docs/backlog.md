@@ -21,8 +21,6 @@ not belong here, and an entry is deleted when it is done, never struck through.
   (the identity-and-retention section of `docs/design/routing.md` has the shape, and the drill that measured
   them was dropped); the RouteSync matcher audit and performance numbers (the section of
   `docs/design/routesync.md` on how a highlight is derived has the mechanism).
-- **`CleanOutput` wipes `artifacts/`**, so a single target run leaves a partial output directory
-  (`.\build.cmd PackTemplates` leaves only the template package). `Publish` is unaffected.
 - **The template smoke test's cleanup is best-effort** — an IDE build host holds a freshly generated project
   open, so a run leaves it behind and the next one sweeps it (`min_age=900`).
 - **Without an Android SDK the Android example host is skipped, silently.** MSBuild reports
