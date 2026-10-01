@@ -44,8 +44,8 @@ it is also where the element focus is saved before a transfer and restored after
 `FlyingCanvas.Anchor` and the `n:Transition.Anchor` attached property (`Transition` in both extensions
 packages) are gone. A layer's content that implements `IFocusAnchor` exposes the element it held when it
 lost layer focus, and a transition that crosses layers is handed the source layer's lease through
-`TransitionContext.Counterpart`. `TransitionContext.Scope` says whether the transition is `InLayer` or
-`CrossLayer`, so a director can key its choreography on it.
+`TransitionContext.Counterpart`. `TransitionContext.IsCrossLayer` says whether the transition crosses
+layers, so a director can key its choreography on it.
 
 **Migrate.** `IFocusPolicySurface` and its `FocusPolicy` enum are gone from the core package. A layer's
 content no longer declares its own Tab participation: the platform surface derives it from the router it

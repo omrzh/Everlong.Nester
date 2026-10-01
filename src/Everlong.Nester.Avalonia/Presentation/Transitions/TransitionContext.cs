@@ -45,8 +45,8 @@ public sealed partial record TransitionContext(
   /// </summary>
   public ILayerLease? Counterpart { get; init; }
 
-  /// <summary>Whether this transition moves inside one layer or crosses between two.</summary>
-  public TransitionScope Scope => Counterpart is null ? TransitionScope.InLayer : TransitionScope.CrossLayer;
+  /// <summary>Whether this transition crosses between two layers rather than moving inside one.</summary>
+  public bool IsCrossLayer => Counterpart is not null;
 
   /// <summary>The outermost arriving view, or <see langword="null"/> when none arrives.</summary>
   public PControl? ArrivingHead => ArrivingChain.Count > 0 ? ArrivingChain[0] : null;

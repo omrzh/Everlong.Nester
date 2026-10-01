@@ -74,7 +74,7 @@ public sealed class CrossLayerTransitionTests
   {
     var context = new TransitionContext(null, TransitionKind.Enter);
 
-    Assert.Equal(TransitionScope.InLayer, context.Scope);
+    Assert.False(context.IsCrossLayer);
     Assert.Null(context.Counterpart);
   }
 
@@ -106,7 +106,7 @@ public sealed class CrossLayerTransitionTests
       });
 
       TransitionContext enter = probe!.EnterContext!;
-      Assert.Equal(TransitionScope.CrossLayer, enter.Scope);
+      Assert.True(enter.IsCrossLayer);
       ILayerLease source = Assert.IsAssignableFrom<ILayerLease>(enter.Counterpart);
       Assert.True(source.IsLive);
 
