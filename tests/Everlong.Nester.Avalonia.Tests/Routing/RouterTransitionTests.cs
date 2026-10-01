@@ -37,6 +37,38 @@ public class RouterTransitionTests
 
   private sealed class PageView : ContentControl { }
 
+  /// <summary>A layout model that the test maps to a directing layout view.</summary>
+  private sealed class DirectorLayout : TestContent { }
+
+  /// <summary>A body-holding layout that is also an <see cref="ISceneTransition" /> — records the calls it receives.</summary>
+  private sealed class DirectorLayoutView : ContentControl, IBodyHolder, ISceneTransition
+  {
+    private readonly BodyPanel _body = new();
+
+    internal DirectorLayoutView()
+    {
+      Content = _body;
+      Width = 100;
+      Height = 100;
+    }
+
+    internal List<string> Calls { get; } = [];
+
+    public IBodyPanel GetBodyPanel() => _body;
+
+    public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
+    {
+      Calls.Add("Enter");
+      return Task.CompletedTask;
+    }
+
+    public Task AnimateExitAsync(TransitionContext context, CancellationToken token)
+    {
+      Calls.Add("Exit");
+      return Task.CompletedTask;
+    }
+  }
+
   /// <summary>A page whose arrival suspends on a gate — simulates an in-flight data load.</summary>
   private abstract class GatedArrivalPage : IArrived
   {
@@ -193,6 +225,7 @@ public class RouterTransitionTests
     Application.Current!.DataTemplates.Add(new ViewTemplate(typeof(LayoutAlpha), () => new LayoutView()));
     Application.Current!.DataTemplates.Add(new ViewTemplate(typeof(PageAlpha), () => new PageView()));
     Application.Current!.DataTemplates.Add(new ViewTemplate(typeof(PageBeta), () => new PageView()));
+    Application.Current!.DataTemplates.Add(new ViewTemplate(typeof(DirectorLayout), () => new DirectorLayoutView()));
     Application.Current!.DataTemplates.Add(new ViewTemplate(typeof(DirectorPage), () => new DirectorPageView()));
     Application.Current!.DataTemplates.Add(new ViewTemplate(typeof(AdaptiveDirectorPage), () => new DirectorPageView()));
     Application.Current!.DataTemplates.Add(new ViewTemplate(typeof(LoadingPage), () => new LoadingPageView()));
@@ -205,6 +238,7 @@ public class RouterTransitionTests
       s.AddSingleton<LayoutAlpha>(_ => new LayoutAlpha());
       s.AddSingleton<PageAlpha>(_ => new PageAlpha());
       s.AddSingleton<PageBeta>(_ => new PageBeta());
+      s.AddSingleton<DirectorLayout>(_ => new DirectorLayout());
       s.AddSingleton<DirectorPage>(_ => new DirectorPage());
     }, rootView: windowed ? new HostWindow { Width = 900, Height = 600 } : null);
     shell.Start();
@@ -213,6 +247,9 @@ public class RouterTransitionTests
 
   private static Request Chain(Type layout, Type page, object? pageInstance = null)
     => new(page, null, [Target.Of(layout), Target.Of(page, instance: pageInstance)]);
+
+  private static Request Chain3(Type outer, Type middle, Type page)
+    => new(page, null, [Target.Of(outer), Target.Of(middle), Target.Of(page)]);
 
   /// <summary>A mount child — a platform location carrying the given view.</summary>
   private static IViewLocation<Control> Node(Control view)
@@ -290,6 +327,36 @@ public class RouterTransitionTests
     Assert.Contains(director, director.LastContext!.ArrivingChain);
     Assert.Empty(director.LastContext.DepartingChain);
     Assert.Equal(0, director.OpacityAtEnter);
+  }
+
+  // ── the director is the changed chain's first ISceneTransition: the search starts at the first difference ──
+
+  [AvaloniaFact]
+  public async Task Director_SearchStartsAtTheFirstDifference_NotTheSharedPrefix()
+  {
+    (AvaloniaShell shell, Router router) = Create();
+
+    // old [] → new [DirectorLayout, LayoutAlpha, PageAlpha]: nothing is shared,
+    // so the outermost node is the first difference — the layout directs.
+    await router.RouteAsync(Chain3(typeof(DirectorLayout), typeof(LayoutAlpha), typeof(PageAlpha)));
+
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var outerDirector = Assert.IsType<DirectorLayoutView>(hostBody.Children[0].View);
+    var middle = Assert.IsType<LayoutView>(outerDirector.GetBodyPanel().Children[0].View);
+    Assert.Equal(["Enter"], outerDirector.Calls);
+
+    // old [DirectorLayout, LayoutAlpha, PageAlpha] →
+    // new [DirectorLayout, LayoutAlpha, DirectorPage]: two shared prefix nodes,
+    // the outermost of them a director — but re-engaged, so the search starts
+    // at the first difference and the new page directs.
+    await router.RouteAsync(Chain3(typeof(DirectorLayout), typeof(LayoutAlpha), typeof(DirectorPage)));
+
+    Assert.Equal(["Enter"], outerDirector.Calls);   // the shared director is not asked again
+
+    var pageDirector = Assert.IsType<DirectorPageView>(
+      middle.GetBodyPanel().Children.Select(n => n.View).OfType<DirectorPageView>().Single());
+    Assert.Same(pageDirector, Assert.Single(pageDirector.LastContext!.ArrivingChain));
+    Assert.Equal(["Enter"], pageDirector.Calls);
   }
 
   [AvaloniaFact]
