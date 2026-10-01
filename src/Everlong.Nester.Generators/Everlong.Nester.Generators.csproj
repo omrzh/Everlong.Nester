@@ -18,12 +18,8 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Everlong.Nester.Generators.Tests" />
     <PackageReference Include="JetBrains.Annotations" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Remove="AnalyzerReleases.Shipped.md" />
-    <AdditionalFiles Remove="AnalyzerReleases.Unshipped.md" />
   </ItemGroup>
 
 </Project>
