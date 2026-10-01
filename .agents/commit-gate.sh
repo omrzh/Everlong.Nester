@@ -15,13 +15,17 @@
 # they are.  `--all` is the one exception: it checks every project, whether or
 # not anything is pending.
 #
-# What it runs, and what that costs on this machine (warm tree, 10 projects):
+# What it runs, and what that costs on this machine (warm tree, 21 projects):
 #
-#   build    `--no-incremental`, and no `-clp:ErrorsOnly`: that switch filters
-#            warnings, and the point here is to see them.  Refuses any warning
-#            or error — this is where the compiler and analyzer IDs surface.
-#            It does NOT see the option-backed style rules, at any severity.
-#            7s, and the flag costs nothing: an incremental run measures 11s.
+#   build    no `-clp:ErrorsOnly`: that switch filters warnings, and the point
+#            here is to see them.  Refuses any warning or error — this is where
+#            the compiler and analyzer IDs surface.  It does NOT see the
+#            option-backed style rules, at any severity.
+#            The default is an INCREMENTAL build (~9s): only the projects the
+#            commit recompiles are analysed, which is what "the gate checks the
+#            commit" means for the build half.  `--all` adds `--no-incremental`
+#            (45-53s) and re-analyses every project — the sweep a push or a
+#            release wants.
 #   format   one project at a time, never solution-wide (a solution-wide run
 #            rewrites files nobody touched), at the default severity: the
 #            option-backed IDE rules are visible only here.  Paths must arrive
@@ -31,16 +35,22 @@
 #            document; a definition file the change touches therefore reaches no
 #            project here.  That is deliberate — it is no source change, and the
 #            build half alone judges it.
-#            9s a project, so this is the step worth scoping: by default only
+#            6-13s a project, so this is the step worth scoping: by default only
 #            the projects the change reaches are checked, plus any project that
 #            LINKS one of the changed files — a linked file is compiled twice,
 #            by two compilations, and the findings can differ between them.
-#            `--all` checks every project, four at a time (94s -> 27s).
+#            `--all` checks every project, four at a time (75s).
 #   test     the runner this repository selects takes `-v` and nothing else;
 #            build noise flags make it report zero tests and exit 5.  A run
 #            that reports zero tests is a failure here, not a pass.  The whole
-#            solution, always: 8s.
+#            solution, always: 7s with `--no-build` once the build half has
+#            produced the binaries, 12s when it has to build them.
 #   message  subject and body shape per the `commit-messages` skill.
+#
+# A change to a repository-wide definition — `.editorconfig`,
+# `Directory.*.props`/`Directory.*.targets`, `global.json`,
+# `NesterVersion.props`, the `.slnx` — escalates the default to the `--all`
+# sweep by itself: only a full re-analysis shows what such a change altered.
 #
 # A pending change that touches no compilable path skips build, format and test:
 # there is nothing for them to see.  Pending paths are listed with `-uall`, so a
@@ -55,8 +65,9 @@
 # Usage: .agents/commit-gate.sh [options]
 #
 #   --message <file>   also check a commit message file (`-` reads stdin)
-#   --all              check every project, not only the ones the change reaches
-#   --scoped           the default; accepted for compatibility
+#   --all              the full sweep: every project, and a `--no-incremental`
+#                      build.  A push or a release, not every commit.
+#   --scoped           the default fast lane; accepted for compatibility
 #   --no-build         skip the build step
 #   --no-format        skip the format step
 #   --no-test          skip the test step
@@ -78,6 +89,7 @@ SOLUTION="Everlong.Nester.slnx"
 LOG_DIR="$REPO_ROOT/.agents/tmp/commit-gate"
 
 DO_BUILD=1 DO_FORMAT=1 DO_TEST=1 QUIET=0 SCOPED=0 SELF_TEST=0 ALL=0 MESSAGE=""
+BUILD_OK=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -230,6 +242,18 @@ if [ -z "$(printf '%s' "$PENDING_PATHS" | tr -d '[:space:]')" ] && [ "$ALL" = 0 
   note "(--all checks every project, and needs nothing pending)"
   exit 2
 fi
+# A repository-wide definition is not one project's business: a change to it
+# alters findings everywhere, and only the full sweep re-surfaces them.  The
+# default escalates rather than making the caller remember `--all`.
+if [ "$ALL" = 0 ]; then
+  ESCALATED="$(printf '%s\n' "$PENDING_PATHS" \
+    | grep -E '(^|/)\.editorconfig$|^Directory\.(Build|Packages)\.(props|targets)$|^global\.json$|^NesterVersion\.props$|\.slnx$' || true)"
+  if [ -n "$(printf '%s' "$ESCALATED" | tr -d '[:space:]')" ]; then
+    ALL=1
+    note "escalated to --all: repository-wide definition pending — $(printf '%s' "$ESCALATED" | tr '\n' ' ')"
+  fi
+fi
+
 if [ "$ALL" = 1 ]; then
   note "scope: every project (--all)"
 else
@@ -246,9 +270,16 @@ fi
 
 # -------------------------------------------------------------------- build --
 if [ "$DO_BUILD" = 1 ]; then
-  head_line "build (no -clp:ErrorsOnly, --no-incremental)"
+  if [ "$ALL" = 1 ]; then
+    BUILD_FLAVOR="--no-incremental"
+    head_line "build (no -clp:ErrorsOnly, --no-incremental)"
+  else
+    BUILD_FLAVOR=""
+    head_line "build (no -clp:ErrorsOnly, incremental)"
+  fi
   LOG="$LOG_DIR/build.log"
-  dotnet build "$SOLUTION" --no-incremental -v:q --nologo >"$LOG" 2>&1
+  # shellcheck disable=SC2086
+  dotnet build "$SOLUTION" $BUILD_FLAVOR -v:q --nologo >"$LOG" 2>&1
   CODE=$?
   ERRORS="$(diagnostics "$LOG" | grep ': error ' || true)"
   WARNS="$(diagnostics "$LOG" | grep ': warning ' || true)"
@@ -265,6 +296,7 @@ if [ "$DO_BUILD" = 1 ]; then
   else
     ok "build clean"
     record build pass ""
+    BUILD_OK=1
   fi
 fi
 
@@ -349,9 +381,19 @@ fi
 
 # --------------------------------------------------------------------- test --
 if [ "$DO_TEST" = 1 ]; then
-  head_line "test (MTP: no --nologo / -clp / -tl)"
+  # The build half just produced the binaries; rebuilding them here would be the
+  # same compilation a second time.  A failed build keeps the rebuild: the test
+  # runner must see the failure, not stale binaries.
+  if [ "$DO_BUILD" = 1 ] && [ "$BUILD_OK" = 1 ]; then
+    TEST_FLAVOR="--no-build"
+    head_line "test (MTP: no --nologo / -clp / -tl, --no-build)"
+  else
+    TEST_FLAVOR=""
+    head_line "test (MTP: no --nologo / -clp / -tl)"
+  fi
   LOG="$LOG_DIR/test.log"
-  dotnet test --solution "$SOLUTION" --results-directory .agents/tmp/TestResults >"$LOG" 2>&1
+  # shellcheck disable=SC2086
+  dotnet test --solution "$SOLUTION" --results-directory .agents/tmp/TestResults $TEST_FLAVOR >"$LOG" 2>&1
   CODE=$?
   # The summary line is localized: a zh-CN machine renders it `总计: 723`, an
   # English one `total: 723`.  Both are matched, case-insensitively; another
