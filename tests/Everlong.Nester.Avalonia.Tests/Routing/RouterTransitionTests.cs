@@ -323,6 +323,25 @@ public class RouterTransitionTests
   }
 
   [AvaloniaFact]
+  public async Task RouteAsync_NonDirectingFirstDifference_DoesNotFallThroughToADeeperDirector()
+  {
+    (AvaloniaShell shell, Router router) = Create();
+
+    // The first difference is the layout, which does not direct; the page
+    // below it is not a candidate.  No Transition phase runs, and the page
+    // settles visible in the landing turn.
+    await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(DirectorPage)));
+
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
+    var page = Assert.IsType<DirectorPageView>(bodyPanel.ActiveChild!.View);
+
+    Assert.Empty(page.Calls);
+    Assert.Equal(1, page.Opacity);
+    Assert.True(page.IsHitTestVisible);
+  }
+
+  [AvaloniaFact]
   public async Task RouteAsync_EnterAnimation_RunsTheFirstDifferenceDirector_WithTheArrivingHeadInvisible()
   {
     (AvaloniaShell shell, Router router) = Create();
