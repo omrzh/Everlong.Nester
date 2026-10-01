@@ -47,6 +47,12 @@ lost layer focus, and a transition that crosses layers is handed the source laye
 `TransitionContext.Counterpart`. `TransitionContext.Scope` says whether the transition is `InLayer` or
 `CrossLayer`, so a director can key its choreography on it.
 
+**Migrate.** `IFocusPolicySurface` and its `FocusPolicy` enum are gone from the core package. A layer's
+content no longer declares its own Tab participation: the platform surface derives it from the router it
+carries — a derived router's presentation traps Tab and excludes every layer beneath it, and any other
+routing surface cycles. A consumer that implemented the interface to declare a Tab intent can no longer
+do so.
+
 ## 0.1.11 — 2026-09-25
 
 **Migrate.** `IRouter.Derive(bool isEphemeral)` is gone. A derived router is created from

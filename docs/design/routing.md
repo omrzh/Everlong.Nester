@@ -272,6 +272,9 @@ every entry, never a fresh node per entry. A route the caller sends names only i
 the overlay completes it. A dialog is exactly that: a derived router at the dialog band with the
 dimmer as its parent.
 
+A derived presentation is modal for keyboard navigation: Tab cycles inside it and never reaches a
+layer beneath it.
+
 The round trip out of a presentation is explicit: a jump records a fresh visit to the live entry that
 presents a site, and a site converts back into a descriptor from its trail, with arguments kept and
 instances dropped.

@@ -39,6 +39,7 @@
     <Compile Include="..\Everlong.Nester.Avalonia\DI\ServiceCollectionExtensions.cs" Link="DI\ServiceCollectionExtensions.cs" />
     <!-- Controls -->
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\StagePanel.cs" Link="Presentation\Controls\StagePanel.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\FocusPolicy.cs" Link="Presentation\Controls\FocusPolicy.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\RoutingView.cs" Link="Presentation\Controls\RoutingView.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\RoutingView.Reveal.cs" Link="Presentation\Controls\RoutingView.Reveal.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\RoutingView.Body.cs" Link="Presentation\Controls\RoutingView.Body.cs" />

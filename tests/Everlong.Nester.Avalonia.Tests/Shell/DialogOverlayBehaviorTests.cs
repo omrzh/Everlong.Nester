@@ -214,8 +214,8 @@ public class DialogOverlayBehaviorTests
     await WaitUntilAsync(() => panel.DerivedHosts().Count() == 1);
 
     ContentLayer layer = Assert.IsType<ContentLayer>(CapsuleLayerOf(panel, session));
-    var policy = Assert.IsAssignableFrom<IFocusPolicySurface>(layer.Content);
-    Assert.Equal(FocusPolicy.Trapped, policy.FocusPolicy);
+    var view = Assert.IsAssignableFrom<RoutingView>(layer.Content);
+    Assert.Equal(FocusPolicy.Trapped, view.FocusPolicy);
 
     session.Close();
     await showTask;

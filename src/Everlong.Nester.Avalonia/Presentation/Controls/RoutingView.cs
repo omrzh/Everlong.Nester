@@ -13,23 +13,12 @@ namespace Everlong.Nester.Presentation;
 ///   chain's outermost view, carries the model's committed state, assembles
 ///   the resolved chain's views and reveals each convergence.
 /// </summary>
-internal sealed partial class RoutingView : BodyPanel, IRoutingView, IFocusPolicySurface, IFocusAnchor
+internal sealed partial class RoutingView : BodyPanel, IRoutingView, IFocusAnchor
 {
-  /// <inheritdoc />
+  /// <summary>The layer's Tab-navigation participation — a derived router's presentation traps Tab.</summary>
+  /// <remarks>Fixed by <see cref="Router" />, which is set before the lease mounts.</remarks>
   public FocusPolicy FocusPolicy
-  {
-    get;
-    set
-    {
-      if (field == value)
-        return;
-      field = value;
-      FocusPolicyChanged?.Invoke();
-    }
-  } = FocusPolicy.Reachable;
-
-  /// <inheritdoc />
-  public event Action? FocusPolicyChanged;
+    => Router is { Role: RouterRole.Derived } ? FocusPolicy.Trapped : FocusPolicy.Reachable;
 
   public ILocation? Location { get; private set; }
   public IRouter? Router { get; private set; }

@@ -37,8 +37,8 @@ internal class StagePanel : PPanel, IShellStage, ILayerStage
 
   /// <summary>
   ///   Mounts a tenant's lease surface onto the stage and connects its layer
-  ///   listener (content replacement and policy changes recompute the tab
-  ///   reachability of every layer).
+  ///   listener (a content replacement recomputes the tab reachability of
+  ///   every layer).
   /// </summary>
   public void MountLease(ILayerHandle handle)
   {
@@ -59,17 +59,17 @@ internal class StagePanel : PPanel, IShellStage, ILayerStage
 
   /// <summary>
   ///   Recomputes the layers' Tab modes, topmost first: a layer whose content
-  ///   declares no intent is excluded; a trapped layer cycles and excludes
-  ///   every layer beneath it; a reachable layer cycles.  The mode is applied
-  ///   to the layer surface itself — the content may be any object the
-  ///   surface's template renders.
+  ///   is not a routing view declares no participation and is excluded; a
+  ///   trapped layer cycles and excludes every layer beneath it; a reachable
+  ///   layer cycles.  The mode is applied to the layer surface itself — the
+  ///   content may be any object the surface's template renders.
   /// </summary>
   private void RecomputeTabModes()
   {
     bool excluded = false;
     foreach (ContentLayer layer in Children.OfType<ContentLayer>().OrderByDescending(LayerZ))
     {
-      FocusPolicy? policy = (layer.Content as IFocusPolicySurface)?.FocusPolicy;
+      FocusPolicy? policy = (layer.Content as RoutingView)?.FocusPolicy;
       bool trapped = !excluded && policy == FocusPolicy.Trapped;
       bool reachable = !excluded && policy == FocusPolicy.Reachable;
       if (trapped)
@@ -145,48 +145,27 @@ internal class StagePanel : PPanel, IShellStage, ILayerStage
 #endif
 
   /// <summary>
-  ///   The per-layer event wiring: content replacement and the content's
-  ///   policy changes both feed the stage's tab recompute.  Detached on
-  ///   unmount.
+  ///   The per-layer event wiring: a content replacement feeds the stage's
+  ///   tab recompute.  Detached on unmount.
   /// </summary>
   private sealed class LayerListener
   {
     private readonly StagePanel _stage;
     private readonly ContentLayer _layer;
-    private IFocusPolicySurface? _content;
 
     internal LayerListener(StagePanel stage, ContentLayer layer)
     {
       _stage = stage;
       _layer = layer;
       _layer.ContentReplaced += OnContentReplaced;
-      AttachContent();
       _stage.RecomputeTabModes();
     }
 
     internal void Detach()
     {
       _layer.ContentReplaced -= OnContentReplaced;
-      DetachContent();
     }
 
-    private void OnContentReplaced()
-    {
-      DetachContent();
-      AttachContent();
-      _stage.RecomputeTabModes();
-    }
-
-    private void AttachContent()
-    {
-      _content = _layer.Content as IFocusPolicySurface;
-      _content?.FocusPolicyChanged += _stage.RecomputeTabModes;
-    }
-
-    private void DetachContent()
-    {
-      _content?.FocusPolicyChanged -= _stage.RecomputeTabModes;
-      _content = null;
-    }
+    private void OnContentReplaced() => _stage.RecomputeTabModes();
   }
 }

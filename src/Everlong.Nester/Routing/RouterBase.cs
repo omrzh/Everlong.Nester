@@ -77,11 +77,6 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
 
     if (Role == RouterRole.Derived)
     {
-      // The modal overlay declares its focus policy on its own content —
-      // the stage maps the declared policy and the stack position onto
-      // the layer's actual Tab mode.
-      if (View is IFocusPolicySurface focusPolicy)
-        focusPolicy.FocusPolicy = FocusPolicy.Trapped;
       // The derived router's completion channel — the write end its
       // participants capture and the creator's result surface forwards to.
       _completion = new ResultChannel(this);

@@ -24,8 +24,7 @@ not belong here, and an entry is deleted when it is done, never struck through.
   (`GeneratesRouteWithParameterProjection`) but absent from `docs/guide/navigation.md`; a page that consumes
   `BackIntent` and re-engages itself is written down nowhere. The contract section of
   `docs/design/absorption.md` has both shapes.
-- **Three threads were never written down**: the focus-declared-by-the-view intent behind `FocusPolicy`
-  (`StagePanel` maps it by stack position); the release-accounting numbers behind `PinChain` / `InstancePins`
+- **Two threads were never written down**: the release-accounting numbers behind `PinChain` / `InstancePins`
   (the identity-and-retention section of `docs/design/routing.md` has the shape, and the drill that measured
   them was dropped); the RouteSync matcher audit and performance numbers (the section of
   `docs/design/routesync.md` on how a highlight is derived has the mechanism).
