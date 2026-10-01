@@ -33,17 +33,13 @@ public partial class PostDetailPage : UserControl, ISceneTransition
   /// </remarks>
   public async Task AnimateEnterAsync(TransitionContext ctx, CancellationToken token)
   {
-    // The view parked what it wants flown — the card this button sits in;
-    // taking it, checking it belongs to this post, and emptying the slot
-    // are this director's own.
-    Control? anchor = ctx.FlyingCanvas?.Anchor as Control;
-    if (ctx.FlyingCanvas is { } plane)
-      plane.Anchor = null;
-
+    // The source is the departing list — the same page the exit animation
+    // reaches, from the other side of the change.
     Rect? sourceRect = null;
-    if (DataContext is PostDetailPageModel { Post: { } post }
-        && anchor is Border card && ReferenceEquals(card.DataContext, post))
-      sourceRect = ctx.CaptureRelativeRect(card);
+    if (ctx.DepartingHead is PostsPage { PostsList: { } postsList }
+        && DataContext is PostDetailPageModel { Post: { } post }
+        && postsList.ContainerFromItem(post) is { } container)
+      sourceRect = ctx.CaptureRelativeRect(container);
 
     const int durationMs = 600;
     const int stagger = 80;

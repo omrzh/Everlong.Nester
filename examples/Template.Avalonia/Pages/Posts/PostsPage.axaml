@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:NesterApp.Pages.Posts"
              xmlns:s="using:NesterApp.Models"
-             xmlns:n="https://nester.dev"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="NesterApp.Pages.Posts.PostsPage"
              x:Name="Root" x:DataType="vm:PostsPageModel">
@@ -28,7 +27,6 @@
                         Content="{Binding #Root.((vm:PostsPageModel)DataContext).PagesStrings.ViewDetail}"
                         Command="{Binding #Root.((vm:PostsPageModel)DataContext).OpenPostCommand}"
                         CommandParameter="{Binding}"
-                        n:Transition.Anchor="{Binding #Card}"
                         HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
                         Background="Transparent" BorderThickness="0" />
                 <Button Grid.Column="2"
