@@ -12,15 +12,6 @@ not belong here, and an entry is deleted when it is done, never struck through.
   (`src/Everlong.Nester.Extensions.Avalonia/Presentation/Controls/DialogShake.cs`), where the WPF twin
   plays `SystemSounds.Beep`. Public API whose caller is a consumer, so not dead code: wire a playback
   path.
-- **`INoticePanel` is a public contract with no guide page.** The notice spec fixes the panel as the
-domain's platform surface (`docs/design/notice.md`) and the default panel ships, but
-`docs/guide/interaction.md` still stops at `NoticeServiceOptions`. Document the panel model → panel
-view mapping, and the entry's own scene transition winning over the panel default.
-- **Analyzer release tracking is weaker than it reads.** `Microsoft.CodeAnalysis.Analyzers 3.3.4` arrives
-  transitively and nothing pins it; `.editorconfig` sets no `RS*` severity, so `RS2000`–`RS2008` cannot fail a
-  build (they do fire when provoked); `src/Everlong.Nester.Generators/Everlong.Nester.Generators.csproj`
-  removes the two `AnalyzerReleases.*.md` from `AdditionalFiles`, which the package's targets include
-  first, so the pair removes nothing.
 - **Absorption at package level is untested.** The absorbed-revision flow, the transfer's two moving sides and
   the re-armed `IArriving` case run from HEAD source only, and the moving sides have never run on TerminalGui
   (`tests/Everlong.Nester.Tests/Routing/`).
@@ -53,9 +44,6 @@ view mapping, and the entry's own scene transition winning over the panel defaul
   is z-descending), so a newcomer that declines can let a middle layer win the foreground.
   `EvictAllAsync` clears `_focused` without firing `OnUnfocusing` / `OnUnfocused` — intentional for
   teardown, but undocumented.
-- **`FloatingPlayerHost` lost its ceiling intent.** It presents through `LayerPlane.Dock`, whose grant
-  takes the plane's floor, while its doc still says it rents the floating band's ceiling
-  (`examples/Template.Shared/Services/FloatingPlayerHost.cs`).
 - **`TestBrokerCore` duplicates the broker.** It re-implements `ResolveZ` and the focus election
   (`tests/Everlong.Nester.Tests/Layer/TestBrokerCore.cs`), so it drifts from `ShellBase.Broker.cs`
   silently.
