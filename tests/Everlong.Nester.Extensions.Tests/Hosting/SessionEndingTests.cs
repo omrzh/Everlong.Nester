@@ -10,15 +10,19 @@ namespace Everlong.Nester.Extensions.Tests.Hosting;
 /// </summary>
 public class SessionEndingTests
 {
-  private sealed class FakeMessageBox(Func<string, bool>? answer = null) : IMessageBox
+  private sealed class FakePrompt(Func<string, bool>? answer = null) : IModalPrompt
   {
     public List<string> Prompts { get; } = [];
+
+    public List<string> Alerts { get; } = [];
 
     public bool Confirm(string title, string message)
     {
       Prompts.Add(message);
       return answer?.Invoke(message) ?? true;
     }
+
+    public void Alert(string title, string message) => Alerts.Add(message);
   }
 
   private sealed class GuardRecipient(string title, string body, Action? confirmed = null) : IMessageRecipient
@@ -37,14 +41,14 @@ public class SessionEndingTests
   {
     var hub = new MessageHub();
 
-    Assert.True(SessionEndingArbitration.Run(hub, new FakeMessageBox()));
+    Assert.True(SessionEndingArbitration.Run(hub, new FakePrompt()));
   }
 
   [Fact]
   public void Run_PromptsGuardsInRegistrationOrder()
   {
     var hub = new MessageHub();
-    var box = new FakeMessageBox();
+    var box = new FakePrompt();
     using var first = hub.Register(new GuardRecipient("A", "first"));
     using var second = hub.Register(new GuardRecipient("B", "second"));
 
@@ -56,7 +60,7 @@ public class SessionEndingTests
   public void Run_DeclinedPrompt_ShortCircuitsAndRunsNoConfirmed()
   {
     var hub = new MessageHub();
-    var box = new FakeMessageBox(message => message != "second");
+    var box = new FakePrompt(message => message != "second");
     int confirmed = 0;
     using var first = hub.Register(new GuardRecipient("A", "first", () => confirmed++));
     using var second = hub.Register(new GuardRecipient("B", "second", () => confirmed++));
@@ -70,7 +74,7 @@ public class SessionEndingTests
   public void Run_AllConfirmed_RunsEveryConfirmed()
   {
     var hub = new MessageHub();
-    var box = new FakeMessageBox();
+    var box = new FakePrompt();
     int confirmed = 0;
     using var first = hub.Register(new GuardRecipient("A", "first", () => confirmed++));
     using var second = hub.Register(new GuardRecipient("B", "second", () => confirmed++));
@@ -83,7 +87,7 @@ public class SessionEndingTests
   public void Run_ThrowingConfirmed_DoesNotStopTheOthers()
   {
     var hub = new MessageHub();
-    var box = new FakeMessageBox();
+    var box = new FakePrompt();
     bool secondRan = false;
     using var first = hub.Register(
       new GuardRecipient("A", "first", () => throw new InvalidOperationException("boom")));
@@ -97,7 +101,7 @@ public class SessionEndingTests
   public void Run_ReentrantCall_IsRefused()
   {
     var hub = new MessageHub();
-    var box = new FakeMessageBox();
+    var box = new FakePrompt();
     bool? inner = null;
     using var guard = hub.Register(
       new GuardRecipient("A", "first", () => inner = SessionEndingArbitration.Run(hub, box)));

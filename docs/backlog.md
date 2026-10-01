@@ -101,6 +101,12 @@ Decided against, recorded so the question is not opened twice.
 - **Runtime test heads for the Android and Browser example hosts** — either needs a device or a browser
   runner, and what the repository owes an example host is that it compiles, which is what the two workloads
   in `ci.yml` check.
+- **`docs/design/session-ending.md` fixes the domain, not the reasoning behind its shape.** The spec carries
+  what the arbitration is, why its prompt is synchronous and the rules that follow; it does not carry the
+  placement argument — why `IModalPrompt` sits beside the arbitration rather than in `Everlong.Nester.Dialog`,
+  whose spec calls the dialog domain presentation sugar over the routing stack, while the prompt's
+  precondition is that no routing stack is at hand — nor the rejected unification of `IRouter.AlertAsync`
+  and `IModalPrompt.Alert` into one shape. Write it when the domain is next touched.
 - **A test head for `Everlong.Nester.TerminalGui`** — the surface is experimental and unpackable, so a head
   would pin behaviour the API is explicitly free to change before 1.0.
 - **A post-publish consumption check in `release.yml`** — the job already installs and builds the packed

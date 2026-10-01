@@ -23,6 +23,11 @@ dispatched as an intent; the consulted form survives for traversal alone. `IRout
 layouts: prepended to every route the overlay computes and reused across its entries, so a dialog's
 dimmer outlives the stages it wraps.
 
+**Migrate.** `IMessageBox` is renamed `IModalPrompt`, and `RequestSessionEnding` takes a
+`promptFactory`; the default implementations follow as `AvaloniaModalPrompt` and `WpfModalPrompt`. The
+surface is synchronous by contract — a prompt blocks the calling thread until the user answers — and
+`Alert(title, message)` is added for the acknowledgement, which has no answer to report.
+
 ## 0.1.10 — 2026-09-22
 
 Nothing between 0.1.7 and this one shipped — the only tag is `v0.1.7` — so this entry carries the whole
