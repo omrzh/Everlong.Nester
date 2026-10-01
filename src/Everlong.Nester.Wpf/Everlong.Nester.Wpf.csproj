@@ -58,6 +58,7 @@
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\ShellFlyingLayer.cs" Link="Presentation\Transitions\ShellFlyingLayer.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\ISceneTransition.cs" Link="Presentation\Transitions\ISceneTransition.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\TransitionContext.cs" Link="Presentation\Transitions\TransitionContext.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\TransitionTree.cs" Link="Presentation\Transitions\TransitionTree.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Layouts\IBodyHolder.cs" Link="Presentation\Layouts\IBodyHolder.cs" />
     <!-- Shell -->
     <Compile Include="..\Everlong.Nester.Avalonia\Shell\ShellExtensions.cs" Link="Shell\ShellExtensions.cs" />

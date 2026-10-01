@@ -15,8 +15,8 @@ where the interaction came from.
 
 A transition has a **scope**:
 
-- **In-layer** — source and destination share a layer, and the transition's own chains carry both
-  sides. The routing context is the whole story; no other layer takes part.
+- **In-layer** — source and destination share a layer, and the transition's own moving sides carry both
+  ends. The routing context is the whole story; no other layer takes part.
 - **Cross-layer** — source and destination sit in different layers. The routing context carries the
   moving layer alone, and the other layer — the **counterpart** — is invisible to it.
 
@@ -63,8 +63,8 @@ and it cannot collide across windows or layers.
 
 ## 6. Constraints
 
-- **The routing context is the in-layer mechanism.** A transition inside a layer reads its own chains;
-  it never reaches for a window-global slot.
+- **The routing context is the in-layer mechanism.** A transition inside a layer reads its own moving
+  sides; it never reaches for a window-global slot.
 - **A cross-layer origin is the counterpart's, never the moving side's.** Entering and leaving read
   the same counterpart; the moving layer's own memory is not the origin.
 - **The origin is consumed, not owned.** A director reads it for its change and does not retain it;

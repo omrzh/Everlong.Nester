@@ -37,9 +37,9 @@ internal sealed partial class RoutingView
   /// <summary>
   ///   Mounts the entering chain into its parents' bodies (outermost first,
   ///   the outermost into this view), marks it active and runs the
-  ///   transition: the entering side is laid out but invisible, the chain's
-  ///   first <see cref="ISceneTransition" /> directs the change, and the
-  ///   final visibility is restored.
+  ///   transition: the arriving head is laid out but invisible, the moving
+  ///   side's first-difference node directs the change when it implements
+  ///   <see cref="ISceneTransition" />, and the final visibility is restored.
   /// </summary>
   private async Task RevealCoreAsync(IConvergenceScene convergence,
                                      HashSet<IBodyPanel<PControl>> settledBodies,
@@ -87,10 +87,15 @@ internal sealed partial class RoutingView
     // re-presented in place, and an entering side is a view arriving — the
     // director is read off the same side the kind walks.
     TransitionKind kind = SceneKind(convergence, enteringNodes.Count > 0);
-    IReadOnlyList<PControl> directorChain = kind is TransitionKind.Exit or TransitionKind.Dismiss
-                                                     ? departingViews
-                                                     : arrivingViews;
-    PControl? directorView = directorChain.FirstOrDefault(v => v is ISceneTransition);
+    IReadOnlyList<PControl> movingSide = kind is TransitionKind.Exit or TransitionKind.Dismiss
+                                                   ? departingViews
+                                                   : arrivingViews;
+
+    // The moving side's first-difference node is the only candidate: a
+    // change's identity is its first difference, and a candidate that does
+    // not direct cancels the Transition phase — the change mounts and shows
+    // in this same turn, with no dip to opacity 0 and no dispatcher pass.
+    PControl? directorView = movingSide.Count > 0 ? movingSide[0] : null;
 
     // ── Mount the entering side (outermost first, the outermost into this view) ──
     if (enteringNodes.Count > 0)
@@ -133,12 +138,16 @@ internal sealed partial class RoutingView
     // on.
     if (directorView is ISceneTransition director && Stage?.FlyingCanvas is { } canvas)
     {
-      // ── the entering side is laid out but invisible ──
-      foreach (PControl view in enteringViews)
+      // ── one lever per side: the arriving head is laid out but invisible ──
+      // Only the outermost entering view is dipped.  A container director
+      // moves the lever one step down the arriving path when it delegates;
+      // a view below the head keeps whatever the mount left it with.
+      if (enteringViews.Count > 0)
       {
-        SetViewVisible(view, true);
-        view.Opacity = 0;
-        view.IsHitTestVisible = false;
+        PControl head = enteringViews[0];
+        SetViewVisible(head, true);
+        head.Opacity = 0;
+        head.IsHitTestVisible = false;
       }
 
       // The subject is the entering view, not this view — a derived router's
@@ -150,8 +159,8 @@ internal sealed partial class RoutingView
 
       var transition = new TransitionContext(canvas, kind)
       {
-        ArrivingChain = arrivingViews,
-        DepartingChain = departingViews,
+        Arriving = arrivingViews.Count > 0 ? arrivingViews[0] : null,
+        Departing = departingViews.Count > 0 ? departingViews[0] : null,
         Counterpart = convergence.Counterpart,
       };
 

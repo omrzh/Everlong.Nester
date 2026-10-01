@@ -5,142 +5,74 @@ using Xunit;
 namespace Everlong.Nester.Tests.Shell;
 
 /// <summary>
-///   The director working surface — chain accessors, reveal-before, the
-///   next-director lookup, and the scoped hand-off.
+///   The director working surface — the moving heads and the head-only
+///   visibility levers.
 /// </summary>
 public sealed class TransitionContextTests
 {
-  private sealed class FakeDirector : ContentControl, ISceneTransition
-  {
-    public Task AnimateEnterAsync(TransitionContext context, CancellationToken token) => Task.CompletedTask;
-
-    public Task AnimateExitAsync(TransitionContext context, CancellationToken token) => Task.CompletedTask;
-  }
-
   private sealed class PlainView : ContentControl;
 
-  private static TransitionContext Ctx(TransitionKind change, Control[] arriving, Control[] departing)
-    => new(new FlyingCanvas(), change)
+  [Fact]
+  public void ShowArriving_RevealsOnlyTheArrivingHead()
+  {
+    var arriving = new PlainView { Opacity = 0, IsHitTestVisible = false };
+    var departing = new PlainView { Opacity = 0, IsHitTestVisible = false };
+    var context = new TransitionContext(null, TransitionKind.Enter)
     {
-      ArrivingChain = arriving,
-      DepartingChain = departing,
+      Arriving = arriving,
+      Departing = departing,
     };
 
-  [Fact]
-  public void Heads_DeriveFromChainOutermost()
-  {
-    var frame = new PlainView();
-    var leaf = new PlainView();
-    var ctx = Ctx(TransitionKind.Enter, [frame, leaf], []);
+    context.ShowArriving();
 
-    Assert.Same(frame, ctx.ArrivingHead);
-    Assert.Null(ctx.DepartingHead);
-    Assert.Same(leaf, ctx.ArrivingChain[^1]);
+    Assert.Equal(1, arriving.Opacity);
+    Assert.True(arriving.IsHitTestVisible);
+    Assert.Equal(0, departing.Opacity);          // the departing head is untouched
+    Assert.False(departing.IsHitTestVisible);
   }
 
   [Fact]
-  public void RevealBefore_RevealsViewsAboveTheDirector()
+  public void HideDeparting_HidesOnlyTheDepartingHead()
   {
-    var frame = new PlainView();
-    var leaf = new PlainView();
-    var ctx = Ctx(TransitionKind.Enter, [frame, leaf], []);
-    frame.Opacity = 0;
-    frame.IsHitTestVisible = false;
+    var arriving = new PlainView();
+    var departing = new PlainView();
+    var context = new TransitionContext(null, TransitionKind.Exit)
+    {
+      Arriving = arriving,
+      Departing = departing,
+    };
 
-    ctx.RevealBefore(leaf);
+    context.HideDeparting();
 
-    Assert.Equal(1, frame.Opacity);
-    Assert.True(frame.IsHitTestVisible);
+    Assert.Equal(0, departing.Opacity);
+    Assert.False(departing.IsHitTestVisible);
+    Assert.Equal(1, arriving.Opacity);           // the arriving head is untouched
+    Assert.True(arriving.IsHitTestVisible);
   }
 
   [Fact]
-  public void RevealBefore_HeadDirector_IsNoop()
+  public void ShowArriving_WithoutAnArrivingHead_DoesNothing()
   {
-    var frame = new PlainView();
-    var leaf = new PlainView();
-    var ctx = Ctx(TransitionKind.Enter, [frame, leaf], []);
-    frame.Opacity = 0;
+    var context = new TransitionContext(null, TransitionKind.Dismiss)
+    {
+      Departing = new PlainView { Opacity = 0 },
+    };
 
-    ctx.RevealBefore(frame);
+    context.ShowArriving();
 
-    Assert.Equal(0, frame.Opacity);
+    Assert.Null(context.Arriving);
   }
 
   [Fact]
-  public void RevealBefore_DirectorNotInChain_IsNoop()
+  public void HideDeparting_WithoutADepartingHead_DoesNothing()
   {
-    var frame = new PlainView();
-    var stranger = new PlainView();
-    var ctx = Ctx(TransitionKind.Enter, [frame], []);
-    frame.Opacity = 0;
+    var context = new TransitionContext(null, TransitionKind.Enter)
+    {
+      Arriving = new PlainView(),
+    };
 
-    ctx.RevealBefore(stranger);
+    context.HideDeparting();
 
-    Assert.Equal(0, frame.Opacity);
-  }
-
-  [Fact]
-  public void NextDirectorAfter_ReturnsFirstQualifierBelow()
-  {
-    var head = new PlainView();
-    var inner = new FakeDirector();
-    var leaf = new FakeDirector();
-    var ctx = Ctx(TransitionKind.Enter, [head, inner, leaf], []);
-
-    Assert.Same(inner, ctx.NextDirectorAfter(head));
-    Assert.Same(leaf, ctx.NextDirectorAfter(inner));
-    Assert.Null(ctx.NextDirectorAfter(leaf));
-  }
-
-  [Fact]
-  public void NextDirectorAfter_OnExitWalksTheDepartingChain()
-  {
-    var head = new PlainView();
-    var leaf = new FakeDirector();
-    var ctx = Ctx(TransitionKind.Exit, [], [head, leaf]);
-
-    Assert.Same(leaf, ctx.NextDirectorAfter(head));
-  }
-
-  [Fact]
-  public void ScopedFrom_Enter_DropsThroughDirectorAndKeepsOwnLevelOnOtherSide()
-  {
-    var main = new PlainView();
-    var chrome = new FakeDirector();
-    var leaf = new PlainView();
-    var oldChrome = new PlainView();
-    var oldLeaf = new PlainView();
-    var ctx = Ctx(TransitionKind.Enter, [main, chrome, leaf], [oldChrome, oldLeaf]);
-
-    TransitionContext scoped = ctx.ScopedFrom(chrome);
-
-    Assert.Equal(new Control[] { leaf }, scoped.ArrivingChain);
-    Assert.Equal(new Control[] { oldLeaf }, scoped.DepartingChain);
-  }
-
-  [Fact]
-  public void ScopedFrom_Exit_DropsThroughDirectorAndKeepsOwnLevelOnOtherSide()
-  {
-    var oldMain = new PlainView();
-    var oldChrome = new FakeDirector();
-    var oldLeaf = new PlainView();
-    var main = new PlainView();
-    var leaf = new PlainView();
-    var ctx = Ctx(TransitionKind.Exit, [main, leaf], [oldMain, oldChrome, oldLeaf]);
-
-    TransitionContext scoped = ctx.ScopedFrom(oldChrome);
-
-    Assert.Equal(new Control[] { oldLeaf }, scoped.DepartingChain);
-    Assert.Equal(new Control[] { leaf }, scoped.ArrivingChain);
-  }
-
-  [Fact]
-  public void ScopedFrom_DirectorNotInChain_ReturnsSame()
-  {
-    var leaf = new PlainView();
-    var stranger = new PlainView();
-    var ctx = Ctx(TransitionKind.Enter, [leaf], []);
-
-    Assert.Same(ctx, ctx.ScopedFrom(stranger));
+    Assert.Null(context.Departing);
   }
 }

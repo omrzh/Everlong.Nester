@@ -16,7 +16,7 @@ public partial class PostDetailPage : UserControl, ISceneTransition
     // The source is the departing list — the same page the exit animation
     // reaches, from the other side of the change.
     Rect? sourceRect = null;
-    if (ctx.DepartingHead is PostsPage { PostList: { } postsList }
+    if (ctx.Departing is PostsPage { PostList: { } postsList }
         && DataContext is PostDetailPageModel { Post: { } post }
         && postsList.ItemContainerGenerator.ContainerFromItem(post) is FrameworkElement container)
       sourceRect = ctx.CaptureRelativeRect(container);
@@ -38,7 +38,7 @@ public partial class PostDetailPage : UserControl, ISceneTransition
 
   public async Task AnimateExitAsync(TransitionContext ctx, CancellationToken token)
   {
-    if (ctx.ArrivingHead is not PostsPage { PostList: { } postsList } ||
+    if (ctx.Arriving is not PostsPage { PostList: { } postsList } ||
         DataContext is not PostDetailPageModel { Post: { } post } ||
         postsList.ItemContainerGenerator.ContainerFromItem(post) is not FrameworkElement container)
     {

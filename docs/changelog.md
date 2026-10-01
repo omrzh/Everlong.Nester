@@ -47,6 +47,17 @@ lost layer focus, and a transition that crosses layers is handed the source laye
 `TransitionContext.Counterpart`. `TransitionContext.IsCrossLayer` says whether the transition crosses
 layers, so a director can key its choreography on it.
 
+**Migrate.** A director is the moving side's first-difference node, not the outermost view that
+implements `ISceneTransition`, and `TransitionContext` carries the two moving **heads** instead of the
+chains: `Arriving` and `Departing` replace `ArrivingChain`, `DepartingChain`, `ArrivingHead` and
+`DepartingHead`; `ShowArriving` / `HideDeparting` touch that one node; `HideArriving`, `RevealBefore`,
+`NextDirectorAfter` and `ScopedFrom` are gone. A change whose first difference does not implement
+`ISceneTransition` runs no Transition phase and settles to its final visibility in the landing turn, so a
+fresh shell that only hosts a page — `AuthLayout` above `AdminPage`, the `PostDetailChromeLayout` overlay —
+no longer animates the page unless the shell itself directs. A director that needs the whole side hidden
+moves the lever down itself as it delegates; the shipped `PassThroughAsync` / `PassExitAsync` walk the
+body tree for that.
+
 **Migrate.** `IFocusPolicySurface` and its `FocusPolicy` enum are gone from the core package. A layer's
 content no longer declares its own Tab participation: the platform surface derives it from the router it
 carries — a derived router's presentation traps Tab and excludes every layer beneath it, and any other

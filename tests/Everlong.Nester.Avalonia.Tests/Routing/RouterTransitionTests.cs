@@ -54,11 +54,20 @@ public class RouterTransitionTests
 
     internal List<string> Calls { get; } = [];
 
+    internal TransitionContext? LastContext { get; private set; }
+
+    internal double? OpacityAtEnter { get; private set; }
+
+    internal double? ArrivingChildOpacityAtEnter { get; private set; }
+
     public IBodyPanel GetBodyPanel() => _body;
 
     public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
     {
       Calls.Add("Enter");
+      LastContext = context;
+      OpacityAtEnter = Opacity;
+      ArrivingChildOpacityAtEnter = GetBodyPanel().ActiveChild?.View?.Opacity;
       return Task.CompletedTask;
     }
 
@@ -146,6 +155,10 @@ public class RouterTransitionTests
 
     internal double? OpacityAtEnter { get; private set; }
 
+    internal double? OpacityAtExit { get; private set; }
+
+    internal double? ArrivingOpacityAtExit { get; private set; }
+
     internal TransitionContext? LastContext { get; private set; }
 
     public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
@@ -160,6 +173,8 @@ public class RouterTransitionTests
     {
       Calls.Add("Exit");
       LastContext = context;
+      OpacityAtExit = Opacity;
+      ArrivingOpacityAtExit = context.Arriving?.Opacity;
       return Task.CompletedTask;
     }
   }
@@ -308,25 +323,47 @@ public class RouterTransitionTests
   }
 
   [AvaloniaFact]
-  public async Task RouteAsync_EnterAnimation_RunsTheChainDirector_WithArrivingInvisible()
+  public async Task RouteAsync_EnterAnimation_RunsTheFirstDifferenceDirector_WithTheArrivingHeadInvisible()
   {
     (AvaloniaShell shell, Router router) = Create();
+    await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(PageAlpha)));
 
+    // The page is the change's first difference — the shared layout stays, so
+    // the search starts at the page and only it directs.  The arriving head is
+    // laid out but invisible (the prepare phase); the departing head stays.
     await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(DirectorPage)));
 
-    // The page is the changed chain's first ISceneTransition (outermost
-    // first) — the reveal selects it and runs its enter animation with the
-    // arriving chain laid out but invisible (the prepare phase).
     var hostBody = (IBodyPanel<Control>)router.View;
     var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
-    var director = Assert.IsType<DirectorPageView>(bodyPanel.Children[0].View);
+    var director = Assert.IsType<DirectorPageView>(bodyPanel.ActiveChild!.View);
 
     Assert.Equal(["Enter"], director.Calls);
     Assert.NotNull(director.LastContext);
     Assert.Equal(TransitionKind.Enter, director.LastContext!.Kind);
-    Assert.Contains(director, director.LastContext!.ArrivingChain);
-    Assert.Empty(director.LastContext.DepartingChain);
+    Assert.Same(director, director.LastContext.Arriving);
+    Assert.NotNull(director.LastContext.Departing);
     Assert.Equal(0, director.OpacityAtEnter);
+  }
+
+  // ── a body-holding first difference is the only node the framework dips ──
+
+  [AvaloniaFact]
+  public async Task RouteAsync_BodyHoldingFirstDifferenceDirector_IsDipped_WithItsArrivingChildVisible()
+  {
+    (AvaloniaShell shell, Router router) = Create();
+
+    await router.RouteAsync(Chain3(typeof(DirectorLayout), typeof(LayoutAlpha), typeof(PageAlpha)));
+
+    var hostBody = (IBodyPanel<Control>)router.View;
+    var director = Assert.IsType<DirectorLayoutView>(hostBody.Children[0].View);
+
+    // The framework dips one node per side — the arriving head.  The child it
+    // hosts is not touched; a delegating director moves the lever itself.
+    Assert.Equal(["Enter"], director.Calls);
+    Assert.Equal(0, director.OpacityAtEnter);
+    Assert.Equal(1, director.ArrivingChildOpacityAtEnter);
+    Assert.Same(director, director.LastContext!.Arriving);
+    Assert.Null(director.LastContext.Departing);
   }
 
   // ── the director is the changed chain's first ISceneTransition: the search starts at the first difference ──
@@ -355,7 +392,7 @@ public class RouterTransitionTests
 
     var pageDirector = Assert.IsType<DirectorPageView>(
       middle.GetBodyPanel().Children.Select(n => n.View).OfType<DirectorPageView>().Single());
-    Assert.Same(pageDirector, Assert.Single(pageDirector.LastContext!.ArrivingChain));
+    Assert.Same(pageDirector, pageDirector.LastContext!.Arriving);
     Assert.Equal(["Enter"], pageDirector.Calls);
   }
 
@@ -365,12 +402,16 @@ public class RouterTransitionTests
     (AvaloniaShell shell, Router router) = Create();
     var page = new AdaptiveDirectorPage();
 
+    // The layout is presented first so it is the shared prefix on the next
+    // route — the adaptive page is then the change's first difference.
+    await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(PageAlpha)));
+
     await router.RouteAsync(new Request(typeof(AdaptiveDirectorPage), new TestArgs("a1"),
       [Target.Of(typeof(LayoutAlpha)), Target.Of(typeof(AdaptiveDirectorPage), new TestArgs("a1"), page)]));
 
     var hostBody = (IBodyPanel<Control>)router.View;
     var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
-    var director = Assert.IsType<DirectorPageView>(bodyPanel.Children[0].View);
+    var director = Assert.IsType<DirectorPageView>(bodyPanel.ActiveChild!.View);
     Assert.Equal(["Enter"], director.Calls);
     Assert.Equal(0, director.OpacityAtEnter);          // a fresh arrival is prepared invisible
 
@@ -381,8 +422,8 @@ public class RouterTransitionTests
     // hide it, nothing departs, and the kind the director reads is Refresh.
     Assert.Equal(["Enter", "Enter"], director.Calls);
     Assert.Equal(TransitionKind.Refresh, director.LastContext!.Kind);
-    Assert.Contains(director, director.LastContext.ArrivingChain);
-    Assert.Empty(director.LastContext.DepartingChain);
+    Assert.Same(director, director.LastContext.Arriving);
+    Assert.Null(director.LastContext.Departing);
     Assert.Equal(1, director.OpacityAtEnter);
   }
 
@@ -390,11 +431,12 @@ public class RouterTransitionTests
   public async Task RouteToAnAncestorSite_DepartingOnly_StillDirectsTheExit()
   {
     (AvaloniaShell shell, Router router) = Create();
+    await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(PageAlpha)));
     await router.RouteAsync(Chain(typeof(LayoutAlpha), typeof(DirectorPage)));
 
     var hostBody = (IBodyPanel<Control>)router.View;
     var bodyPanel = (IBodyPanel<Control>)((LayoutView)hostBody.Children[0].View!).GetBodyPanel();
-    var director = Assert.IsType<DirectorPageView>(bodyPanel.Children[0].View);
+    var director = Assert.IsType<DirectorPageView>(bodyPanel.ActiveChild!.View);
     Assert.Equal(["Enter"], director.Calls);
 
     // A route whose resolved chain is a reference prefix of the presented one:
@@ -424,7 +466,9 @@ public class RouterTransitionTests
     Assert.Equal(["Enter", "Exit"], director.Calls);   // enter on arrival, exit on back
     Assert.NotNull(director.LastContext);
     Assert.Equal(TransitionKind.Exit, director.LastContext!.Kind);
-    Assert.Contains(director, director.LastContext!.DepartingChain);
+    Assert.Same(director, director.LastContext.Departing);
+    Assert.Equal(1, director.OpacityAtExit);            // the departing head stays visible
+    Assert.Equal(0, director.ArrivingOpacityAtExit);    // the arriving head is dipped
   }
 
   [AvaloniaFact]

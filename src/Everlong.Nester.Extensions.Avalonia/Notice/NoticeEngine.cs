@@ -158,9 +158,9 @@ internal sealed class NoticeEngine : INoticeEngine
     try
     {
       if (view is ISceneTransition director)
-        await director.AnimateEnterAsync(new TransitionContext(null, TransitionKind.Enter) { ArrivingChain = [view] }, token);
+        await director.AnimateEnterAsync(new TransitionContext(null, TransitionKind.Enter) { Arriving = view }, token);
       else
-        await DefaultNoticeDirector.Instance.AnimateEnterAsync(new TransitionContext(null, TransitionKind.Enter) { ArrivingChain = [view] }, position, token);
+        await DefaultNoticeDirector.Instance.AnimateEnterAsync(new TransitionContext(null, TransitionKind.Enter) { Arriving = view }, position, token);
     }
     catch (OperationCanceledException)
     {
@@ -196,9 +196,9 @@ internal sealed class NoticeEngine : INoticeEngine
     try
     {
       if (view is ISceneTransition director)
-        await director.AnimateExitAsync(new TransitionContext(null, TransitionKind.Dismiss) { DepartingChain = [view] }, token);
+        await director.AnimateExitAsync(new TransitionContext(null, TransitionKind.Dismiss) { Departing = view }, token);
       else
-        await DefaultNoticeDirector.Instance.AnimateExitAsync(new TransitionContext(null, TransitionKind.Dismiss) { DepartingChain = [view] }, position, token);
+        await DefaultNoticeDirector.Instance.AnimateExitAsync(new TransitionContext(null, TransitionKind.Dismiss) { Departing = view }, position, token);
     }
     catch (OperationCanceledException)
     {

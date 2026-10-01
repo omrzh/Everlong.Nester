@@ -40,7 +40,7 @@ internal sealed class DefaultNoticeDirector : INoticeDirector
 
   public Task AnimateEnterAsync(TransitionContext context, NoticePosition position, CancellationToken token)
   {
-    PControl target = context.ArrivingChain[^1];
+    PControl target = context.Arriving!;
     return Task.WhenAll(
       TransitionEffects.SlideInAsync(target, DirectionOf(position), 60, (int)EnterDuration.TotalMilliseconds, token),
       TransitionEffects.FadeInAsync(target, (int)EnterDuration.TotalMilliseconds, token));
@@ -48,7 +48,7 @@ internal sealed class DefaultNoticeDirector : INoticeDirector
 
   public Task AnimateExitAsync(TransitionContext context, NoticePosition position, CancellationToken token)
   {
-    PControl target = context.DepartingChain[^1];
+    PControl target = context.Departing!;
     return Task.WhenAll(
       TransitionEffects.SlideOutAsync(target, DirectionOf(position), 60, (int)ExitDuration.TotalMilliseconds, token),
       TransitionEffects.FadeOutAsync(target, (int)ExitDuration.TotalMilliseconds, token));

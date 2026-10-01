@@ -57,17 +57,6 @@ not belong here, and an entry is deleted when it is done, never struck through.
   silently.
 - **The placement / anchor seam does not exist.** No `ILayerAnchor`, no flip/clamp/DPI, and one
   window-confined `ILayerStage` per shell (`ConnectLedger` in `ShellBase.Broker.cs`).
-- **The transition director tightens to the change's first difference, and `TransitionContext` goes
-  head-only.** `RoutingView.Reveal` scans the moving side for its first `ISceneTransition`; the decision is
-  that only the moving side's first-difference node is a candidate — if it does not direct, the Transition
-  phase is cancelled and the change settles to final visibility in the landing turn. With it,
-  `TransitionContext` keeps only `Arriving` / `Departing` (heads) and head-only `ShowArriving` /
-  `HideDeparting`; `ArrivingChain`, `DepartingChain`, `ArrivingHead`, `DepartingHead`, `RevealBefore`,
-  `NextDirectorAfter` and `ScopedFrom` go, the framework hides one node per side instead of every entering
-  view, and slicing/derivation moves to a tree helper over `IBodyHolder`. Consequence to accept: a fresh
-  non-director shell loses its inner animation — `AuthLayout` (an `IBodyHolder` only) above `AdminPage`, and
-  the `PostDetailChromeLayout` overlay shell, become instant swaps unless the shell directs.
-
 ## Open verdicts
 
 - **`dialog.md`'s chrome contract** — the theme-key table (`Nester.DialogChrome.*`, `Nester.Dialog.Width.*`,

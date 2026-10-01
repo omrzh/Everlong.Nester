@@ -33,9 +33,8 @@ public partial class WorkspacePaletteView : UserControl, ISceneTransition
   /// <inheritdoc />
   public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
   {
-    // The dimmer is the frame this view does not animate — reveal it up front,
-    // then let the palette drop onto it.
-    context.RevealBefore(this);
+    // The dimmer is the frame this view does not animate — the framework
+    // reveals it before the palette drops onto it.
     return Task.WhenAll(
       this.SlideInAsync(SlideDirection.TopToBottom, Offset, DurationMs, token),
       this.FadeInAsync(DurationMs, token));

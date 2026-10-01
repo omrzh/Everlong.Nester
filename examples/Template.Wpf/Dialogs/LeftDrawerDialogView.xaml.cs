@@ -18,7 +18,6 @@ public partial class LeftDrawerDialogView : UserControl, ISceneTransition
 
   public Task AnimateEnterAsync(TransitionContext ctx, CancellationToken token)
   {
-    ctx.RevealBefore(this);
     return this.SlideInAsync(SlideDirection.LeftToRight, ActualWidth, 250, token);
   }
 
