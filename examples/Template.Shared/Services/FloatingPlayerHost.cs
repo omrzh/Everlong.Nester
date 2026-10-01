@@ -5,9 +5,9 @@ using NesterApp.Pages.Labs;
 namespace NesterApp.Services;
 
 /// <summary>
-///   The floating player's layer tenant — rents the floating band's ceiling
-///   (immediately below the dialog band) and delivers a
-///   <see cref="FloatingPlayerViewModel" /> into the slot.
+///   The floating player's layer tenant — rents a <see cref="LayerPlane.Dock" />
+///   slot (the band below the dialog band) and delivers a
+///   <see cref="FloatingPlayerViewModel" /> into it.
 /// </summary>
 [Scoped<FloatingPlayerHost>]
 public sealed class FloatingPlayerHost : ILayerTenant
@@ -38,8 +38,8 @@ public sealed class FloatingPlayerHost : ILayerTenant
     vm.StartPlaybackLoop();
 
     _vm = vm;
-    // Content is fixed at the grant, so a replacement is a fresh lease; Dock
-    // is non-stacking, so the replacement lands on the same floor.
+    // Content is fixed at the grant, so a replacement is a fresh lease; the
+    // old lease is released first, so the replacement takes the Dock floor.
     _handle?.Release();
     _handle = _broker.Acquire(this, vm, LayerPlane.Dock);
   }
