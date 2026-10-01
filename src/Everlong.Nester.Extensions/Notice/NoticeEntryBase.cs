@@ -20,7 +20,7 @@ public interface IDismissable
 ///   Provides timer management, freeze-on-hover functionality, and completion tracking.
 /// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
-public abstract class NoticeEntryBase<TResult> : INotifyPropertyChanged, IPointerAware, IDismissable
+public abstract class NoticeEntryBase<TResult> : INotifyPropertyChanged, IPointerAware, INoticeEntry
 {
   private readonly TaskCompletionSource<TResult> _completionSource = new();
   private bool _isTimerRunning;

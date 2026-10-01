@@ -1,4 +1,3 @@
-using System.Collections;
 using Everlong.Nester.Intent;
 using Everlong.Nester.Layer;
 using Everlong.Nester.Notice;
@@ -75,9 +74,9 @@ public class NoticeServiceBaseTests : IDisposable
   /// <summary>Records show calls in the shared trace.</summary>
   private sealed class TracingEngine(List<string> trace) : INoticeEngine
   {
-    public IEnumerable ToastEntries => Array.Empty<object>();
-    public IEnumerable SnackbarEntries => Array.Empty<object>();
-    public IEnumerable BannerEntries => Array.Empty<object>();
+    public void AttachPanel(INoticePanel panel)
+    {
+    }
 
     public void ShowToast(ToastEntry entry, NoticeServiceOptions options) => trace.Add("show");
 

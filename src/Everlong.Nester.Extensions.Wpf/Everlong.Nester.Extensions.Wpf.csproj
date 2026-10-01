@@ -34,8 +34,7 @@
   <ItemGroup>
     <Compile Include="..\Everlong.Nester.Extensions.Avalonia\DI\ServiceCollectionExtensions.cs" Link="DI\ServiceCollectionExtensions.cs" />
     <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Helpers\ResourceKeyHelper.cs" Link="Helpers\ResourceKeyHelper.cs" />
-    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Notice\NoticeEngine.cs" Link="Notice\NoticeEngine.cs" />
-    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Notice\NoticeTransition.cs" Link="Notice\NoticeTransition.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Notice\NoticePanel.cs" Link="Notice\NoticePanel.cs" />
     <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Controls\Responsive.shared.cs" Link="Presentation\Controls\Responsive.shared.cs" />
     <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Controls\RouteLink.shared.cs" Link="Presentation\Controls\RouteLink.shared.cs" />
     <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Controls\RouteTreeControl.shared.cs" Link="Presentation\Controls\RouteTreeControl.shared.cs" />

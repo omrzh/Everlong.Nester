@@ -3,7 +3,7 @@ namespace Everlong.Nester.Presentation;
 /// <summary>
 ///   A view for displaying a toast notification.
 /// </summary>
-public partial class ToastItemView : BottomSlideItemViewBase
+public partial class ToastItemView : FeedbackItemViewBase
 {
   /// <summary>
   ///   Initializes a new instance of the <see cref="ToastItemView" /> class.

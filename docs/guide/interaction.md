@@ -163,8 +163,9 @@ NotificationResult n = await Notice.NotifyAsync(title, message, level, actionTex
 | Snackbar | `Show(message, actionText?, duration?)` | `ShowAsync(...)` | `SnackbarResult` (`TimedOut` / `ActionInvoked` / `Dismissed`) |
 | Notification | `Notify(title, message, NotificationLevel, duration?, actionText?)` | `NotifyAsync(...)` | `NotificationResult` |
 
-`NoticePosition` (`TopLeft` … `BottomRight`) and the default durations come from
-`NoticeServiceOptions`, registered by `AddNesterNotice`. The service is a layer tenant, not a
+The default durations and channel limits come from `NoticeServiceOptions`; where a channel's region
+anchors and how it is spaced come from the panel's model. Both are registered by `AddNesterNotice`.
+The service is a layer tenant, not a
 renderer: it rents the notice band on the first show, and when the lease is evicted it drops its host
 and discards later shows rather than faulting the caller.
 

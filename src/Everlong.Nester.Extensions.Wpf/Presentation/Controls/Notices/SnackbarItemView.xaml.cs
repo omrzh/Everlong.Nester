@@ -6,7 +6,7 @@ namespace Everlong.Nester.Presentation;
 ///   A view for displaying a snackbar notification.
 /// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
-public partial class SnackbarItemView : BottomSlideItemViewBase
+public partial class SnackbarItemView : FeedbackItemViewBase
 {
   /// <summary>
   ///   Initializes a new instance of the <see cref="SnackbarItemView" /> class.

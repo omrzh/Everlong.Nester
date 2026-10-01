@@ -67,35 +67,12 @@ public sealed class NoticeServiceOptions
   /// </summary>
   public int NotificationMaxCount { get; set; } = 3;
 
-  // ── Placement ────────────────────────────────────────────────────────────
+  // ── Panel ───────────────────────────────────────────────────────────────
 
   /// <summary>
-  ///   Anchor position of the toast stack. Default is <see cref="NoticePosition.TopCenter" />.
+  ///   The panel model the mounted panel lays out by — its visual options,
+  ///   not the service's: the service hands the model through and reads
+  ///   nothing from it.
   /// </summary>
-  public NoticePosition ToastPosition { get; set; } = NoticePosition.TopCenter;
-
-  /// <summary>
-  ///   Anchor position of the snackbar stack. Default is <see cref="NoticePosition.BottomCenter" />.
-  /// </summary>
-  public NoticePosition SnackbarPosition { get; set; } = NoticePosition.BottomCenter;
-
-  /// <summary>
-  ///   Anchor position of the notification banner stack. Default is <see cref="NoticePosition.TopRight" />.
-  /// </summary>
-  public NoticePosition NotificationPosition { get; set; } = NoticePosition.TopRight;
-
-  /// <summary>
-  ///   Spacing between the toast stack and the shell edge. Default is 16 on all sides.
-  /// </summary>
-  public Primitives.Thickness ToastMargin { get; set; } = new(16);
-
-  /// <summary>
-  ///   Spacing between the snackbar stack and the shell edge. Default is 16 on all sides.
-  /// </summary>
-  public Primitives.Thickness SnackbarMargin { get; set; } = new(16);
-
-  /// <summary>
-  ///   Spacing between the notification banner stack and the shell edge. Default is 16 on all sides.
-  /// </summary>
-  public Primitives.Thickness NotificationMargin { get; set; } = new(16);
+  public NoticePanelModel Panel { get; set; } = new();
 }

@@ -137,8 +137,8 @@ public abstract class NoticeServiceBase(ILayerBroker broker, INoticeEngine engin
   }
 
   /// <summary>
-  ///   Platform hook: builds the host grid with the three entry stacks
-  ///   anchored by their position options.
+  ///   Platform hook: builds the panel's mount point — the bare container the
+  ///   resolved panel lands in once it is in the tree.
   /// </summary>
   protected abstract object CreateHost();
 

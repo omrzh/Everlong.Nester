@@ -4,13 +4,13 @@ namespace Everlong.Nester.Presentation;
 
 /// <summary>
 ///   Default view locator for the extension packages' framework views:
-///   the notice entries (toasts, snackbars and notifications), the dialog
-///   sessions and the dimmer chrome model.
+///   the notice entries (toasts, snackbars and notifications), the notice
+///   panel model, the dialog sessions and the dimmer chrome model.
 /// </summary>
 /// <remarks>
 ///   Covers the notice entries (<see cref="ToastEntry" />,
 ///   <see cref="SnackbarEntry" />, <see cref="NotificationEntry" />), the
-///   dimmer chrome model (<see cref="DefaultDimmerModel" />) and the dialog
+///   notice panel model (<see cref="NoticePanelModel" />), the dimmer chrome model (<see cref="DefaultDimmerModel" />) and the dialog
 ///   session types: alert, confirm, wait, choice, option select, numpad,
 ///   signature pad, date/time picker, color picker, IPv4 composer and image
 ///   preview.  Register an instance in the application resources before the
@@ -26,6 +26,7 @@ public sealed class NesterExtendedViewLocator : ViewLocatorBase
     AddTemplate<ToastEntry, ToastItemView>();
     AddTemplate<SnackbarEntry, SnackbarItemView>();
     AddTemplate<NotificationEntry, NotificationItemView>();
+    AddTemplate<NoticePanelModel, NoticePanel>();
     AddTemplate<DefaultDimmerModel, DimmerLayout>();
     AddTemplate<AlertDialogSession, AlertDialogView>();
     AddTemplate<ConfirmDialogSession, ConfirmDialogView>();
@@ -52,6 +53,8 @@ public sealed class NesterExtendedViewLocator : ViewLocatorBase
       return new SnackbarItemView();
     if (data is NotificationEntry)
       return new NotificationItemView();
+    if (data is NoticePanelModel)
+      return new NoticePanel();
     if (data is DefaultDimmerModel)
       return new DimmerLayout();
     if (data is AlertDialogSession)
