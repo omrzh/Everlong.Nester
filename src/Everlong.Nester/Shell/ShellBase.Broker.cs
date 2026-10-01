@@ -187,6 +187,11 @@ partial class ShellBase : ILayerBroker, ILayerLedger
   }
 
   /// <summary>Evicts every live lease, topmost first; a failing tenant callback is reported and the cascade continues.</summary>
+  /// <remarks>
+  ///   Clears the focused lease without firing <see cref="IFocusableContent.OnUnfocusing" /> /
+  ///   <see cref="IFocusableContent.OnUnfocused" />: teardown releases the whole stack, so no lease
+  ///   outlives the evacuation to receive the pair.
+  /// </remarks>
   private async ValueTask EvictAllAsync()
   {
     _focused = null;
