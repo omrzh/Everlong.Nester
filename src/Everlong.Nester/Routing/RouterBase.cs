@@ -65,6 +65,7 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
     Role = seed.Role;
     _ownScope = seed.OwnScope;
     Parents = seed.Parents;
+    Counterpart = seed.Counterpart;
 
     Model = model;
     View.SetRouter(this);
@@ -113,9 +114,12 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
   /// <summary>The parent targets every route this router computes is completed with, outermost first; empty for the base router.</summary>
   internal IReadOnlyList<ITarget> Parents { get; }
 
+  /// <summary>The lease of the layer this router was derived from, or <see langword="null" /> for the base router.</summary>
+  internal ILayerLease? Counterpart { get; }
+
   /// <summary>Creates the convergence context of a landed transaction.</summary>
   protected internal virtual IConvergenceContext CreateConvergenceContext(TransactionContext context)
-    => new ConvergenceContext(context);
+    => new ConvergenceContext(context, Counterpart);
 
   /// <summary>The error channel the pipes' stages report through.</summary>
   internal IErrorReporter ErrorReporter { get; }
@@ -183,7 +187,7 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
     IServiceScope scope = _scopeFactory.CreateScope();
     IRouterSeed seed = scope.ServiceProvider.GetRequiredService<IRouterSeed>();
 
-    seed.Initialize(RouterRole.Derived, options.Plane, scope, options.Parents);
+    seed.Initialize(RouterRole.Derived, options.Plane, scope, options.Parents, _handle.Lease);
 
     IRouter wrapped = scope.ServiceProvider.GetRequiredService<IRouter>();
     try

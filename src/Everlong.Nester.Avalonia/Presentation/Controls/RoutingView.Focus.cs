@@ -13,12 +13,15 @@ namespace Everlong.Nester.Presentation;
 /// <summary>
 ///   The layer-focus half of the routing view — every surface competes for
 ///   the single foreground grant, and the surface is the one place with the
-///   visual tree the element-focus save and restore need.
+///   visual tree the element-focus save, restore and cross-layer anchor need.
 /// </summary>
 internal sealed partial class RoutingView
 {
   /// <summary>The element focused inside this surface when it last gave up layer focus.</summary>
   private PInputElement? _elementFocus;
+
+  /// <inheritdoc />
+  object? IFocusAnchor.Anchor => _elementFocus;
 
   /// <inheritdoc />
   bool IFocusableContent.TryFocus(LayerFocusContext context) => true;
@@ -29,7 +32,13 @@ internal sealed partial class RoutingView
   }
 
   /// <inheritdoc />
-  void IFocusableContent.OnFocused(LayerFocusContext context) => RestoreElementFocus();
+  void IFocusableContent.OnFocused(LayerFocusContext context)
+  {
+    RestoreElementFocus();
+    // The anchor lives exactly as long as the surface is in the background:
+    // once the foreground is back, the origin it carried is spent.
+    _elementFocus = null;
+  }
 
   /// <inheritdoc />
   void IFocusableContent.OnUnfocusing(LayerFocusContext context) => CaptureElementFocus();

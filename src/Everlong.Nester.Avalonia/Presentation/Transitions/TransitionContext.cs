@@ -2,16 +2,17 @@
 // <Compile Include> in Everlong.Nester.Wpf.csproj.  Edit it here only;
 // never create a WPF-side copy (the two builds would drift).
 
+using Everlong.Nester.Layer;
+
 namespace Everlong.Nester.Presentation;
 
 /// <summary>
-///   The snapshot of a scene transition — the change's view chains and
-///   the transition's kind.
+///   The snapshot of a scene transition — the change's view chains, the
+///   transition's kind and the layer it crosses to or from.
 /// </summary>
 /// <param name="FlyingCanvas">
-///   The window's flying plane — where ghost visuals land, the frame
-///   <c>CaptureRelativeRect</c> and <c>TranslatePoint</c> measure in, and
-///   the carrier of whatever the view layer parked in its anchor.
+///   The window's flying plane — where ghost visuals land, and the frame
+///   <c>CaptureRelativeRect</c> and <c>TranslatePoint</c> measure in.
 ///   <see langword="null"/> outside page composition (notices).
 /// </param>
 /// <param name="Kind">The kind of this transition.</param>
@@ -33,6 +34,19 @@ public sealed partial record TransitionContext(
   ///   presentation.
   /// </summary>
   public IReadOnlyList<PControl> DepartingChain { get; init; } = [];
+
+  /// <summary>
+  ///   The other layer this transition crosses to or from — the layer the
+  ///   transitioning router was derived from — or <see langword="null"/> when
+  ///   the transition moves inside one layer.  A cross-layer director reads the
+  ///   counterpart's interaction origin through it; an in-layer director has
+  ///   both sides already in <see cref="ArrivingChain"/> and
+  ///   <see cref="DepartingChain"/>.
+  /// </summary>
+  public ILayerLease? Counterpart { get; init; }
+
+  /// <summary>Whether this transition moves inside one layer or crosses between two.</summary>
+  public TransitionScope Scope => Counterpart is null ? TransitionScope.InLayer : TransitionScope.CrossLayer;
 
   /// <summary>The outermost arriving view, or <see langword="null"/> when none arrives.</summary>
   public PControl? ArrivingHead => ArrivingChain.Count > 0 ? ArrivingChain[0] : null;

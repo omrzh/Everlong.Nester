@@ -17,12 +17,15 @@ public interface IRouterSeed
   /// <summary>The scope this router owns, or <see langword="null" /> for the base router.</summary>
   IServiceScope? OwnScope { get; }
 
+  /// <summary>The lease of the layer this router was derived from, or <see langword="null" /> for the base router.</summary>
+  ILayerLease? Counterpart { get; }
+
   /// <summary>The parent targets every route the router computes is completed with, outermost first; empty for the base router.</summary>
   IReadOnlyList<ITarget> Parents { get; }
 
   /// <summary>Initializes the seed for a router.</summary>
   void Initialize(RouterRole role, LayerPlane plane, IServiceScope? ownScope,
-                 IReadOnlyList<ITarget>? parents = null);
+                 IReadOnlyList<ITarget>? parents = null, ILayerLease? counterpart = null);
 }
 
 /// <summary>
@@ -45,12 +48,16 @@ public sealed class RouterSeed : IRouterSeed
   public IReadOnlyList<ITarget> Parents { get; private set; } = [];
 
   /// <inheritdoc />
+  public ILayerLease? Counterpart { get; private set; }
+
+  /// <inheritdoc />
   public void Initialize(RouterRole role, LayerPlane plane, IServiceScope? ownScope,
-                         IReadOnlyList<ITarget>? parents = null)
+                         IReadOnlyList<ITarget>? parents = null, ILayerLease? counterpart = null)
   {
     Role = role;
     Plane = plane;
     OwnScope = ownScope;
     Parents = parents ?? [];
+    Counterpart = counterpart;
   }
 }

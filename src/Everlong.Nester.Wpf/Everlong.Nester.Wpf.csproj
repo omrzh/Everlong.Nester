@@ -44,6 +44,7 @@
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\RoutingView.Body.cs" Link="Presentation\Controls\RoutingView.Body.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\RoutingView.Focus.cs" Link="Presentation\Controls\RoutingView.Focus.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\ContentLayerHandle.cs" Link="Presentation\Controls\ContentLayerHandle.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\IFocusAnchor.cs" Link="Presentation\Controls\IFocusAnchor.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\TreeControl.shared.cs" Link="Presentation\Controls\TreeControl.shared.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\TreeItem.shared.cs" Link="Presentation\Controls\TreeItem.shared.cs" />
     <!-- Routing -->
@@ -56,6 +57,7 @@
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\ShellFlyingLayer.cs" Link="Presentation\Transitions\ShellFlyingLayer.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\ISceneTransition.cs" Link="Presentation\Transitions\ISceneTransition.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\TransitionKind.cs" Link="Presentation\Transitions\TransitionKind.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\TransitionScope.cs" Link="Presentation\Transitions\TransitionScope.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\TransitionContext.cs" Link="Presentation\Transitions\TransitionContext.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Layouts\IBodyHolder.cs" Link="Presentation\Layouts\IBodyHolder.cs" />
     <!-- Shell -->

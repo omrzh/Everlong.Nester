@@ -152,6 +152,7 @@ internal sealed partial class RoutingView
       {
         ArrivingChain = arrivingViews,
         DepartingChain = departingViews,
+        Counterpart = convergence.Counterpart,
       };
 
       try

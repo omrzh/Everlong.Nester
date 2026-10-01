@@ -40,6 +40,13 @@ it is also where the element focus is saved before a transfer and restored after
 **Migrate.** `DeriveOptions.Band` and `DeriveOptions.Policy` collapse to `DeriveOptions.Plane`
 (default `Overlay`), and `IRouterSeed` follows (`Plane`, no `Policy`).
 
+**Migrate.** The transition anchor is the surface's own, not a value a view parks in a window slot:
+`FlyingCanvas.Anchor` and the `n:Transition.Anchor` attached property (`Transition` in both extensions
+packages) are gone. A layer's content that implements `IFocusAnchor` exposes the element it held when it
+lost layer focus, and a transition that crosses layers is handed the source layer's lease through
+`TransitionContext.Counterpart`. `TransitionContext.Scope` says whether the transition is `InLayer` or
+`CrossLayer`, so a director can key its choreography on it.
+
 ## 0.1.11 — 2026-09-25
 
 **Migrate.** `IRouter.Derive(bool isEphemeral)` is gone. A derived router is created from

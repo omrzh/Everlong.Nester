@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Everlong.Nester.Layer;
 
 namespace Everlong.Nester.Routing;
 
@@ -20,7 +21,9 @@ public class ConvergenceContext : IConvergenceContext
   private List<Location>? _departureChain;
 
   /// <summary>Converts a committed transaction — the run adopts the decision's sites and the transaction's signal.</summary>
-  protected internal ConvergenceContext(TransactionContext context)
+  /// <param name="context">The committed transaction.</param>
+  /// <param name="counterpart">The lease of the layer this run crosses to or from, or <see langword="null" /> inside one layer.</param>
+  protected internal ConvergenceContext(TransactionContext context, ILayerLease? counterpart = null)
   {
     _arrival = context.Arrival;
     _departure = context.DepartureSite;
@@ -32,7 +35,11 @@ public class ConvergenceContext : IConvergenceContext
     Direction = context.Direction;
     Cts = context.Cts;
     Features = context.Features;
+    Counterpart = counterpart;
   }
+
+  /// <inheritdoc />
+  public ILayerLease? Counterpart { get; }
 
   /// <inheritdoc />
   public ILocation? Arrival { get; }
