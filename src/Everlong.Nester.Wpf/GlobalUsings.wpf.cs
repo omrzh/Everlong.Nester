@@ -18,6 +18,7 @@ global using PApp = System.Windows.Application;
 global using PCanvas = System.Windows.Controls.Canvas;
 global using PControl = System.Windows.FrameworkElement;
 global using PElement = System.Windows.DependencyObject;
+global using PInputElement = System.Windows.IInputElement;
 global using PPanel = System.Windows.Controls.Panel;
 global using PWindow = System.Windows.Window;
 global using PRect = System.Windows.Rect;

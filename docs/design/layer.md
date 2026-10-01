@@ -25,7 +25,7 @@ avoid:
 
 - **Placement** — which slice of the z axis the surface renders in. A `LayerPlane` answers it.
 - **Focus** — which single surface currently owns foreground interaction. The broker answers it, and
-  only a tenant that implements `IFocusableLayer` competes.
+  only a lease whose content implements `IFocusableContent` competes.
 
 A notice floats above a dialog by placement while the dialog keeps focus; a panel can sit above the
 navigation surface without ever taking the foreground. Position never implies focus, and focus never
@@ -37,15 +37,15 @@ implies position.
 A grant returns an `ILayerHandle`, the holder's writable handle, which carries the read-only
 `ILayerLease` and shapes the slot. `ILayerLease` is the read-only identity and observed state of the
 granted slot, single-use. `ILayerTenant` is the lease holder, notified once per reclaimed lease, after
-the lease is dead. `IFocusableLayer` is the optional capability a tenant implements to compete for
+the lease is dead. `IFocusableContent` is the optional capability a lease's content implements to compete for
 layer focus. `LayerFocusContext` says why a transfer is running. `ILayerLedger` / `ILayerStage` are the
 framework seams — liveness and removal, mounting and unmounting a slot's surface.
 
 A tenant holds a handle; it never holds the ledger or the stage, and an observer gets only the lease.
-That is why `Content`, `IsVisible` and `IntentHandler` are writable through the handle and merely
-readable on the lease, while the ledger stays an `[EditorBrowsable(Never)]` seam: the tenant keeps
-shaping its surface, the stack's bookkeeping stays the broker's, and a read grant never escalates to a
-write.
+That is why `IsVisible` and `IntentHandler` are writable through the handle while `Content` is merely
+readable on both faces — it is fixed at the grant — and the ledger stays an `[EditorBrowsable(Never)]`
+seam: the tenant keeps shaping its surface, the stack's bookkeeping stays the broker's, and a read
+grant never escalates to a write.
 
 ## 4. Planes
 
@@ -82,9 +82,8 @@ resolved once and fixed for the lease's life.
 A granted slot has two faces. The `ILayerLease` is the read-only face — `Z`, `Plane` and liveness are
 fixed at the grant, and `Content`, `IsVisible` and `IntentHandler` are readable but not writable.
 `IsLive` reads liveness until the end of time for that lease — a released or evicted lease never
-revives. The `ILayerHandle` is the holder's face: `Content`, `IsVisible` and `IntentHandler` stay
-writable for the slot's life, and `Release()` ends it. Only the tenant holds the handle; a lease is
-what everyone else sees, so a read grant can never be escalated to a write.
+revives. The `ILayerHandle` is the holder's face: `IsVisible` and `IntentHandler` stay writable for the
+slot's life, and `Release()` ends it; the content is fixed at the grant.
 
 `IntentHandler` defaults to a pass-through handler, so a slot with no opinion declines instead of
 blocking. `Content` is the surface the tenant presents; `IsVisible` hides the slot without ending the
@@ -93,10 +92,10 @@ lease. `Release()` is idempotent, and it carries no eviction notice.
 ## 7. Layer focus
 
 Layer focus is the single grant of foreground interaction. At most one lease holds it, and it is the
-highest live lease whose tenant is `IFocusableLayer` and accepts the consultation: the broker walks
-the stack z-descending, asks each eligible tenant `TryFocus`, and the first acceptance wins. A tenant
-that declines defers to the next; a stack whose eligible tenants all decline has no focused lease. A
-tenant that does not implement `IFocusableLayer` never competes.
+highest live lease whose content is `IFocusableContent` and accepts the consultation: the broker walks
+the stack z-descending, asks each eligible surface `TryFocus`, and the first acceptance wins. A surface
+that declines defers to the next; a stack whose eligible content all decline has no focused lease. A
+surface that does not implement `IFocusableContent` never competes.
 
 The election re-runs whenever a lease is granted or leaves the stack, and `RequestFocus(handle)` lets
 a live layer claim the grant directly — the shape a click into a coexisting panel takes, and a claim
@@ -160,7 +159,7 @@ pass-through default and declines rather than blocking.
   writable channel; releasing ends the surface, leaking the handle keeps a dead slot on the stack.
 - **Never assume z is unique.** Same-z co-tenants are normal — a non-stacking plane hosts every lease
   on its floor — and the later acquisition sits above.
-- **Keep presentation state on the handle** (`SetContent`, `SetVisible`) instead of in a service
-  field, so an eviction is the whole cleanup.
-- **Compete for focus deliberately.** Implementing `IFocusableLayer` is a decision to take the
+- **Keep presentation state on the handle** (`SetVisible`) instead of in a service field, so an
+  eviction is the whole cleanup.
+- **Compete for focus deliberately.** Implementing `IFocusableContent` is a decision to take the
   foreground; a layer that only wants to render does not.

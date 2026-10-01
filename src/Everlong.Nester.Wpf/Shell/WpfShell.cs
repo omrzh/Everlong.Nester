@@ -49,8 +49,8 @@ public abstract partial class WpfShell : ShellBase
   // ── ILayerBroker (the shell is the broker of its own stage) ──
 
   /// <inheritdoc />
-  protected override ILayerHandle CreateHandle(ILayerLedger ledger, LayerPlane plane, int z)
-    => new ContentLayerHandle(new ContentLayer(), ledger, plane, z);
+  protected override ILayerHandle CreateHandle(ILayerLedger ledger, object content, LayerPlane plane, int z)
+    => new ContentLayerHandle(new ContentLayer(), content, ledger, plane, z);
 
   /// <summary>Creates the stage panel, binds it to its owner and the shell's flying layer, and connects the broker ledger to it.</summary>
   protected override void PrepareStage()

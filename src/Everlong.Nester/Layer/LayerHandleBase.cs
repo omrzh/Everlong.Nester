@@ -5,19 +5,21 @@ namespace Everlong.Nester.Layer;
 
 /// <summary>
 ///   The handle skeleton: the slot members are abstract; the read-only view,
-///   liveness and the exit path are shared.
+///   content, liveness and the exit path are shared.
 /// </summary>
-/// <remarks>Creates the handle over its ledger channel at the granted plane and z.</remarks>
+/// <remarks>Creates the handle over its ledger channel at the granted plane and z, holding the granted content.</remarks>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public abstract class LayerHandleBase : ILayerHandle
 {
   private readonly ILayerLedger _ledger;
+  private readonly object _content;
   private readonly LeaseView _lease;
 
-  /// <summary>Creates the handle over its ledger channel at the granted plane and z.</summary>
-  protected LayerHandleBase(ILayerLedger ledger, LayerPlane plane, int z)
+  /// <summary>Creates the handle over its ledger channel at the granted plane and z, holding the granted content.</summary>
+  protected LayerHandleBase(ILayerLedger ledger, object content, LayerPlane plane, int z)
   {
     _ledger = ledger;
+    _content = content;
     _lease = new LeaseView(this, ledger, plane, z);
   }
 
@@ -27,14 +29,11 @@ public abstract class LayerHandleBase : ILayerHandle
   /// <summary>The handler this lease presents to an intent dispatch.</summary>
   protected IIntentHandler Handler { get; set; } = NoOpIntentHandler.Instance;
 
-  /// <summary>The displayed content.</summary>
-  protected abstract object? Content { get; set; }
+  /// <summary>The content granted with the lease — fixed for its life.</summary>
+  protected object Content => _content;
 
   /// <summary>Whether the slot is displayed.</summary>
   protected abstract bool IsVisible { get; set; }
-
-  /// <inheritdoc />
-  public void SetContent(object? content) => Content = content;
 
   /// <inheritdoc />
   public void SetVisible(bool visible) => IsVisible = visible;
@@ -58,7 +57,7 @@ public abstract class LayerHandleBase : ILayerHandle
     public LayerPlane Plane => plane;
 
     /// <inheritdoc />
-    public object? Content => owner.Content;
+    public object Content => owner.Content;
 
     /// <inheritdoc />
     public bool IsVisible => owner.IsVisible;

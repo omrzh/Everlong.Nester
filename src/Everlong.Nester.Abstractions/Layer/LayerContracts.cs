@@ -72,8 +72,8 @@ public interface ILayerLease
   /// <summary>The plane the lease was granted in.</summary>
   LayerPlane Plane { get; }
 
-  /// <summary>The displayed content; <see langword="null" /> while the slot is empty.</summary>
-  object? Content { get; }
+  /// <summary>The surface the lease presents — fixed at the grant.</summary>
+  object Content { get; }
 
   /// <summary>Whether the slot is displayed.</summary>
   bool IsVisible { get; }
@@ -88,19 +88,16 @@ public interface ILayerLease
 /// <summary>The holder's writable handle over a granted lease.</summary>
 /// <remarks>
 ///   The grant's only writable channel: <see cref="Lease" /> is the
-///   read-only identity, and the content, the visibility and the intent
-///   handler stay mutable for the lease's life.  A handle is never handed to
-///   an observer — <see cref="ILayerBroker.Focused" /> and
-///   <see cref="ILayerTenant.OnEvictedAsync" /> expose the read-only
+///   read-only identity, and the visibility and the intent handler stay
+///   mutable for the lease's life — the content is fixed at the grant.  A
+///   handle is never handed to an observer — <see cref="ILayerBroker.Focused" />
+///   and <see cref="ILayerTenant.OnEvictedAsync" /> expose the read-only
 ///   <see cref="ILayerLease" /> instead.
 /// </remarks>
 public interface ILayerHandle
 {
   /// <summary>The read-only lease this handle controls.</summary>
   ILayerLease Lease { get; }
-
-  /// <summary>Replaces the displayed content; <see langword="null" /> clears the slot without ending the lease.</summary>
-  void SetContent(object? content);
 
   /// <summary>Shows or hides the slot without ending the lease.</summary>
   void SetVisible(bool visible);
@@ -126,16 +123,18 @@ public interface ILayerTenant
   ValueTask OnEvictedAsync(ILayerLease lease);
 }
 
-/// <summary>Competes for layer focus.</summary>
+/// <summary>Competes for layer focus — implemented by a lease's content.</summary>
 /// <remarks>
 ///   Layer focus is the single grant of foreground interaction: the focused
 ///   layer is consulted first by an intent dispatch and is the layer the
-///   element focus is expected to follow.  A tenant that does not implement
-///   this contract is never granted layer focus.  All members are
-///   synchronous and run on the broker's thread; a callback must not
-///   release the lease under consultation.
+///   element focus is expected to follow.  A lease whose content does not
+///   implement this contract is never granted layer focus — the participating
+///   surface is the content, so the element-focus save and restore have the
+///   visual tree they need.  All members are synchronous and run on the
+///   broker's thread; a callback must not release the lease under
+///   consultation.
 /// </remarks>
-public interface IFocusableLayer
+public interface IFocusableContent
 {
   /// <summary>Decides whether this layer takes layer focus now; <see langword="false" /> defers to the next candidate.</summary>
   bool TryFocus(LayerFocusContext context);
@@ -172,6 +171,6 @@ public interface ILayerBroker
   /// <summary>The lease that currently holds layer focus, or <see langword="null" /> when none does.</summary>
   ILayerLease? Focused { get; }
 
-  /// <summary>Asks for layer focus on behalf of a live lease; an evicted lease or a non-<see cref="IFocusableLayer" /> tenant is ignored.</summary>
+  /// <summary>Asks for layer focus on behalf of a live lease; an evicted lease or one whose content is not <see cref="IFocusableContent" /> is ignored.</summary>
   void RequestFocus(ILayerHandle handle);
 }

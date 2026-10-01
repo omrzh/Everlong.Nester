@@ -12,8 +12,8 @@ namespace Everlong.Nester.Presentation;
 /// </summary>
 internal sealed class ContentLayerHandle : LayerHandleBase
 {
-  internal ContentLayerHandle(ContentLayer surface, ILayerLedger ledger, LayerPlane plane, int z)
-    : base(ledger, plane, z)
+  internal ContentLayerHandle(ContentLayer surface, object content, ILayerLedger ledger, LayerPlane plane, int z)
+    : base(ledger, content, plane, z)
   {
     Surface = surface;
 #if AVALONIA
@@ -21,13 +21,11 @@ internal sealed class ContentLayerHandle : LayerHandleBase
 #else
     System.Windows.Controls.Panel.SetZIndex(surface, z);
 #endif
+    surface.Content = content;
   }
 
   /// <summary>The mounted surface (the mount hook's extraction channel).</summary>
   internal ContentLayer Surface { get; }
-
-  /// <inheritdoc />
-  protected override object? Content { get => Surface.Content; set => Surface.Content = value; }
 
 #if AVALONIA
   /// <inheritdoc />

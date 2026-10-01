@@ -9,26 +9,19 @@ namespace Everlong.Nester.Presentation;
 /// </summary>
 internal sealed class TuiLayerHandle : LayerHandleBase
 {
-  internal TuiLayerHandle(TuiLayer surface, ILayerLedger ledger, LayerPlane plane, int z)
-    : base(ledger, plane, z)
+  internal TuiLayerHandle(TuiLayer surface, object content, ILayerLedger ledger, LayerPlane plane, int z)
+    : base(ledger, content, plane, z)
   {
     Surface = surface;
+    surface.Content = content switch
+    {
+      View view => view,
+      _ => throw new ArgumentException($"A Terminal.Gui layer renders a {nameof(View)}.", nameof(content)),
+    };
   }
 
   /// <summary>The mounted surface.</summary>
   internal TuiLayer Surface { get; }
-
-  /// <inheritdoc />
-  protected override object? Content
-  {
-    get => Surface.Content;
-    set => Surface.Content = value switch
-    {
-      null => null,
-      View view => view,
-      _ => throw new ArgumentException($"A Terminal.Gui layer renders a {nameof(View)}.", nameof(value)),
-    };
-  }
 
   /// <inheritdoc />
   protected override bool IsVisible { get => Surface.Visible; set => Surface.Visible = value; }

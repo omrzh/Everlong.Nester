@@ -20,20 +20,22 @@ overload and the exact-`z` overload are removed — the position policy is the p
 exact slot is a platform seam, not a public entry.
 
 **Migrate.** `Acquire` returns an `ILayerHandle`, not an `ILayerLease`. The handle carries the
-read-only `Lease` and the slot's mutation — `SetContent`, `SetVisible`, `SetIntentHandler`,
-`Release`; `ILayerLease` is read-only, so `Focused` and `OnEvictedAsync` hand out a lease that
-cannot be escalated to a write. `RequestFocus` takes the handle, and the platform factory is
-`CreateHandle(ledger, plane, z)`.
+read-only `Lease` and the slot's mutation — `SetVisible`, `SetIntentHandler`, `Release`; `ILayerLease`
+is read-only, so `Focused` and `OnEvictedAsync` hand out a lease that cannot be escalated to a write.
+The content is fixed at the grant: the handle has no `SetContent`, and a surface the tenant needs to
+replace takes a fresh lease. `RequestFocus` takes the handle, and the platform factory is
+`CreateHandle(ledger, content, plane, z)`.
 
 **Migrate.** `ILayerLease.IsActive` is renamed `IsLive` (liveness), and the lease now reports its
 `Plane`. "Active" was already spoken for by the app-activation domain and by the window's active
 state, and the layer domain's new foreground concept is **layer focus**, not activation.
 
 **New.** Layer focus is the single foreground grant: `ILayerBroker.Focused` reports the holder and
-`ILayerBroker.RequestFocus` lets a live layer claim it. A tenant opts in by implementing
-`IFocusableLayer` — `TryFocus` accepts or declines per transfer, and `OnFocusing` / `OnFocused` /
-`OnUnfocusing` / `OnUnfocused` are the pre/post transfer hooks. A layer that does not implement the
-capability never takes focus.
+`ILayerBroker.RequestFocus` lets a live layer claim it. A layer opts in by having its content implement
+`IFocusableContent` — `TryFocus` accepts or declines per transfer, and `OnFocusing` / `OnFocused` /
+`OnUnfocusing` / `OnUnfocused` are the pre/post transfer hooks. A layer whose content does not
+implement the capability never takes focus. The platform routing surface is where the hooks land, so
+it is also where the element focus is saved before a transfer and restored after one.
 
 **Migrate.** `DeriveOptions.Band` and `DeriveOptions.Policy` collapse to `DeriveOptions.Plane`
 (default `Overlay`), and `IRouterSeed` follows (`Plane`, no `Policy`).

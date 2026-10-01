@@ -25,7 +25,7 @@ public class LayerStageTests
 
   /// <summary>A live platform lease over the given slot, positioned at <paramref name="z"/>.</summary>
   private static ContentLayerHandle Lease(ContentLayer slot, int z)
-    => new(slot, StubLedger.Instance, LayerPlane.Overlay, z);
+    => new(slot, new object(), StubLedger.Instance, LayerPlane.Overlay, z);
 
   /// <summary>A detached ledger channel: every lease stays live, no ledger actions.</summary>
   private sealed class StubLedger : ILayerLedger

@@ -38,9 +38,10 @@ public sealed class FloatingPlayerHost : ILayerTenant
     vm.StartPlaybackLoop();
 
     _vm = vm;
-    // The dock plane holds persistent floating surfaces below the interaction chain.
-    _handle ??= _broker.Acquire(this, vm, LayerPlane.Dock);
-    _handle.SetContent(vm);
+    // Content is fixed at the grant, so a replacement is a fresh lease; Dock
+    // is non-stacking, so the replacement lands on the same floor.
+    _handle?.Release();
+    _handle = _broker.Acquire(this, vm, LayerPlane.Dock);
   }
 
   /// <summary>Stops playback and returns the layer lease.</summary>

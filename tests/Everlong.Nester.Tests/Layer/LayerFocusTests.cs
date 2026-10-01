@@ -5,7 +5,7 @@ namespace Everlong.Nester.Tests.Layer;
 
 /// <summary>
 ///   Contract tests for layer focus: the single foreground grant, the
-///   election over eligible tenants, the accept/decline consultation and the
+///   election over eligible content, the accept/decline consultation and the
 ///   pre/post transfer hooks.
 /// </summary>
 public class LayerFocusTests
@@ -13,7 +13,7 @@ public class LayerFocusTests
   private static TestBrokerCore NewCore() => new();
 
   [Fact]
-  public void Focus_NotGranted_ToNonFocusableTenant()
+  public void Focus_NotGranted_ToNonFocusableContent()
   {
     var core = NewCore();
 
@@ -27,7 +27,7 @@ public class LayerFocusTests
   {
     var core = NewCore();
 
-    core.Acquire(new FocusTenant("holder", []), LayerPlane.Overlay);
+    core.Acquire(new LayerTestTenant(), new FocusableContent("holder", []), LayerPlane.Overlay);
 
     Assert.NotNull(core.Focused);
     Assert.False(core.Focused is ILayerHandle);
@@ -38,11 +38,11 @@ public class LayerFocusTests
   {
     var core = NewCore();
     var log = new List<string>();
-    var low = new FocusTenant("low", log);
-    var high = new FocusTenant("high", log);
+    var low = new FocusableContent("low", log);
+    var high = new FocusableContent("high", log);
 
-    var lowLease = core.Acquire(low, LayerPlane.Ground);
-    var highLease = core.Acquire(high, LayerPlane.Overlay);
+    var lowLease = core.Acquire(new LayerTestTenant(), low, LayerPlane.Ground);
+    var highLease = core.Acquire(new LayerTestTenant(), high, LayerPlane.Overlay);
 
     Assert.Equal(highLease.Lease, core.Focused);
     Assert.NotEqual(lowLease.Lease, core.Focused);
@@ -53,12 +53,12 @@ public class LayerFocusTests
   {
     var core = NewCore();
     var log = new List<string>();
-    var low = new FocusTenant("low", log);
-    var high = new FocusTenant("high", log);
+    var low = new FocusableContent("low", log);
+    var high = new FocusableContent("high", log);
 
-    var lowLease = core.Acquire(low, LayerPlane.Overlay);
+    var lowLease = core.Acquire(new LayerTestTenant(), low, LayerPlane.Overlay);
     log.Clear();
-    var highLease = core.Acquire(high, LayerPlane.Overlay);
+    var highLease = core.Acquire(new LayerTestTenant(), high, LayerPlane.Overlay);
 
     Assert.Equal(highLease.Lease, core.Focused);
     Assert.Equal(new[] { "high:try:Granted", "low:unfocusing", "high:focusing", "low:unfocused", "high:focused" }, log);
@@ -75,12 +75,12 @@ public class LayerFocusTests
   {
     var core = NewCore();
     var log = new List<string>();
-    var keeper = new FocusTenant("keeper", log);
-    var decliner = new FocusTenant("decliner", log) { Accept = false };
+    var keeper = new FocusableContent("keeper", log);
+    var decliner = new FocusableContent("decliner", log) { Accept = false };
 
-    var keeperLease = core.Acquire(keeper, LayerPlane.Overlay);
+    var keeperLease = core.Acquire(new LayerTestTenant(), keeper, LayerPlane.Overlay);
     log.Clear();
-    core.Acquire(decliner, LayerPlane.Overlay);
+    core.Acquire(new LayerTestTenant(), decliner, LayerPlane.Overlay);
 
     Assert.Equal(keeperLease.Lease, core.Focused);
     Assert.Contains("decliner:try:Granted", log);
@@ -93,8 +93,8 @@ public class LayerFocusTests
     var core = NewCore();
     var log = new List<string>();
 
-    core.Acquire(new FocusTenant("a", log) { Accept = false }, LayerPlane.Overlay);
-    core.Acquire(new FocusTenant("b", log) { Accept = false }, LayerPlane.Overlay);
+    core.Acquire(new LayerTestTenant(), new FocusableContent("a", log) { Accept = false }, LayerPlane.Overlay);
+    core.Acquire(new LayerTestTenant(), new FocusableContent("b", log) { Accept = false }, LayerPlane.Overlay);
 
     Assert.Null(core.Focused);
   }
@@ -104,11 +104,11 @@ public class LayerFocusTests
   {
     var core = NewCore();
     var log = new List<string>();
-    var dock = new FocusTenant("dock", log);
-    var overlay = new FocusTenant("overlay", log);
+    var dock = new FocusableContent("dock", log);
+    var overlay = new FocusableContent("overlay", log);
 
-    var dockLease = core.Acquire(dock, LayerPlane.Dock);
-    core.Acquire(overlay, LayerPlane.Overlay);
+    var dockLease = core.Acquire(new LayerTestTenant(), dock, LayerPlane.Dock);
+    core.Acquire(new LayerTestTenant(), overlay, LayerPlane.Overlay);
     log.Clear();
 
     core.RequestFocus(dockLease);
@@ -123,11 +123,11 @@ public class LayerFocusTests
   {
     var core = NewCore();
     var log = new List<string>();
-    var dock = new FocusTenant("dock", log);
-    var overlay = new FocusTenant("overlay", log);
+    var dock = new FocusableContent("dock", log);
+    var overlay = new FocusableContent("overlay", log);
 
-    var dockLease = core.Acquire(dock, LayerPlane.Dock);
-    var overlayLease = core.Acquire(overlay, LayerPlane.Overlay);
+    var dockLease = core.Acquire(new LayerTestTenant(), dock, LayerPlane.Dock);
+    var overlayLease = core.Acquire(new LayerTestTenant(), overlay, LayerPlane.Overlay);
     dockLease.Release();
 
     core.RequestFocus(dockLease);
@@ -135,12 +135,10 @@ public class LayerFocusTests
     Assert.Equal(overlayLease.Lease, core.Focused);
   }
 
-  /// <summary>A focusable tenant that records its consultations and can decline.</summary>
-  private sealed class FocusTenant(string name, List<string> log) : ILayerTenant, IFocusableLayer
+  /// <summary>Focusable layer content that records its consultations and can decline.</summary>
+  private sealed class FocusableContent(string name, List<string> log) : IFocusableContent
   {
     public bool Accept { get; init; } = true;
-
-    public ValueTask OnEvictedAsync(ILayerLease lease) => ValueTask.CompletedTask;
 
     public bool TryFocus(LayerFocusContext context)
     {

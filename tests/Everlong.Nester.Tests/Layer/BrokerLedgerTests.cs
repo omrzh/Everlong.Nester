@@ -58,18 +58,18 @@ public class BrokerLedgerTests
   }
 
   [Fact]
-  public void Content_Swap_KeepsTheLease()
+  public void Content_IsFixedAtTheGrant_CannotBeReplaced()
   {
     var core = NewCore();
     var tenant = new LayerTestTenant();
-    var handle = core.Acquire(tenant, 100);
-    var latest = new object();
+    var content = new object();
+    var handle = core.Acquire(tenant, content, 100);
 
-    handle.SetContent(latest);
-
-    Assert.Same(latest, handle.Lease.Content);
+    Assert.Same(content, handle.Lease.Content);
     Assert.True(handle.Lease.IsLive);
     Assert.Equal(100, handle.Lease.Z);
+    Assert.Null(typeof(ILayerHandle).GetMethod("SetContent"));
+    Assert.Null(typeof(ILayerLease).GetProperty(nameof(ILayerLease.Content))!.SetMethod);
   }
 
   // ── Release: reference-only, idempotent, no holder gate ──

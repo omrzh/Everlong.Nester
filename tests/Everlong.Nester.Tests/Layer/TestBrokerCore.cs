@@ -54,8 +54,7 @@ internal sealed class TestBrokerCore : ILayerBroker, ILayerLedger
 
   private ILayerHandle AcquireAt(ILayerTenant tenant, object content, LayerPlane plane, int z)
   {
-    ILayerHandle handle = new TestHandle(this, plane, z);
-    handle.SetContent(content);
+    ILayerHandle handle = new TestHandle(this, content, plane, z);
     _stage?.MountLease(handle);
     _entries.Add(new Entry(handle, tenant));
     ReelectFocus(LayerFocusCause.Granted);
@@ -73,7 +72,7 @@ internal sealed class TestBrokerCore : ILayerBroker, ILayerLedger
   public void RequestFocus(ILayerHandle handle)
   {
     ILayerLease lease = handle.Lease;
-    if (!IsLive(lease) || TenantOf(lease) is not IFocusableLayer)
+    if (!IsLive(lease) || lease.Content is not IFocusableContent)
       return;
     ApplyFocus(lease, LayerFocusCause.Requested);
   }
@@ -86,7 +85,7 @@ internal sealed class TestBrokerCore : ILayerBroker, ILayerLedger
     if (entry is null)
       return;
     _stage?.UnmountLease(entry.Handle);
-    DepartFocus(lease, entry.Tenant);
+    DepartFocus(lease);
     ReelectFocus(LayerFocusCause.Departed);
   }
 
@@ -97,7 +96,7 @@ internal sealed class TestBrokerCore : ILayerBroker, ILayerLedger
     if (entry is null)
       return false;
     _stage?.UnmountLease(entry.Handle);
-    DepartFocus(lease, entry.Tenant);
+    DepartFocus(lease);
     entry.Tenant.OnEvictedAsync(lease);
     ReelectFocus(LayerFocusCause.Departed);
     return true;
@@ -185,7 +184,7 @@ internal sealed class TestBrokerCore : ILayerBroker, ILayerLedger
                  .OrderByDescending(x => x.e.Handle.Lease.Z)
                  .ThenByDescending(x => x.index))
     {
-      if (entry.e.Tenant is IFocusableLayer focusable && focusable.TryFocus(context))
+      if (entry.e.Handle.Lease.Content is IFocusableContent focusable && focusable.TryFocus(context))
         return entry.e.Handle.Lease;
     }
 
@@ -199,8 +198,8 @@ internal sealed class TestBrokerCore : ILayerBroker, ILayerLedger
 
     var context = new LayerFocusContext(cause);
     ILayerLease? outgoing = _focused;
-    IFocusableLayer? outgoingFocus = TenantOf(outgoing) as IFocusableLayer;
-    IFocusableLayer? incomingFocus = TenantOf(winner) as IFocusableLayer;
+    IFocusableContent? outgoingFocus = outgoing?.Content as IFocusableContent;
+    IFocusableContent? incomingFocus = winner?.Content as IFocusableContent;
 
     outgoingFocus?.OnUnfocusing(context);
     incomingFocus?.OnFocusing(context);
@@ -211,9 +210,9 @@ internal sealed class TestBrokerCore : ILayerBroker, ILayerLedger
     incomingFocus?.OnFocused(context);
   }
 
-  private void DepartFocus(ILayerLease lease, ILayerTenant tenant)
+  private void DepartFocus(ILayerLease lease)
   {
-    if (!ReferenceEquals(_focused, lease) || tenant is not IFocusableLayer focusable)
+    if (!ReferenceEquals(_focused, lease) || lease.Content is not IFocusableContent focusable)
       return;
 
     var context = new LayerFocusContext(LayerFocusCause.Departed);
@@ -221,9 +220,6 @@ internal sealed class TestBrokerCore : ILayerBroker, ILayerLedger
     _focused = null;
     focusable.OnUnfocused(context);
   }
-
-  private ILayerTenant? TenantOf(ILayerLease? lease)
-    => lease is null ? null : _entries.FirstOrDefault(e => ReferenceEquals(e.Handle.Lease, lease))?.Tenant;
 
   private Entry? Remove(ILayerLease lease)
   {

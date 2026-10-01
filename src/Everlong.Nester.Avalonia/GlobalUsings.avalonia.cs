@@ -17,6 +17,7 @@ global using PApp = Avalonia.Application;
 global using PCanvas = Avalonia.Controls.Canvas;
 global using PControl = Avalonia.Controls.Control;
 global using PElement = Avalonia.Controls.Control;
+global using PInputElement = Avalonia.Input.IInputElement;
 global using PPanel = Avalonia.Controls.Panel;
 global using PWindow = Avalonia.Controls.Window;
 global using PRect = Avalonia.Rect;

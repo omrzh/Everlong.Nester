@@ -17,7 +17,7 @@ namespace Everlong.Nester.Routing;
 ///   carries the result channel.
 /// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
-public class RouterBase : IRouter, IIntentHandler, ILayerTenant, IFocusableLayer
+public class RouterBase : IRouter, IIntentHandler, ILayerTenant
 {
   /// <inheritdoc />
   public RouterRole Role { get; }
@@ -491,33 +491,6 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant, IFocusableLayer
 
     CloseSync(null);
     return ValueTask.CompletedTask;
-  }
-
-  // ── layer focus — every router competes for the single foreground grant;
-  //    the element-focus side of the transfer is the platform view's concern
-  //    (RoutingView), wired where the platform supplies a focus manager.
-
-  /// <inheritdoc />
-  bool IFocusableLayer.TryFocus(LayerFocusContext context) => true;
-
-  /// <inheritdoc />
-  void IFocusableLayer.OnFocusing(LayerFocusContext context)
-  {
-  }
-
-  /// <inheritdoc />
-  void IFocusableLayer.OnFocused(LayerFocusContext context)
-  {
-  }
-
-  /// <inheritdoc />
-  void IFocusableLayer.OnUnfocusing(LayerFocusContext context)
-  {
-  }
-
-  /// <inheritdoc />
-  void IFocusableLayer.OnUnfocused(LayerFocusContext context)
-  {
   }
 
   // ── intent handling — the router's own domain commands ───────────────────────

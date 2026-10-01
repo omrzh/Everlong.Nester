@@ -3,6 +3,7 @@
 // never create a WPF-side copy (the two builds would drift).
 
 
+using Everlong.Nester.Layer;
 using Everlong.Nester.Routing;
 using Everlong.Nester.Shell;
 
@@ -13,7 +14,7 @@ namespace Everlong.Nester.Presentation;
 ///   chain's outermost view, carries the model's committed state, assembles
 ///   the resolved chain's views and reveals each convergence.
 /// </summary>
-internal sealed partial class RoutingView : BodyPanel, IRoutingView, IFocusPolicySurface
+internal sealed partial class RoutingView : BodyPanel, IRoutingView, IFocusPolicySurface, IFocusableContent
 {
   /// <inheritdoc />
   public FocusPolicy FocusPolicy
