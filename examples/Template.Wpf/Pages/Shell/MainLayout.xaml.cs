@@ -8,7 +8,7 @@ using Everlong.Nester.Primitives;
 namespace NesterApp.Pages.Shell;
 
 [ViewFor<MainLayoutModel>]
-public partial class MainLayout : UserControl, IBodyHolder, ISceneTransition
+public partial class MainLayout : UserControl, IBodyHolder, IPassThroughTransition
 {
   private Window? _hostWindow;
 
@@ -20,12 +20,6 @@ public partial class MainLayout : UserControl, IBodyHolder, ISceneTransition
   }
 
   public IBodyPanel GetBodyPanel() => Body;
-
-  public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
-    => this.PassThroughAsync(context, token);
-
-  public Task AnimateExitAsync(TransitionContext context, CancellationToken token)
-    => this.PassExitAsync(context, token);
 
   /// <summary>
   ///   Wires the caption buttons to the host window: the maximize button is

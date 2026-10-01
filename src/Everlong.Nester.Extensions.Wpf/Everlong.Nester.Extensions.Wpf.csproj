@@ -45,6 +45,7 @@
     <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transitions\DialogTransitions.cs" Link="Presentation\Transitions\DialogTransitions.cs" />
     <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transitions\SlideDirection.cs" Link="Presentation\Transitions\SlideDirection.cs" />
     <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transitions\TransitionContextExtensions.cs" Link="Presentation\Transitions\TransitionContextExtensions.cs" />
+    <Compile Include="..\Everlong.Nester.Extensions.Avalonia\Presentation\Transitions\IPassThroughTransition.cs" Link="Presentation\Transitions\IPassThroughTransition.cs" />
   </ItemGroup>
 
 </Project>

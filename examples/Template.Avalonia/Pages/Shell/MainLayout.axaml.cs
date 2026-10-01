@@ -7,7 +7,7 @@ using Everlong.Nester.Shell;
 namespace NesterApp.Pages.Shell;
 
 [ViewFor<MainLayoutModel>]
-public partial class MainLayout : UserControl, IBodyHolder, ISceneTransition
+public partial class MainLayout : UserControl, IBodyHolder, IPassThroughTransition
 {
   private TopLevel? _topLevel;
 
@@ -17,12 +17,6 @@ public partial class MainLayout : UserControl, IBodyHolder, ISceneTransition
   }
 
   public IBodyPanel GetBodyPanel() => Body;
-
-  public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
-    => this.PassThroughAsync(context, token);
-
-  public Task AnimateExitAsync(TransitionContext context, CancellationToken token)
-    => this.PassExitAsync(context, token);
 
   /// <summary>Tracks the host window so the maximize glyph follows its state.</summary>
   protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)

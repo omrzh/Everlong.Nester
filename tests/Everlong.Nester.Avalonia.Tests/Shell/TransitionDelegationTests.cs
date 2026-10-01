@@ -53,13 +53,44 @@ public sealed class TransitionDelegationTests
     public Control? View { get; set; } = view;
   }
 
-  private static IViewLocation<Control> Attach(FrameView frame, Control child)
+  /// <summary>A pass-through director that declares only the marker interface.</summary>
+  private sealed class MarkerFrame : ContentControl, IBodyHolder, IPassThroughTransition
+  {
+    private readonly BodyPanel _body = new();
+
+    internal MarkerFrame() => Content = _body;
+
+    public IBodyPanel GetBodyPanel() => _body;
+  }
+
+  private static IViewLocation<Control> Attach(IBodyHolder frame, Control child)
   {
     IBodyPanel<Control> body = frame.GetBodyPanel();
     var node = new BodyNode(child);
     body.Add(node);
     body.SetActiveChild(node);
     return node;
+  }
+
+  [AvaloniaFact]
+  public async Task IPassThroughTransition_DefaultsBothMembersToTheShippedPassThrough()
+  {
+    var frame = new MarkerFrame();
+    var child = new DirectorView();
+    Attach(frame, child);
+
+    // Called through the base interface, as the framework calls a director.
+    var context = new TransitionContext(null, TransitionKind.Enter) { Arriving = frame };
+    await ((ISceneTransition)frame).AnimateEnterAsync(context, CancellationToken.None);
+
+    Assert.Equal(1, frame.Opacity);
+    Assert.Equal(0, child.Opacity);
+    Assert.Same(child, Assert.Single(child.Enters).Arriving);
+
+    var exitContext = new TransitionContext(null, TransitionKind.Dismiss) { Departing = frame };
+    await ((ISceneTransition)frame).AnimateExitAsync(exitContext, CancellationToken.None);
+
+    Assert.Same(child, Assert.Single(child.Exits).Departing);
   }
 
   [AvaloniaFact]

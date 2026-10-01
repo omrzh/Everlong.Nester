@@ -58,6 +58,10 @@ no longer animates the page unless the shell itself directs. A director that nee
 moves the lever down itself as it delegates; the shipped `PassThroughAsync` / `PassExitAsync` walk the
 body tree for that.
 
+**New.** A shell that directs only by passing the change through declares `IPassThroughTransition`
+(a `PControl` `IBodyHolder` in the extensions packages) instead of forwarding the two `ISceneTransition`
+members by hand: they are defaulted to the delegation above.
+
 **Migrate.** `IFocusPolicySurface` and its `FocusPolicy` enum are gone from the core package. A layer's
 content no longer declares its own Tab participation: the platform surface derives it from the router it
 carries — a derived router's presentation traps Tab and excludes every layer beneath it, and any other
