@@ -43,6 +43,20 @@ not belong here, and an entry is deleted when it is done, never struck through.
   (`tests/Everlong.Nester.Avalonia.Tests/Everlong.Nester.Avalonia.Tests.csproj`), not the layout views,
   so its `MainLayout` is a stub routing participant. `.agents/py/template_smoke.py` — CI's `templates` job —
   is what exercises the real ones.
+- **The layer-focus broker carries three focus-election gaps.** `ShellBase.Broker.RequestFocus` calls
+  `ApplyFocus` directly, outside the `_electing` loop, so a claim is not serialized with a running
+  election and can steal focus from a modal. `Elect` always re-walks the stack from the top (`BottomUp`
+  is z-descending), so a newcomer that declines can let a middle layer win the foreground.
+  `EvictAllAsync` clears `_focused` without firing `OnUnfocusing` / `OnUnfocused` — intentional for
+  teardown, but undocumented.
+- **`FloatingPlayerHost` lost its ceiling intent.** It presents through `LayerPlane.Dock`, whose grant
+  takes the plane's floor, while its doc still says it rents the floating band's ceiling
+  (`examples/Template.Shared/Services/FloatingPlayerHost.cs`).
+- **`TestBrokerCore` duplicates the broker.** It re-implements `ResolveZ` and the focus election
+  (`tests/Everlong.Nester.Tests/Layer/TestBrokerCore.cs`), so it drifts from `ShellBase.Broker.cs`
+  silently.
+- **The placement / anchor seam does not exist.** No `ILayerAnchor`, no flip/clamp/DPI, and one
+  window-confined `ILayerStage` per shell (`ConnectLedger` in `ShellBase.Broker.cs`).
 
 ## Open verdicts
 
