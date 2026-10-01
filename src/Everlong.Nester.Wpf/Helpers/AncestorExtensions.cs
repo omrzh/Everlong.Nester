@@ -33,22 +33,6 @@ internal static class AncestorExtensions
   }
 
   /// <summary>
-  ///   Resolves the nearest ancestor of type <typeparamref name="T" /> up
-  ///   the visual tree, <paramref name="element" /> itself included;
-  ///   <see langword="null" /> when the chain holds none.
-  /// </summary>
-  internal static T? FindVisualAncestor<T>(this DependencyObject? element) where T : class
-  {
-    for (DependencyObject? node = element; node is not null; node = StepVisual(node))
-    {
-      if (node is T ancestor)
-        return ancestor;
-    }
-
-    return null;
-  }
-
-  /// <summary>
   ///   Steps one level up an element's ancestry: the logical parent, or the
   ///   visual parent where a template boundary leaves the logical tree.
   /// </summary>

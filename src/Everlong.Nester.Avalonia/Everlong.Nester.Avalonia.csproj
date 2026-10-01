@@ -30,7 +30,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Everlong.Nester.Extensions.Avalonia" />
     <InternalsVisibleTo Include="Everlong.Nester.Avalonia.Tests" />
   </ItemGroup>
 

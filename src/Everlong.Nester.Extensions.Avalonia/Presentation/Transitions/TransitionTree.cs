@@ -1,6 +1,6 @@
-// NOTE: Single-source file — the WPF project compiles this exact file via
-// <Compile Include> in Everlong.Nester.Wpf.csproj.  Edit it here only;
-// never create a WPF-side copy (the two builds would drift).
+// NOTE: Single-source file — the Extensions WPF project compiles this exact
+// file via <Compile Include> in Everlong.Nester.Extensions.Wpf.csproj.
+// Edit it here only; never create a WPF-side copy (the two builds would drift).
 
 namespace Everlong.Nester.Presentation;
 

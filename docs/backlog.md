@@ -65,7 +65,7 @@ not belong here, and an entry is deleted when it is done, never struck through.
 - **Who owns the platform packages' chrome.** `Extensions.*` took the animation kit; the platform packages
   still ship `TreeControl` / `TreeItem`, their themes and three palette keys nothing consumes. Measure
   consumer impact first: WPF resolves a control's default template from its own assembly, and the palette is
-  shared. Payoff: `Everlong.Nester.Wpf` would need no `InternalsVisibleTo`.
+  shared.
 - **Whether to make the test tiers explicit** — parallelization is off in three heads, 27
   `[Collection("RealShell")]`, no `Trait`. Three options with their costs; landing it means a HARD RULE.
 - **What `AGENTS.md` still owes.** Reviewed once: the `.agents/` pointer and a rule that documentation follows

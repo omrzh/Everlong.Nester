@@ -62,6 +62,9 @@ body tree for that.
 (a `PControl` `IBodyHolder` in the extensions packages) instead of forwarding the two `ISceneTransition`
 members by hand: they are defaulted to the delegation above.
 
+**New.** `ViewResolution` is public in both platform packages and `ThemeDictionarySwap` in
+`Everlong.Nester.Wpf` — the view-resolution and theming seams an extension package builds on.
+
 **Migrate.** `IFocusPolicySurface` and its `FocusPolicy` enum are gone from the core package. A layer's
 content no longer declares its own Tab participation: the platform surface derives it from the router it
 carries — a derived router's presentation traps Tab and excludes every layer beneath it, and any other

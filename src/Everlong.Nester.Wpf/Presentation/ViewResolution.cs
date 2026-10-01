@@ -12,7 +12,7 @@ namespace Everlong.Nester.Presentation;
 ///   plain <see cref="DataTemplate" />s the tree carries, whose lookup walks
 ///   the asking control's own resource scope before the application's.
 /// </remarks>
-internal static class ViewResolution
+public static class ViewResolution
 {
   /// <summary>The application whose resources the cached chain was built from.</summary>
   private static PApp? _appSnapshot;
@@ -21,7 +21,7 @@ internal static class ViewResolution
   private static IViewLocator? _locator;
 
   /// <summary>Builds the view <paramref name="data" /> resolves to, or <see langword="null" /> when nothing claims it.</summary>
-  internal static PControl? Build(PControl from, object? data)
+  public static PControl? Build(PControl from, object? data)
   {
     if (data is null || data is UIElement)
       return null;
