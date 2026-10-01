@@ -65,4 +65,48 @@ public class CounterpartScopeTests
 
     Assert.Same(firstLease, secondSeen!.Counterpart);
   }
+
+  [Fact]
+  public async Task InOverlayPageChange_Scene_HasNoCounterpart()
+  {
+    var shell = new FakeShell();
+    var router = new TestRouter(shell);
+    await router.RouteAsync(new Request(typeof(TestContent), null));
+
+    var seen = new List<IConvergenceContext>();
+    shell.RouterFactory = sp => new TestRouter(sp.GetRequiredService<IShell>(), sp, seen.Add);
+
+    IRouter overlay = router.Derive();
+    await overlay.RouteAsync(new Request(typeof(PageAlpha), null));
+    await overlay.RouteAsync(new Request(typeof(PageBeta), null));
+
+    // The layer's first convergence crosses to the base; the page change that
+    // follows moves inside the layer and carries no counterpart.
+    Assert.Equal(2, seen.Count);
+    Assert.NotNull(seen[0].Counterpart);
+    Assert.Null(seen[1].Counterpart);
+  }
+
+  [Fact]
+  public async Task OverlayClose_Scene_CarriesTheDerivingLayer()
+  {
+    var shell = new FakeShell();
+    var router = new TestRouter(shell);
+    await router.RouteAsync(new Request(typeof(TestContent), null));
+    ILayerLease baseLease = shell.Leases.Single();
+
+    var seen = new List<IConvergenceContext>();
+    shell.RouterFactory = sp => new TestRouter(sp.GetRequiredService<IShell>(), sp, seen.Add);
+
+    IRouter overlay = router.Derive();
+    await overlay.RouteAsync(new Request(typeof(TestContent), null));
+
+    overlay.Completion!.Complete(null);
+    await overlay.Completion!;
+
+    // The dismissal convergence is the layer's last and crosses back to the base.
+    Assert.Equal(2, seen.Count);
+    Assert.Equal(RoutingDirection.Close, seen[1].Direction);
+    Assert.Same(baseLease, seen[1].Counterpart);
+  }
 }

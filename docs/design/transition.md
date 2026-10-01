@@ -29,8 +29,9 @@ change.
 The counterpart is fixed when the moving layer is created, not resolved by scanning the stack. A layer
 that derives another is that other's counterpart: the base surface derives an overlay and stays
 beneath it, and an overlay derives the next one and stays beneath that. A derived layer therefore
-knows the layer it was derived from for its whole life, and every transition it runs — entering and
-leaving alike — reads the same counterpart: the layer it crosses to and from.
+knows the layer it was derived from for its whole life, and the two transitions that cross the
+boundary — the entering one and the dismissal — read the same counterpart: the layer it crosses to
+and from. A change inside the layer crosses nothing and carries no counterpart.
 
 Resolution by stack position would have to answer which layer below is *the* counterpart — the
 immediate one, the nearest one carrying an origin, or one named explicitly — afresh for every change.

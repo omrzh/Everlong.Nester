@@ -114,7 +114,15 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
 
   /// <summary>Creates the convergence context of a landed transaction.</summary>
   protected internal virtual IConvergenceContext CreateConvergenceContext(TransactionContext context)
-    => new ConvergenceContext(context, Counterpart);
+    => new ConvergenceContext(context, CrossesLayer(context) ? Counterpart : null);
+
+  /// <summary>
+  ///   Whether a landed transaction crosses the layer boundary — the layer's
+  ///   first convergence (nothing was presented before it lands) and its close
+  ///   (the dismissal) cross; a change inside the layer carries no counterpart.
+  /// </summary>
+  private bool CrossesLayer(TransactionContext context)
+    => context.Direction == RoutingDirection.Close || context.DepartureSite is null;
 
   /// <summary>The error channel the pipes' stages report through.</summary>
   internal IErrorReporter ErrorReporter { get; }
