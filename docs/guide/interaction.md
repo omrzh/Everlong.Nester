@@ -169,6 +169,41 @@ The service is a layer tenant, not a
 renderer: it rents the notice band on the first show, and when the lease is evicted it drops its host
 and discards later shows rather than faulting the caller.
 
+### The panel
+
+`INoticePanel` is the domain's platform surface — it resolves each entry to a view, places it in its
+channel's region and animates it. The service never sees it: the panel is resolved from the tree
+through `NoticePanelModel`, a registration in the application's template table, never injected. The
+shipped pair maps that model to `NoticePanel`, so a change of anchor or margin is a change of the
+model:
+
+```csharp
+services.AddNesterNotice(new NoticeServiceOptions
+{
+  Panel = new NoticePanelModel { ToastPosition = NoticePosition.BottomLeft },
+});
+```
+
+For a different chrome, derive your own model, map it to your own `INoticePanel` view, and set it on
+the options. Resolution is first-match-wins, so the mapping goes in the application's own locator,
+ahead of the framework one (see “Merge the theme resources” in `get-started.md`):
+
+```csharp
+public sealed class MyPanelModel : NoticePanelModel;
+
+[ViewFor<MyPanelModel>]
+public partial class MyPanel : UserControl, INoticePanel
+{
+  public void AttachModel(NoticePanelModel model) { /* … */ }
+  public Task PresentAsync(INoticeEntry entry, NoticeChannel channel, CancellationToken token) { /* … */ }
+  public Task DismissAsync(INoticeEntry entry, NoticeChannel channel, CancellationToken token) { /* … */ }
+}
+```
+
+An item view's own `ISceneTransition` wins: the panel invokes it and steps aside. A view that
+implements none gets the channel's default scene, derived from the region's anchor — a vertical slide
+for a toast or snackbar, a horizontal one from the anchored side for a notification, both with a fade.
+
 ## 3. Messaging
 
 A synchronous, broadcast-only hub: no request/reply, no weak references, no type registry. A fact is
