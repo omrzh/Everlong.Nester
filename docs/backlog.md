@@ -8,10 +8,8 @@ not belong here, and an entry is deleted when it is done, never struck through.
 - **The generic `IntentCommand` posts nothing.** `IntentCommands.IntentCommand` is bound nowhere: no
   `CommandBinding` names it, and `RegisterCommandBindings` binds the five shell-state commands only.
   `PostIntent(control, intent)` is the static path a binding would call. Bind it or drop it.
-- **`DialogShake.PlayBlockedSound` is an empty body on Avalonia**
-  (`src/Everlong.Nester.Extensions.Avalonia/Presentation/Controls/DialogShake.cs`), where the WPF twin
-  plays `SystemSounds.Beep`. Public API whose caller is a consumer, so not dead code: wire a playback
-  path.
+- **`DialogShake.PlayBlockedSound` is a no-op off Windows.** The Avalonia body plays the system beep
+  through `Win32Helper.MessageBeep` on Windows; Linux, macOS and the browser have no playback path.
 - **Absorption at package level is untested.** The absorbed-revision flow, the transfer's two moving sides and
   the re-armed `IArriving` case run from HEAD source only, and the moving sides have never run on TerminalGui
   (`tests/Everlong.Nester.Tests/Routing/`).

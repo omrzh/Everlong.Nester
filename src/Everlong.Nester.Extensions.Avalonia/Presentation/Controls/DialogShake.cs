@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Media;
+using Everlong.Nester.Helpers;
 namespace Everlong.Nester.Presentation;
 
 /// <summary>
@@ -18,11 +19,13 @@ public static class DialogShake
   }
 
   /// <summary>Plays the blocked-interaction sound.</summary>
-  /// <remarks>Avalonia carries no playback path; the call returns immediately.</remarks>
+  /// <remarks>Plays the system beep on Windows; a no-op elsewhere, where no playback path is wired.</remarks>
   public static void PlayBlockedSound()
   {
-    // TODO: the blocked-interaction sound has no Avalonia playback path yet
-    // (the WPF twin plays SystemSounds.Beep).  The method is public API — keep
-    // it, fill the body when the feedback is wired (docs/backlog.md).
+    if (OperatingSystem.IsWindows())
+      Win32Helper.MessageBeep(MB_SIMPLE);
   }
+
+  /// <summary>The <c>MB_SIMPLE</c> sound identifier of <c>MessageBeep</c>.</summary>
+  private const uint MB_SIMPLE = 0xFFFFFFFF;
 }
