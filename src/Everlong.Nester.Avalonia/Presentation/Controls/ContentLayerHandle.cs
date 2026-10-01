@@ -7,12 +7,12 @@ using Everlong.Nester.Layer;
 namespace Everlong.Nester.Presentation;
 
 /// <summary>
-///   The platform lease — <see cref="LayerLeaseBase"/> over the concrete
+///   The platform handle — <see cref="LayerHandleBase"/> over the concrete
 ///   <see cref="ContentLayer"/> surface.
 /// </summary>
-internal sealed class ContentLayerLease : LayerLeaseBase
+internal sealed class ContentLayerHandle : LayerHandleBase
 {
-  internal ContentLayerLease(ContentLayer surface, ILayerLedger ledger, LayerPlane plane, int z)
+  internal ContentLayerHandle(ContentLayer surface, ILayerLedger ledger, LayerPlane plane, int z)
     : base(ledger, plane, z)
   {
     Surface = surface;
@@ -27,14 +27,14 @@ internal sealed class ContentLayerLease : LayerLeaseBase
   internal ContentLayer Surface { get; }
 
   /// <inheritdoc />
-  public override object? Content { get => Surface.Content; set => Surface.Content = value; }
+  protected override object? Content { get => Surface.Content; set => Surface.Content = value; }
 
 #if AVALONIA
   /// <inheritdoc />
-  public override bool IsVisible { get => Surface.IsVisible; set => Surface.IsVisible = value; }
+  protected override bool IsVisible { get => Surface.IsVisible; set => Surface.IsVisible = value; }
 #elif WPF
   /// <inheritdoc />
-  public override bool IsVisible
+  protected override bool IsVisible
   {
     get => Surface.Visibility != System.Windows.Visibility.Collapsed;
     set => Surface.Visibility = value ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;

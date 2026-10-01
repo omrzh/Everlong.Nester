@@ -9,7 +9,7 @@ namespace Everlong.Nester.Presentation;
 /// </summary>
 internal sealed class TuiStage : Runnable, ILayerStage
 {
-  private readonly List<TuiLayerLease> _leases = [];
+  private readonly List<TuiLayerHandle> _leases = [];
 
   internal TuiStage()
   {
@@ -17,20 +17,20 @@ internal sealed class TuiStage : Runnable, ILayerStage
   }
 
   /// <summary>Mounts a tenant's lease surface onto the stage.</summary>
-  public void MountLease(ILayerLease lease)
+  public void MountLease(ILayerHandle handle)
   {
-    if (lease is not TuiLayerLease layerLease)
+    if (handle is not TuiLayerHandle layerHandle)
       throw new InvalidOperationException("The stage only mounts Terminal.Gui leases.");
-    _leases.Add(layerLease);
+    _leases.Add(layerHandle);
     Rebuild();
   }
 
   /// <summary>Detaches a tenant's lease surface from the stage.</summary>
-  public void UnmountLease(ILayerLease lease)
+  public void UnmountLease(ILayerHandle handle)
   {
-    if (lease is not TuiLayerLease layerLease)
+    if (handle is not TuiLayerHandle layerHandle)
       return;
-    _leases.Remove(layerLease);
+    _leases.Remove(layerHandle);
     Rebuild();
   }
 
@@ -41,7 +41,7 @@ internal sealed class TuiStage : Runnable, ILayerStage
   private void Rebuild()
   {
     var ordered = _leases
-      .OrderBy(l => l.Z)
+      .OrderBy(l => l.Lease.Z)
       .ThenBy(l => _leases.IndexOf(l))
       .Select(l => l.Surface)
       .ToList();

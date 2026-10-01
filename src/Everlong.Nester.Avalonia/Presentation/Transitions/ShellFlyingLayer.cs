@@ -12,7 +12,7 @@ namespace Everlong.Nester.Presentation;
 /// </summary>
 internal sealed class ShellFlyingLayer : ILayerTenant, IFlyingLayer
 {
-  private readonly ILayerLease _lease;
+  private readonly ILayerHandle _handle;
 
   public ShellFlyingLayer(ILayerBroker broker)
   {
@@ -20,7 +20,7 @@ internal sealed class ShellFlyingLayer : ILayerTenant, IFlyingLayer
     // connected is a pure ledger entry; the shell's stage connects it
     // later.  The slot's z (the ghost plane) keeps the canvas above
     // every plane.
-    _lease = broker.Acquire(this, Canvas, LayerPlane.Ghost);
+    _handle = broker.Acquire(this, Canvas, LayerPlane.Ghost);
   }
 
   /// <inheritdoc />
@@ -30,7 +30,7 @@ internal sealed class ShellFlyingLayer : ILayerTenant, IFlyingLayer
   {
     // The shell is tearing down — the scope dies with it; drop the ghosts
     // and whatever the surface was still carrying.
-    if (_lease == lease)
+    if (_handle.Lease == lease)
     {
       Canvas.Clear();
     }

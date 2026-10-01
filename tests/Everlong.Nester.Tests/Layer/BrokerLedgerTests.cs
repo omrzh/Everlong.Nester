@@ -40,9 +40,9 @@ public class BrokerLedgerTests
     var second = core.Acquire(new LayerTestTenant(), LayerPlane.Notice);
 
     Assert.NotSame(first, second);
-    Assert.Equal(LayerPlanes.Range(LayerPlane.Notice).Floor, first.Z);
-    Assert.Equal(LayerPlanes.Range(LayerPlane.Notice).Floor, second.Z);
-    Assert.True(first.IsLive && second.IsLive);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Notice).Floor, first.Lease.Z);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Notice).Floor, second.Lease.Z);
+    Assert.True(first.Lease.IsLive && second.Lease.IsLive);
   }
 
   [Fact]
@@ -52,9 +52,9 @@ public class BrokerLedgerTests
     var tenant = new LayerTestTenant();
     var content = new object();
 
-    var lease = core.Acquire(tenant, content, 100);
+    var handle = core.Acquire(tenant, content, 100);
 
-    Assert.Same(content, lease.Content);
+    Assert.Same(content, handle.Lease.Content);
   }
 
   [Fact]
@@ -62,14 +62,14 @@ public class BrokerLedgerTests
   {
     var core = NewCore();
     var tenant = new LayerTestTenant();
-    var lease = core.Acquire(tenant, 100);
+    var handle = core.Acquire(tenant, 100);
     var latest = new object();
 
-    lease.Content = latest;
+    handle.SetContent(latest);
 
-    Assert.Same(latest, lease.Content);
-    Assert.True(lease.IsLive);
-    Assert.Equal(100, lease.Z);
+    Assert.Same(latest, handle.Lease.Content);
+    Assert.True(handle.Lease.IsLive);
+    Assert.Equal(100, handle.Lease.Z);
   }
 
   // ── Release: reference-only, idempotent, no holder gate ──
@@ -80,34 +80,34 @@ public class BrokerLedgerTests
     var stage = new RecordingLayerStage();
     var core = new TestBrokerCore();
     core.Connect(stage);
-    var lease = core.Acquire(new LayerTestTenant(), 100);
+    var handle = core.Acquire(new LayerTestTenant(), 100);
 
-    lease.Release();
+    handle.Release();
 
-    Assert.False(lease.IsLive);
-    Assert.Contains(lease, stage.Unmounted);
+    Assert.False(handle.Lease.IsLive);
+    Assert.Contains(handle, stage.Unmounted);
     Assert.Empty(core.BottomUp());
   }
 
   [Fact]
   public void Release_SecondTime_IsNoop()
   {
-    var lease = NewCore().Acquire(new LayerTestTenant(), 100);
+    var handle = NewCore().Acquire(new LayerTestTenant(), 100);
 
-    lease.Release();
-    lease.Release();
+    handle.Release();
+    handle.Release();
 
-    Assert.False(lease.IsLive);
+    Assert.False(handle.Lease.IsLive);
   }
 
   [Fact]
   public void Release_KeepsTheGrantedZ()
   {
-    var lease = NewCore().Acquire(new LayerTestTenant(), 100);
+    var handle = NewCore().Acquire(new LayerTestTenant(), 100);
 
-    lease.Release();
+    handle.Release();
 
-    Assert.Equal(100, lease.Z);
+    Assert.Equal(100, handle.Lease.Z);
   }
 
   [Fact]
@@ -116,12 +116,12 @@ public class BrokerLedgerTests
     var core = NewCore();
     var coTenant = new LayerTestTenant();
     var victim = core.Acquire(new LayerTestTenant(), 100);
-    var coLease = core.Acquire(coTenant, coTenant.Content, 100);
+    var coHandle = core.Acquire(coTenant, coTenant.Content, 100);
 
     victim.Release();
 
-    Assert.True(coLease.IsLive);
-    Assert.Same(coTenant.Content, coLease.Content);
+    Assert.True(coHandle.Lease.IsLive);
+    Assert.Same(coTenant.Content, coHandle.Lease.Content);
   }
 
   // ── Placement: the plane decides the grant ──
@@ -131,17 +131,17 @@ public class BrokerLedgerTests
   {
     var core = NewCore();
 
-    var lease = core.Acquire(new LayerTestTenant(), LayerPlane.Notice);
+    var handle = core.Acquire(new LayerTestTenant(), LayerPlane.Notice);
 
-    Assert.Equal(LayerPlanes.Range(LayerPlane.Notice).Floor, lease.Z);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Notice).Floor, handle.Lease.Z);
   }
 
   [Fact]
   public void Placement_StackingPlane_EmptyTakesTheFloor()
   {
-    var lease = NewCore().Acquire(new LayerTestTenant(), LayerPlane.Overlay);
+    var handle = NewCore().Acquire(new LayerTestTenant(), LayerPlane.Overlay);
 
-    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor, lease.Z);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor, handle.Lease.Z);
   }
 
   [Fact]
@@ -152,8 +152,8 @@ public class BrokerLedgerTests
 
     var second = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
 
-    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor, first.Z);
-    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor + 1, second.Z);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor, first.Lease.Z);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor + 1, second.Lease.Z);
   }
 
   [Fact]
@@ -162,9 +162,9 @@ public class BrokerLedgerTests
     var core = NewCore();
     core.Acquire(new LayerTestTenant(), LayerPlane.Notice);
 
-    var lease = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
+    var handle = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
 
-    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor, lease.Z);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor, handle.Lease.Z);
   }
 
   [Fact]
@@ -176,11 +176,11 @@ public class BrokerLedgerTests
     var raised = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
     floor.Release();
 
-    var lease = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
+    var handle = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
 
-    Assert.Equal(range.Floor + 2, lease.Z);
-    Assert.Equal(range.Floor, floor.Z);
-    Assert.Equal(range.Floor + 1, raised.Z);
+    Assert.Equal(range.Floor + 2, handle.Lease.Z);
+    Assert.Equal(range.Floor, floor.Lease.Z);
+    Assert.Equal(range.Floor + 1, raised.Lease.Z);
   }
 
   [Fact]
@@ -189,11 +189,11 @@ public class BrokerLedgerTests
     var core = NewCore();
     var range = LayerPlanes.Range(LayerPlane.Dock);
 
-    ILayerLease? last = null;
+    ILayerHandle? last = null;
     for (int i = 0; i <= range.Ceiling - range.Floor + 1; i++)
       last = core.Acquire(new LayerTestTenant(), LayerPlane.Dock);
 
-    Assert.Equal(range.Ceiling, last!.Z);
+    Assert.Equal(range.Ceiling, last!.Lease.Z);
   }
 
   [Fact]
@@ -204,8 +204,8 @@ public class BrokerLedgerTests
 
     for (int i = 0; i < 8; i++)
     {
-      var lease = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
-      Assert.InRange(lease.Z, range.Floor, range.Ceiling);
+      var handle = core.Acquire(new LayerTestTenant(), LayerPlane.Overlay);
+      Assert.InRange(handle.Lease.Z, range.Floor, range.Ceiling);
     }
   }
 
@@ -222,7 +222,7 @@ public class BrokerLedgerTests
 
     var order = core.BottomUp().ToList();
 
-    Assert.Equal(new[] { air1, dlg2, dlg1, ground1 }, order);
+    Assert.Equal(new[] { air1.Lease, dlg2.Lease, dlg1.Lease, ground1.Lease }, order);
   }
 
   [Fact]
@@ -232,8 +232,8 @@ public class BrokerLedgerTests
     var core = NewCore();
     var a = new HandlerTenant("A", log);
     var b = new HandlerTenant("B", log);
-    core.Acquire(a, 0).IntentHandler = a;
-    core.Acquire(b, 100).IntentHandler = b;
+    core.Acquire(a, 0).SetIntentHandler(a);
+    core.Acquire(b, 100).SetIntentHandler(b);
 
     await core.TryDispatch(new IntentContext(new MarkerIntent(), null));
 
@@ -262,21 +262,21 @@ public class BrokerLedgerTests
     var core = new TestBrokerCore();
     core.Connect(stage);
 
-    var lease = core.Acquire(new LayerTestTenant(), 100);
+    var handle = core.Acquire(new LayerTestTenant(), 100);
 
-    Assert.Contains(lease, stage.Mounted);
+    Assert.Contains(handle, stage.Mounted);
   }
 
   [Fact]
   public void Connect_BackFills_LeasesGrantedBeforeConnection()
   {
     var core = new TestBrokerCore();
-    var lease = core.Acquire(new LayerTestTenant(), 100);
+    var handle = core.Acquire(new LayerTestTenant(), 100);
     var stage = new RecordingLayerStage();
 
     core.Connect(stage);
 
-    Assert.Contains(lease, stage.Mounted);
+    Assert.Contains(handle, stage.Mounted);
   }
 
   [Fact]
@@ -299,19 +299,19 @@ public class BrokerLedgerTests
   {
     var core = NewCore();
     var tenant = new LayerTestTenant();
-    var lease = core.Acquire(tenant, tenant.Content, 100);
+    var handle = core.Acquire(tenant, tenant.Content, 100);
 
-    Assert.True(lease.IsVisible);
+    Assert.True(handle.Lease.IsVisible);
 
-    lease.IsVisible = false;
+    handle.SetVisible(false);
 
-    Assert.False(lease.IsVisible);
-    Assert.True(lease.IsLive);
-    Assert.Same(tenant.Content, lease.Content);
-    Assert.Equal(100, lease.Z);
+    Assert.False(handle.Lease.IsVisible);
+    Assert.True(handle.Lease.IsLive);
+    Assert.Same(tenant.Content, handle.Lease.Content);
+    Assert.Equal(100, handle.Lease.Z);
 
-    lease.IsVisible = true;
+    handle.SetVisible(true);
 
-    Assert.True(lease.IsVisible);
+    Assert.True(handle.Lease.IsVisible);
   }
 }

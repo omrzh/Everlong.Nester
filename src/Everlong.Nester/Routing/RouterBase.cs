@@ -30,7 +30,7 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant, IFocusableLayer
   /// <summary>The router's own scope provider.</summary>
   protected IServiceProvider _services;
 
-  private readonly ILayerLease _lease;
+  private readonly ILayerHandle _handle;
   private readonly ResultChannel? _completion;
 
   // ── the folded pipes — the router's own stage lists, folded once at
@@ -71,8 +71,8 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant, IFocusableLayer
 
     // The member connection — the router mounts its routing view into
     // its own lease slot.
-    _lease = _broker.Acquire(this, View, seed.Plane);
-    _lease.IntentHandler = this;
+    _handle = _broker.Acquire(this, View, seed.Plane);
+    _handle.SetIntentHandler(this);
 
     if (Role == RouterRole.Derived)
     {
@@ -449,7 +449,7 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant, IFocusableLayer
   /// <summary>Returns the lease and disposes the owned scope — the tenant's act, once per router.</summary>
   private void ReturnLease()
   {
-    _lease.Release();
+    _handle.Release();
     _ownScope?.Dispose();
   }
 

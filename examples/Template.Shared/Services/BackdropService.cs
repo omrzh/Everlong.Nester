@@ -49,8 +49,8 @@ public sealed class BackdropService : ILayerTenant, IIntentHandler
   private readonly IBackdropSurfaceFactory _surfaces;
   private readonly IMessageHub _hub;
   private readonly IShellLifetime _lifetime;
-  private ILayerLease? _fieldLease;
-  private ILayerLease? _panelLease;
+  private ILayerHandle? _fieldHandle;
+  private ILayerHandle? _panelHandle;
 
   /// <summary>Creates the service.</summary>
   public BackdropService(ILayerBroker broker,
@@ -68,7 +68,7 @@ public sealed class BackdropService : ILayerTenant, IIntentHandler
   public BackdropLab Lab { get; } = new();
 
   /// <summary>Whether the tuner panel is currently shown.</summary>
-  public bool IsPanelVisible => _panelLease is { IsVisible: true };
+  public bool IsPanelVisible => _panelHandle is { Lease.IsVisible: true };
 
   /// <summary>Rents the shell's backdrop bands for <paramref name="profile" />.</summary>
   public void Mount(BackdropProfile profile)
@@ -76,10 +76,10 @@ public sealed class BackdropService : ILayerTenant, IIntentHandler
     if (profile is BackdropProfile.Login)
       Lab.UseLoginPreset();
 
-    _fieldLease = Rent(_surfaces.CreateField(Lab), LayerPlane.Ground);
+    _fieldHandle = Rent(_surfaces.CreateField(Lab), LayerPlane.Ground);
 
     if (profile is BackdropProfile.Main)
-      _panelLease = Rent(_surfaces.CreatePanel(Lab), LayerPlane.Debug);
+      _panelHandle = Rent(_surfaces.CreatePanel(Lab), LayerPlane.Debug);
 
     _ = PublishInitialVisibilityAsync();
   }
@@ -87,11 +87,11 @@ public sealed class BackdropService : ILayerTenant, IIntentHandler
   /// <inheritdoc />
   public ValueTask HandleAsync(IntentContext context, IntentDelegate next)
   {
-    if (context.Intent is not ToggleBackdropPanelIntent || _panelLease is not { IsLive: true } lease)
+    if (context.Intent is not ToggleBackdropPanelIntent || _panelHandle is not { Lease.IsLive: true } handle)
       return next(context);
 
-    lease.IsVisible = !lease.IsVisible;
-    _hub.Publish(new BackdropPanelVisibilityChangedMessage(lease.IsVisible));
+    handle.SetVisible(!handle.Lease.IsVisible);
+    _hub.Publish(new BackdropPanelVisibilityChangedMessage(handle.Lease.IsVisible));
     context.Handle(this);
     return ValueTask.CompletedTask;
   }
@@ -99,20 +99,20 @@ public sealed class BackdropService : ILayerTenant, IIntentHandler
   /// <inheritdoc />
   public ValueTask OnEvictedAsync(ILayerLease lease)
   {
-    if (ReferenceEquals(lease, _fieldLease))
-      _fieldLease = null;
-    else if (ReferenceEquals(lease, _panelLease))
-      _panelLease = null;
+    if (ReferenceEquals(lease, _fieldHandle?.Lease))
+      _fieldHandle = null;
+    else if (ReferenceEquals(lease, _panelHandle?.Lease))
+      _panelHandle = null;
 
     return ValueTask.CompletedTask;
   }
 
   /// <summary>Rents one plane and presents this service as the lease's intent handler.</summary>
-  private ILayerLease Rent(object content, LayerPlane plane)
+  private ILayerHandle Rent(object content, LayerPlane plane)
   {
-    ILayerLease lease = _broker.Acquire(this, content, plane);
-    lease.IntentHandler = this;
-    return lease;
+    ILayerHandle handle = _broker.Acquire(this, content, plane);
+    handle.SetIntentHandler(this);
+    return handle;
   }
 
   /// <summary>

@@ -6,9 +6,9 @@ namespace Everlong.Nester.Layer;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public interface ILayerStage
 {
-  /// <summary>Mounts the slot of <paramref name="lease" />.</summary>
-  void MountLease(ILayerLease lease);
+  /// <summary>Mounts the slot of <paramref name="handle" />.</summary>
+  void MountLease(ILayerHandle handle);
 
-  /// <summary>Detaches the slot of <paramref name="lease" />.</summary>
-  void UnmountLease(ILayerLease lease);
+  /// <summary>Detaches the slot of <paramref name="handle" />.</summary>
+  void UnmountLease(ILayerHandle handle);
 }

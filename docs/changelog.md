@@ -19,6 +19,12 @@ plane and nothing else.
 overload and the exact-`z` overload are removed — the position policy is the plane's business, and an
 exact slot is a platform seam, not a public entry.
 
+**Migrate.** `Acquire` returns an `ILayerHandle`, not an `ILayerLease`. The handle carries the
+read-only `Lease` and the slot's mutation — `SetContent`, `SetVisible`, `SetIntentHandler`,
+`Release`; `ILayerLease` is read-only, so `Focused` and `OnEvictedAsync` hand out a lease that
+cannot be escalated to a write. `RequestFocus` takes the handle, and the platform factory is
+`CreateHandle(ledger, plane, z)`.
+
 **Migrate.** `ILayerLease.IsActive` is renamed `IsLive` (liveness), and the lease now reports its
 `Plane`. "Active" was already spoken for by the app-activation domain and by the window's active
 state, and the layer domain's new foreground concept is **layer focus**, not activation.
@@ -30,8 +36,7 @@ state, and the layer domain's new foreground concept is **layer focus**, not act
 capability never takes focus.
 
 **Migrate.** `DeriveOptions.Band` and `DeriveOptions.Policy` collapse to `DeriveOptions.Plane`
-(default `Overlay`), and `IRouterSeed` follows (`Plane`, no `Policy`). The platform lease factory is
-`CreateLease(ledger, plane, z)`.
+(default `Overlay`), and `IRouterSeed` follows (`Plane`, no `Policy`).
 
 ## 0.1.11 — 2026-09-25
 

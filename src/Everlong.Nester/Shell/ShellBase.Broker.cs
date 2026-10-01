@@ -6,8 +6,8 @@ namespace Everlong.Nester.Shell;
 partial class ShellBase : ILayerBroker, ILayerLedger
 {
   // ── Layer face ── ILayerBroker grants leases and owns layer focus;
-  //    ILayerLedger is the lease-facing channel (liveness and removal).  The
-  //    platform supplies the lease factory and the stage; the stage is
+  //    ILayerLedger is the handle-facing channel (liveness and removal).  The
+  //    platform supplies the handle factory and the stage; the stage is
   //    platform-internal and ConnectLedger hands it to the host at start.
 
   private readonly List<LeaseEntry> _entries = [];
@@ -16,13 +16,13 @@ partial class ShellBase : ILayerBroker, ILayerLedger
   private bool _electing;
   private bool _focusDirty;
 
-  private sealed record LeaseEntry(ILayerLease Lease, ILayerTenant Tenant);
+  private sealed record LeaseEntry(ILayerHandle Handle, ILayerTenant Tenant);
 
   /// <summary>
-  ///   The lease-construction contract: the platform builds its lease
+  ///   The handle-construction contract: the platform builds its handle
   ///   implementation over the ledger channel at the granted plane and z.
   /// </summary>
-  protected abstract ILayerLease CreateLease(ILayerLedger ledger, LayerPlane plane, int z);
+  protected abstract ILayerHandle CreateHandle(ILayerLedger ledger, LayerPlane plane, int z);
 
   /// <summary>
   ///   Connects the ledger to the stage: unmounts the live leases from a
@@ -36,43 +36,44 @@ partial class ShellBase : ILayerBroker, ILayerLedger
     if (_stage is not null)
     {
       foreach (var entry in _entries)
-        _stage.UnmountLease(entry.Lease);
+        _stage.UnmountLease(entry.Handle);
     }
 
     _stage = stage;
     if (stage is null)
       return;
     foreach (var entry in _entries)
-      stage.MountLease(entry.Lease);
+      stage.MountLease(entry.Handle);
   }
 
   /// <inheritdoc />
-  public ILayerLease Acquire(ILayerTenant tenant, object content, LayerPlane plane)
+  public ILayerHandle Acquire(ILayerTenant tenant, object content, LayerPlane plane)
     => AcquireAt(tenant, content, plane, ResolveZ(plane));
 
   /// <inheritdoc />
   public ILayerLease? Focused => _focused;
 
   /// <inheritdoc />
-  public void RequestFocus(ILayerLease lease)
+  public void RequestFocus(ILayerHandle handle)
   {
+    ILayerLease lease = handle.Lease;
     if (!IsLive(lease) || TenantOf(lease) is not IFocusableLayer)
       return;
     ApplyFocus(lease, LayerFocusCause.Requested);
   }
 
-  /// <summary>Grants a lease at the resolved z: content first, then mount, then record — a failed mount leaks no entry.</summary>
-  internal ILayerLease AcquireAt(ILayerTenant tenant, object content, LayerPlane plane, int z)
+  /// <summary>Grants a handle at the resolved z: content first, then mount, then record — a failed mount leaks no entry.</summary>
+  internal ILayerHandle AcquireAt(ILayerTenant tenant, object content, LayerPlane plane, int z)
   {
     if (_lifetime.Lifecycle == ShellLifecycle.Disposed)
       throw new InvalidOperationException("The shell is disposed — it grants no leases.");
 
-    ILayerLease lease = CreateLease(this, plane, z);
-    lease.Content = content;
-    _stage?.MountLease(lease);
-    _entries.Add(new LeaseEntry(lease, tenant));
+    ILayerHandle handle = CreateHandle(this, plane, z);
+    handle.SetContent(content);
+    _stage?.MountLease(handle);
+    _entries.Add(new LeaseEntry(handle, tenant));
     ReelectFocus(LayerFocusCause.Granted);
-    return lease;
+    return handle;
   }
 
   /// <inheritdoc />
@@ -81,7 +82,7 @@ partial class ShellBase : ILayerBroker, ILayerLedger
 
   /// <summary>Whether <paramref name="lease" /> is still recorded.</summary>
   private bool IsLive(ILayerLease lease)
-    => _entries.Any(e => ReferenceEquals(e.Lease, lease));
+    => _entries.Any(e => ReferenceEquals(e.Handle.Lease, lease));
 
   /// <inheritdoc />
   void ILayerLedger.Drop(ILayerLease lease) => DropLease(lease);
@@ -97,7 +98,7 @@ partial class ShellBase : ILayerBroker, ILayerLedger
     bool any = false;
     foreach (var entry in _entries)
     {
-      int z = entry.Lease.Z;
+      int z = entry.Handle.Lease.Z;
       if (!range.Contains(z))
         continue;
       if (!any || z > top)
@@ -147,7 +148,7 @@ partial class ShellBase : ILayerBroker, ILayerLedger
     foreach (var entry in BottomUp())
     {
       if (entry.Tenant is IFocusableLayer focusable && focusable.TryFocus(context))
-        return entry.Lease;
+        return entry.Handle.Lease;
     }
 
     return null;
@@ -187,7 +188,7 @@ partial class ShellBase : ILayerBroker, ILayerLedger
 
   /// <summary>The tenant recorded against <paramref name="lease" />, or <see langword="null" /> when the lease is not live.</summary>
   private ILayerTenant? TenantOf(ILayerLease? lease)
-    => lease is null ? null : _entries.FirstOrDefault(e => ReferenceEquals(e.Lease, lease))?.Tenant;
+    => lease is null ? null : _entries.FirstOrDefault(e => ReferenceEquals(e.Handle.Lease, lease))?.Tenant;
 
   /// <summary>Evicts every live lease, topmost first; a failing tenant callback is reported and the cascade continues.</summary>
   private async ValueTask EvictAllAsync()
@@ -195,12 +196,12 @@ partial class ShellBase : ILayerBroker, ILayerLedger
     _focused = null;
     foreach (var entry in BottomUp().ToList())
     {
-      if (RemoveEntry(entry.Lease) is null)
+      if (RemoveEntry(entry.Handle.Lease) is null)
         continue;
-      _stage?.UnmountLease(entry.Lease);
+      _stage?.UnmountLease(entry.Handle);
       try
       {
-        await entry.Tenant.OnEvictedAsync(entry.Lease);
+        await entry.Tenant.OnEvictedAsync(entry.Handle.Lease);
       }
       catch (Exception e)
       {
@@ -224,14 +225,14 @@ partial class ShellBase : ILayerBroker, ILayerLedger
     var entry = RemoveEntry(lease);
     if (entry is null)
       return;
-    _stage?.UnmountLease(lease);
+    _stage?.UnmountLease(entry.Handle);
     DepartFocus(lease, entry.Tenant);
     ReelectFocus(LayerFocusCause.Departed);
   }
 
   private LeaseEntry? RemoveEntry(ILayerLease lease)
   {
-    var entry = _entries.FirstOrDefault(e => ReferenceEquals(e.Lease, lease));
+    var entry = _entries.FirstOrDefault(e => ReferenceEquals(e.Handle.Lease, lease));
     if (entry is null)
       return null;
     _entries.Remove(entry);
@@ -241,19 +242,19 @@ partial class ShellBase : ILayerBroker, ILayerLedger
   /// <summary>The intent dispatch order: z desc, latest grant first within a z.</summary>
   private IEnumerable<LeaseEntry> BottomUp()
     => _entries.Select((e, index) => (e, index))
-      .OrderByDescending(x => x.e.Lease.Z)
+      .OrderByDescending(x => x.e.Handle.Lease.Z)
       .ThenByDescending(x => x.index)
       .Select(x => x.e);
 
   /// <summary>Live leases in intent-dispatch order.</summary>
-  internal IEnumerable<ILayerLease> LeaseOrder() => BottomUp().Select(e => e.Lease);
+  internal IEnumerable<ILayerLease> LeaseOrder() => BottomUp().Select(e => e.Handle.Lease);
 
   /// <summary>Intent dispatch over the live leases (z desc, latest grant first within a z) — each lease's intent handler gets first refusal.</summary>
   protected async ValueTask<bool> TryDispatchToLayers(IntentContext context)
   {
     var handlers = new List<IIntentHandler>();
     foreach (var entry in BottomUp())
-      handlers.Add(entry.Lease.IntentHandler);
+      handlers.Add(entry.Handle.Lease.IntentHandler);
     IntentDelegate? pipeline = handlers.Count > 0 ? IntentPipelineHelper.Build(handlers) : null;
     if (pipeline is null)
       return false;

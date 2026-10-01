@@ -23,6 +23,17 @@ public class LayerFocusTests
   }
 
   [Fact]
+  public void Focused_IsReadOnly_CannotBeEscalatedToAHandle()
+  {
+    var core = NewCore();
+
+    core.Acquire(new FocusTenant("holder", []), LayerPlane.Overlay);
+
+    Assert.NotNull(core.Focused);
+    Assert.False(core.Focused is ILayerHandle);
+  }
+
+  [Fact]
   public void Focus_TopmostEligibleWins()
   {
     var core = NewCore();
@@ -33,8 +44,8 @@ public class LayerFocusTests
     var lowLease = core.Acquire(low, LayerPlane.Ground);
     var highLease = core.Acquire(high, LayerPlane.Overlay);
 
-    Assert.Equal(highLease, core.Focused);
-    Assert.NotEqual(lowLease, core.Focused);
+    Assert.Equal(highLease.Lease, core.Focused);
+    Assert.NotEqual(lowLease.Lease, core.Focused);
   }
 
   [Fact]
@@ -49,13 +60,13 @@ public class LayerFocusTests
     log.Clear();
     var highLease = core.Acquire(high, LayerPlane.Overlay);
 
-    Assert.Equal(highLease, core.Focused);
+    Assert.Equal(highLease.Lease, core.Focused);
     Assert.Equal(new[] { "high:try:Granted", "low:unfocusing", "high:focusing", "low:unfocused", "high:focused" }, log);
 
     log.Clear();
     highLease.Release();
 
-    Assert.Equal(lowLease, core.Focused);
+    Assert.Equal(lowLease.Lease, core.Focused);
     Assert.Equal(new[] { "high:unfocusing", "high:unfocused", "low:try:Departed", "low:focusing", "low:focused" }, log);
   }
 
@@ -71,7 +82,7 @@ public class LayerFocusTests
     log.Clear();
     core.Acquire(decliner, LayerPlane.Overlay);
 
-    Assert.Equal(keeperLease, core.Focused);
+    Assert.Equal(keeperLease.Lease, core.Focused);
     Assert.Contains("decliner:try:Granted", log);
     Assert.DoesNotContain("keeper:unfocused", log);
   }
@@ -102,7 +113,7 @@ public class LayerFocusTests
 
     core.RequestFocus(dockLease);
 
-    Assert.Equal(dockLease, core.Focused);
+    Assert.Equal(dockLease.Lease, core.Focused);
     Assert.Contains("dock:focusing", log);
     Assert.Contains("dock:focused", log);
   }
@@ -121,7 +132,7 @@ public class LayerFocusTests
 
     core.RequestFocus(dockLease);
 
-    Assert.Equal(overlayLease, core.Focused);
+    Assert.Equal(overlayLease.Lease, core.Focused);
   }
 
   /// <summary>A focusable tenant that records its consultations and can decline.</summary>

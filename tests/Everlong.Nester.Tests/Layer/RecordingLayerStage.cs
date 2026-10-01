@@ -5,15 +5,15 @@ namespace Everlong.Nester.Tests.Layer;
 /// <summary>Records the mount/unmount calls a ledger issues.</summary>
 internal sealed class RecordingLayerStage : ILayerStage
 {
-  /// <summary>Leases mounted, in call order.</summary>
-  internal List<ILayerLease> Mounted { get; } = [];
+  /// <summary>Handles mounted, in call order.</summary>
+  internal List<ILayerHandle> Mounted { get; } = [];
 
-  /// <summary>Leases unmounted, in call order.</summary>
-  internal List<ILayerLease> Unmounted { get; } = [];
-
-  /// <inheritdoc />
-  public void MountLease(ILayerLease lease) => Mounted.Add(lease);
+  /// <summary>Handles unmounted, in call order.</summary>
+  internal List<ILayerHandle> Unmounted { get; } = [];
 
   /// <inheritdoc />
-  public void UnmountLease(ILayerLease lease) => Unmounted.Add(lease);
+  public void MountLease(ILayerHandle handle) => Mounted.Add(handle);
+
+  /// <inheritdoc />
+  public void UnmountLease(ILayerHandle handle) => Unmounted.Add(handle);
 }

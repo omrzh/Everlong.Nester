@@ -4,12 +4,12 @@ using Terminal.Gui.ViewBase;
 namespace Everlong.Nester.Presentation;
 
 /// <summary>
-///   The platform lease — <see cref="LayerLeaseBase" /> over the concrete
+///   The platform handle — <see cref="LayerHandleBase" /> over the concrete
 ///   <see cref="TuiLayer" /> surface.
 /// </summary>
-internal sealed class TuiLayerLease : LayerLeaseBase
+internal sealed class TuiLayerHandle : LayerHandleBase
 {
-  internal TuiLayerLease(TuiLayer surface, ILayerLedger ledger, LayerPlane plane, int z)
+  internal TuiLayerHandle(TuiLayer surface, ILayerLedger ledger, LayerPlane plane, int z)
     : base(ledger, plane, z)
   {
     Surface = surface;
@@ -19,7 +19,7 @@ internal sealed class TuiLayerLease : LayerLeaseBase
   internal TuiLayer Surface { get; }
 
   /// <inheritdoc />
-  public override object? Content
+  protected override object? Content
   {
     get => Surface.Content;
     set => Surface.Content = value switch
@@ -31,5 +31,5 @@ internal sealed class TuiLayerLease : LayerLeaseBase
   }
 
   /// <inheritdoc />
-  public override bool IsVisible { get => Surface.Visible; set => Surface.Visible = value; }
+  protected override bool IsVisible { get => Surface.Visible; set => Surface.Visible = value; }
 }

@@ -40,17 +40,17 @@ internal class StagePanel : PPanel, IShellStage, ILayerStage
   ///   listener (content replacement and policy changes recompute the tab
   ///   reachability of every layer).
   /// </summary>
-  public void MountLease(ILayerLease lease)
+  public void MountLease(ILayerHandle handle)
   {
-    ContentLayer surface = ((ContentLayerLease)lease).Surface;
+    ContentLayer surface = ((ContentLayerHandle)handle).Surface;
     Children.Add(surface);
     _listeners[surface] = new LayerListener(this, surface);
   }
 
   /// <summary>Detaches a tenant's lease surface from the stage and recomputes the layers' tab reachability.</summary>
-  public void UnmountLease(ILayerLease lease)
+  public void UnmountLease(ILayerHandle handle)
   {
-    ContentLayer surface = ((ContentLayerLease)lease).Surface;
+    ContentLayer surface = ((ContentLayerHandle)handle).Surface;
     if (_listeners.Remove(surface, out LayerListener? listener))
       listener.Detach();
     Children.Remove(surface);

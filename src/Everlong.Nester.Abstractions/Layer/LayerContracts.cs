@@ -50,18 +50,19 @@ public enum LayerFocusCause
 /// <remarks>Carries the cause of the transfer; the lease under consideration is the receiver.</remarks>
 public readonly record struct LayerFocusContext(LayerFocusCause Cause);
 
-/// <summary>A granted stacking position and the content it displays.</summary>
+/// <summary>The read-only identity and observed state of a granted lease.</summary>
 /// <remarks>
 ///   Single-use: a released or evicted lease never becomes live again.
-///   <see cref="Z" /> and <see cref="Plane" /> are fixed at the grant; the
-///   content, the visibility and the intent handler remain writable.
+///   <see cref="Z" /> and <see cref="Plane" /> are fixed at the grant.  A
+///   lease exposes no writable member — the holder shapes the slot through
+///   the <see cref="ILayerHandle" /> the grant returned.
 /// </remarks>
 public interface ILayerLease
 {
   /// <summary>
   ///   <see langword="true" /> while the lease is recorded;
-  ///   <see langword="false" /> permanently after <see cref="Release" /> or
-  ///   an eviction.
+  ///   <see langword="false" /> permanently after an eviction or the
+  ///   holder's release.
   /// </summary>
   bool IsLive { get; }
 
@@ -71,17 +72,41 @@ public interface ILayerLease
   /// <summary>The plane the lease was granted in.</summary>
   LayerPlane Plane { get; }
 
-  /// <summary>The displayed content; <see langword="null" /> clears the slot without ending the lease.</summary>
-  object? Content { get; set; }
+  /// <summary>The displayed content; <see langword="null" /> while the slot is empty.</summary>
+  object? Content { get; }
 
   /// <summary>Whether the slot is displayed.</summary>
-  bool IsVisible { get; set; }
+  bool IsVisible { get; }
 
   /// <summary>
   ///   The handler this lease presents to an intent dispatch — a
   ///   pass-through handler until one is assigned.
   /// </summary>
-  IIntentHandler IntentHandler { get; set; }
+  IIntentHandler IntentHandler { get; }
+}
+
+/// <summary>The holder's writable handle over a granted lease.</summary>
+/// <remarks>
+///   The grant's only writable channel: <see cref="Lease" /> is the
+///   read-only identity, and the content, the visibility and the intent
+///   handler stay mutable for the lease's life.  A handle is never handed to
+///   an observer — <see cref="ILayerBroker.Focused" /> and
+///   <see cref="ILayerTenant.OnEvictedAsync" /> expose the read-only
+///   <see cref="ILayerLease" /> instead.
+/// </remarks>
+public interface ILayerHandle
+{
+  /// <summary>The read-only lease this handle controls.</summary>
+  ILayerLease Lease { get; }
+
+  /// <summary>Replaces the displayed content; <see langword="null" /> clears the slot without ending the lease.</summary>
+  void SetContent(object? content);
+
+  /// <summary>Shows or hides the slot without ending the lease.</summary>
+  void SetVisible(bool visible);
+
+  /// <summary>Replaces the handler this lease presents to an intent dispatch.</summary>
+  void SetIntentHandler(IIntentHandler handler);
 
   /// <summary>Ends the lease and unmounts the slot.</summary>
   /// <remarks>Idempotent; no eviction notice is triggered.</remarks>
@@ -95,7 +120,7 @@ public interface ILayerTenant
   /// <remarks>
   ///   The lease is already inactive — <see cref="ILayerLease.IsLive" />
   ///   is <see langword="false" /> and
-  ///   <see cref="ILayerLease.Release" /> is a no-op.  A throw does not
+  ///   its handle's <see cref="ILayerHandle.Release" /> is a no-op.  A throw does not
   ///   interrupt the eviction of the remaining leases.
   /// </remarks>
   ValueTask OnEvictedAsync(ILayerLease lease);
@@ -141,11 +166,12 @@ public interface ILayerBroker
   ///   layer-focus election.
   /// </remarks>
   /// <exception cref="InvalidOperationException">The broker no longer grants leases.</exception>
-  ILayerLease Acquire(ILayerTenant tenant, object content, LayerPlane plane);
+  /// <returns>The writable handle over the granted lease.</returns>
+  ILayerHandle Acquire(ILayerTenant tenant, object content, LayerPlane plane);
 
   /// <summary>The lease that currently holds layer focus, or <see langword="null" /> when none does.</summary>
   ILayerLease? Focused { get; }
 
-  /// <summary>Asks for layer focus on behalf of a live lease; a dead lease or a non-<see cref="IFocusableLayer" /> tenant is ignored.</summary>
-  void RequestFocus(ILayerLease lease);
+  /// <summary>Asks for layer focus on behalf of a live lease; an evicted lease or a non-<see cref="IFocusableLayer" /> tenant is ignored.</summary>
+  void RequestFocus(ILayerHandle handle);
 }

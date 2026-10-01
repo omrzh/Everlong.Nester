@@ -34,15 +34,18 @@ implies position.
 ## 3. Vocabulary
 
 `ILayerBroker` grants leases and owns layer focus — the only layer entry point user code injects.
-`ILayerLease` is the granted slot, single-use. `ILayerTenant` is the lease holder, notified once per
-reclaimed lease, after the lease is dead. `IFocusableLayer` is the optional capability a tenant
-implements to compete for layer focus. `LayerFocusContext` says why a transfer is running.
-`ILayerLedger` / `ILayerStage` are the framework seams — liveness and removal, mounting and
-unmounting a slot's surface.
+A grant returns an `ILayerHandle`, the holder's writable handle, which carries the read-only
+`ILayerLease` and shapes the slot. `ILayerLease` is the read-only identity and observed state of the
+granted slot, single-use. `ILayerTenant` is the lease holder, notified once per reclaimed lease, after
+the lease is dead. `IFocusableLayer` is the optional capability a tenant implements to compete for
+layer focus. `LayerFocusContext` says why a transfer is running. `ILayerLedger` / `ILayerStage` are the
+framework seams — liveness and removal, mounting and unmounting a slot's surface.
 
-A tenant holds a lease; it never holds the ledger or the stage. That is why `Content`, `IsVisible` and
-`IntentHandler` are writable on the lease while the ledger stays an `[EditorBrowsable(Never)]` seam:
-the tenant keeps shaping its surface, the stack's bookkeeping stays the broker's.
+A tenant holds a handle; it never holds the ledger or the stage, and an observer gets only the lease.
+That is why `Content`, `IsVisible` and `IntentHandler` are writable through the handle and merely
+readable on the lease, while the ledger stays an `[EditorBrowsable(Never)]` seam: the tenant keeps
+shaping its surface, the stack's bookkeeping stays the broker's, and a read grant never escalates to a
+write.
 
 ## 4. Planes
 
@@ -69,16 +72,19 @@ is saying it belongs in a particular plane.
 
 ## 5. The grant
 
-`ILayerBroker.Acquire(tenant, content, plane)` never fails and never leaves the plane. A grant has no
-failure mode because a layer is composition, not a reservation: there is no "plane full" outcome to
-handle, only a ceiling to share. The z is resolved once and fixed for the lease's life.
+`ILayerBroker.Acquire(tenant, content, plane)` never fails and never leaves the plane. It returns the
+`ILayerHandle` over the granted lease. A grant has no failure mode because a layer is composition,
+not a reservation: there is no "plane full" outcome to handle, only a ceiling to share. The z is
+resolved once and fixed for the lease's life.
 
 ## 6. The lease
 
-A granted `ILayerLease` is single-use: `Z`, `Plane` and liveness are fixed at the grant, while
-`Content`, `IsVisible` and `IntentHandler` stay writable for the slot's life, and `Release()` ends it.
+A granted slot has two faces. The `ILayerLease` is the read-only face — `Z`, `Plane` and liveness are
+fixed at the grant, and `Content`, `IsVisible` and `IntentHandler` are readable but not writable.
 `IsLive` reads liveness until the end of time for that lease — a released or evicted lease never
-revives.
+revives. The `ILayerHandle` is the holder's face: `Content`, `IsVisible` and `IntentHandler` stay
+writable for the slot's life, and `Release()` ends it. Only the tenant holds the handle; a lease is
+what everyone else sees, so a read grant can never be escalated to a write.
 
 `IntentHandler` defaults to a pass-through handler, so a slot with no opinion declines instead of
 blocking. `Content` is the surface the tenant presents; `IsVisible` hides the slot without ending the
@@ -92,8 +98,9 @@ the stack z-descending, asks each eligible tenant `TryFocus`, and the first acce
 that declines defers to the next; a stack whose eligible tenants all decline has no focused lease. A
 tenant that does not implement `IFocusableLayer` never competes.
 
-The election re-runs whenever a lease is granted or leaves the stack, and `RequestFocus` lets a live
-layer claim the grant directly — the shape a click into a coexisting panel takes. A transfer is
+The election re-runs whenever a lease is granted or leaves the stack, and `RequestFocus(handle)` lets
+a live layer claim the grant directly — the shape a click into a coexisting panel takes, and a claim
+only its holder can make. A transfer is
 sequential and observable: the outgoing layer gets `OnUnfocusing` while it still holds focus, the
 incoming layer gets `OnFocusing`, the broker commits the new holder, then the outgoing gets
 `OnUnfocused` and the incoming `OnFocused`. The pre-hooks are what make an order-sensitive effect —
@@ -149,11 +156,11 @@ pass-through default and declines rather than blocking.
   never the stack's bookkeeping.
 - **Take a plane.** A bare number cannot be reasoned about across domains, and a position policy is a
   plane's business; `LayerPlane` is the shared vocabulary.
-- **One lease per surface, and release it.** A lease is single-use and its content slot is the only
-  channel; releasing ends the surface, leaking the lease keeps a dead slot on the stack.
+- **One handle per surface, and release it.** A lease is single-use and the handle is its only
+  writable channel; releasing ends the surface, leaking the handle keeps a dead slot on the stack.
 - **Never assume z is unique.** Same-z co-tenants are normal — a non-stacking plane hosts every lease
   on its floor — and the later acquisition sits above.
-- **Keep presentation state on the lease** (`Content`, `IsVisible`) instead of in a service field, so
-  an eviction is the whole cleanup.
+- **Keep presentation state on the handle** (`SetContent`, `SetVisible`) instead of in a service
+  field, so an eviction is the whole cleanup.
 - **Compete for focus deliberately.** Implementing `IFocusableLayer` is a decision to take the
   foreground; a layer that only wants to render does not.

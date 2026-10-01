@@ -33,8 +33,8 @@ public abstract class TuiShell : ShellBase
   public override nint HostHandle => 0;
 
   /// <inheritdoc />
-  protected override ILayerLease CreateLease(ILayerLedger ledger, LayerPlane plane, int z)
-    => new TuiLayerLease(new TuiLayer(), ledger, plane, z);
+  protected override ILayerHandle CreateHandle(ILayerLedger ledger, LayerPlane plane, int z)
+    => new TuiLayerHandle(new TuiLayer(), ledger, plane, z);
 
   /// <inheritdoc />
   protected override void PrepareStage()
