@@ -4,7 +4,7 @@ using Everlong.Nester.Presentation;
 namespace NesterApp.Pages.Auth;
 
 [ViewFor<AuthLayoutModel>]
-public partial class AuthLayout : UserControl, IBodyHolder
+public partial class AuthLayout : UserControl, IBodyHolder, IPassThroughTransition
 {
   public AuthLayout()
   {
