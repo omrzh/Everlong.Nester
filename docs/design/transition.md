@@ -42,8 +42,17 @@ changes underneath.
 
 The counterpart's contribution is an **origin**: what the interaction last rested on before the
 foreground moved. It belongs to the surface, not to the view that triggered the change. The surface
-captures it while it still holds the foreground and drops it once the foreground returns, so it is
+records it while it still holds the foreground and drops it once the foreground returns, so it is
 valid exactly for the window a cross-layer transition runs in.
+
+The record is taken at the interaction, not read at the hand-over. An activation inside the surface
+is what can say where the interaction rested; the foreground moving is only the moment the answer is
+asked for. Between the two, the change is prepared: the command behind the activation may await, and
+the arriving layer mounts before the foreground moves. Anything that ran in that window — a recycled
+container, a control that focuses as it mounts — would be read as the origin if the origin were the
+element focus at the hand-over. The surface therefore listens for the activations inside itself and
+keeps the last one; a change whose surface saw no activation still falls back to the element focus it
+held when it lost the foreground, which is what a keyboard or programmatic entry leaves behind.
 
 Parking the origin in a window-scoped slot is the trap this avoids: any layer could write the value
 another layer reads, with no order and no identity, and a stale value would outlive the change that
@@ -55,9 +64,13 @@ and it cannot collide across windows or layers.
 - **Why the origin lives on the surface, not on the lease.** A lease is identity and observed state;
   the origin is a behavioural capability only the surfaces that compete for the foreground can offer.
   A surface that never takes the foreground has nothing to hand over.
-- **The temporal invariant.** The origin is captured when the surface loses the foreground and
+- **The temporal invariant.** The origin is recorded while the surface holds the foreground and
   dropped when it regains it: it is valid only while the surface is in the background. No type states
   that, and a reader that holds it past the transition holds a spent value.
+- **Why the record is not the hand-over.** The moment the foreground moves is the last moment the
+  origin is still true, not the first moment it is knowable. A surface that could only read its
+  element focus then would depend on nothing else having touched it since the interaction — a
+  dependency no type expresses and no test can pin for every host.
 - **Why the counterpart is derivation-fixed.** The stack has no stable "below": overlays come and go
   and a z can host several leases. Derivation is the one moment both the layer a router belongs to and
   the layer it covers are known together.

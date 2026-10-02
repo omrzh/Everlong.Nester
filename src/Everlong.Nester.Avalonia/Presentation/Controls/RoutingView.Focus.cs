@@ -4,6 +4,7 @@
 
 #if AVALONIA
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 #endif
 using Everlong.Nester.Layer;
@@ -20,8 +21,39 @@ internal sealed partial class RoutingView
   /// <summary>The element focused inside this surface when it last gave up layer focus.</summary>
   private PInputElement? _elementFocus;
 
+  /// <summary>The element the last activation inside this surface rested on.</summary>
+  private PInputElement? _origin;
+
+  /// <summary>
+  ///   Initializes a new instance of the <see cref="RoutingView" /> class.
+  /// </summary>
+  internal RoutingView()
+  {
+    // The interaction is the moment the origin is knowable: the element focus
+    // at the grant may already have moved on (see IFocusAnchor).
+    // handledEventsToo: an inner handler is free to consume the activation.
+#if AVALONIA
+    AddHandler(Button.ClickEvent, OnActivated, RoutingStrategies.Bubble, handledEventsToo: true);
+#else
+    AddHandler(System.Windows.Controls.Primitives.ButtonBase.ClickEvent,
+               new System.Windows.RoutedEventHandler(OnActivated),
+               handledEventsToo: true);
+#endif
+  }
+
   /// <inheritdoc />
-  object? IFocusAnchor.Anchor => _elementFocus;
+  object? IFocusAnchor.Anchor => _origin ?? _elementFocus;
+
+  /// <summary>Records the control an activation inside this surface rested on.</summary>
+#if AVALONIA
+  private void OnActivated(object? sender, RoutedEventArgs e)
+#else
+  private void OnActivated(object sender, System.Windows.RoutedEventArgs e)
+#endif
+  {
+    if (e.Source is PControl control && IsWithin(control))
+      _origin = control;
+  }
 
   /// <inheritdoc />
   bool IFocusableContent.TryFocus(LayerFocusContext context) => true;
@@ -37,6 +69,7 @@ internal sealed partial class RoutingView
     RestoreElementFocus();
     // The anchor lives exactly as long as the surface is in the background:
     // once the foreground is back, the origin it carried is spent.
+    _origin = null;
     _elementFocus = null;
   }
 
@@ -50,8 +83,10 @@ internal sealed partial class RoutingView
 
   /// <summary>
   ///   Snapshots the element focus while this surface still holds it, so the
-  ///   surface can put it back when it takes the foreground again.  Focus
-  ///   that already moved outside the surface is not this surface's to keep.
+  ///   surface can put it back when it takes the foreground again, and so a
+  ///   change the surface starts without an activation has an origin to hand
+  ///   over.  Focus that already moved outside the surface is not this
+  ///   surface's to keep.
   /// </summary>
   private void CaptureElementFocus()
   {
