@@ -99,6 +99,8 @@ still reaches the last hook.
   needs into that window's container instead of resolving window-scoped services from the process one.
 - **Observe shutdown through the lifetime contract.** `Stopping` and `Stopped` are the whole surface a
   service needs in order to react to the process ending, and they stay usable outside any window's
-  container.
+  container.  Observe them by registering: the cascade waits for a registered callback, so a handle
+  that callback releases is gone before the container that owned the service is.  Awaiting the token
+  instead moves the same work off the cascade and onto a scheduler nobody waits for.
 - **The signals are read-only facts.** Nothing outside the host cancels them; teardown order is the
   host's.
