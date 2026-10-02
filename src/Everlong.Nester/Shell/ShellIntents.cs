@@ -32,7 +32,7 @@ public sealed record CloseIntent : IShellIntent;
 /// <summary>Represents an intent to alter the shell's window state.</summary>
 public sealed record MutateShellStateIntent(HostState TargetState) : IWindowIntent;
 
-/// <summary>Represents an intent to restore the shell's window state from the platform defaults.</summary>
+/// <summary>Represents an intent to restore the shell's window to the state it held before its last change.</summary>
 public sealed record RestoreShellStateIntent : IWindowIntent;
 
 /// <summary>Represents an intent to toggle whether the shell's window is topmost.</summary>

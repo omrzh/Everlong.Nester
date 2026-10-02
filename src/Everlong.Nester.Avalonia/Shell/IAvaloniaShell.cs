@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
@@ -33,12 +32,6 @@ public interface IAvaloniaShell : IShell
 
   /// <summary>Gets the top-level storage provider (file pickers) — null when no top-level is attached.</summary>
   IStorageProvider? StorageProvider { get; }
-
-  /// <summary>
-  ///   Channel: forwards the host window's property change into the
-  ///   shell's status snapshot.
-  /// </summary>
-  void FeedHostPropertyChanged(AvaloniaPropertyChangedEventArgs e);
 
   /// <summary>Gets the top-level clipboard — null when no top-level is attached.</summary>
   IClipboard? Clipboard { get; }

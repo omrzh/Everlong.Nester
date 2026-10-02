@@ -1,25 +1,23 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
-using Everlong.Nester.Presentation;
 using Everlong.Nester.Intent;
+using Everlong.Nester.Presentation;
 using Everlong.Nester.Primitives;
 using Everlong.Nester.Shell;
 using Everlong.Nester.Tests.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using PlatformControl = Avalonia.Controls.Control;
 
 namespace Everlong.Nester.Tests.Shell;
 
 /// <summary>
-///   Verifies the host status channel: the shell maps the host window's
-///   property changes into the <see cref="HostProperty" /> snapshot — the
-///   window forwards its own <c>OnPropertyChanged</c> payload through
-///   <see cref="IAvaloniaShell.FeedHostPropertyChanged" /> (the framework
-///   never hooks platform events).
+///   Verifies the host status snapshot: <see cref="HostProperty.Feed" /> maps
+///   the host window's property changes into the snapshot — the window forwards
+///   its own <c>OnPropertyChanged</c> payload (the framework never hooks
+///   platform events).
 /// </summary>
-public class HostStatusTests
+public class HostPropertyTests
 {
   private sealed class TestDirector : IShellDirector
   {
@@ -59,55 +57,62 @@ public class HostStatusTests
     return captured!;
   }
 
-  private static (AvaloniaShell Shell, HostProperty Status) CreateShell()
-  {
-    var shell = TestHost.CreateShell<TestDirector>(
-      s => s.AddScoped<HostProperty>(),
-      rootView: new HostWindow());
-    return (shell, ((IShell)shell).Services!.GetRequiredService<HostProperty>());
-  }
-
   [AvaloniaFact]
-  public void FeedHostPropertyChanged_UpdatesTitle()
+  public void Feed_UpdatesTitle()
   {
-    var (shell, status) = CreateShell();
-    shell.FeedHostPropertyChanged(Capture(w => w.Title = "Hello"));
+    var status = new HostProperty();
+    status.Feed(Capture(w => w.Title = "Hello"));
 
     Assert.Equal("Hello", status.Title);
   }
 
   [AvaloniaFact]
-  public void FeedHostPropertyChanged_TracksTopmost()
+  public void Feed_TracksTopmost()
   {
-    var (shell, status) = CreateShell();
-    shell.FeedHostPropertyChanged(Capture(w => w.Topmost = true));
+    var status = new HostProperty();
+    status.Feed(Capture(w => w.Topmost = true));
 
     Assert.True(status.TopMost);
   }
 
   [AvaloniaFact]
-  public void FeedHostPropertyChanged_TracksShellStateAndLast()
+  public void Feed_TracksShellStateAndLast()
   {
-    var (shell, status) = CreateShell();
-    shell.FeedHostPropertyChanged(Capture(w => w.WindowState = WindowState.Minimized));
+    var status = new HostProperty();
+    status.Feed(Capture(w => w.WindowState = WindowState.Minimized));
 
     Assert.Equal(HostState.Minimized, status.HostState);
     Assert.Equal(HostState.Normal, status.LastHostState);
   }
 
   [AvaloniaFact]
-  public void FeedHostPropertyChanged_TracksVisibility()
+  public void Feed_TracksVisibility()
   {
-    var (shell, status) = CreateShell();
-    shell.FeedHostPropertyChanged(CaptureVisible(w => w.Show()));
+    var status = new HostProperty();
+    status.Feed(CaptureVisible(w => w.Show()));
 
     Assert.True(status.IsVisible);
   }
 
   [AvaloniaFact]
+  public void Prime_SeedsCurrentState()
+  {
+    var window = new Window { Title = "Seeded", Topmost = true };
+    var status = new HostProperty();
+
+    status.Prime(window);
+
+    Assert.Equal("Seeded", status.Title);
+    Assert.True(status.TopMost);
+    Assert.False(status.IsVisible);
+    Assert.Equal(HostState.Normal, status.HostState);
+    Assert.Equal(HostState.Normal, status.LastHostState);
+  }
+
+  [AvaloniaFact]
   public void HostHandle_NoWindowCreated_IsZero()
   {
-    var (shell, _) = CreateShell();
+    var shell = TestHost.CreateShell<TestDirector>(rootView: new HostWindow());
 
     // Not shown yet — no native handle (derived on read).
     Assert.Equal(nint.Zero, shell.HostHandle);

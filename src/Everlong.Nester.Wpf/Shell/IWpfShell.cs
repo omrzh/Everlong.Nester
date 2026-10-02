@@ -31,12 +31,6 @@ public interface IWpfShell : IShell
   /// <summary>Gets the window's DPI scale on the X axis.</summary>
   double DpiX { get; }
 
-  /// <summary>
-  ///   Channel: forwards the host window's dependency-property change into
-  ///   the shell's status snapshot.
-  /// </summary>
-  void FeedHostPropertyChanged(DependencyPropertyChangedEventArgs e);
-
   /// <summary>Gets the window's DPI scale on the Y axis.</summary>
   double DpiY { get; }
 

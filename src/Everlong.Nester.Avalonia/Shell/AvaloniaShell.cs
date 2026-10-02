@@ -250,12 +250,6 @@ public abstract partial class AvaloniaShell : ShellBase
         window.Topmost = top.IsTopmost;
         context.Handle(this);
         break;
-      case RestoreShellStateIntent:
-        // The shell mirrors the host's state — restore from its snapshot.
-        if (Status is { } status)
-          window.WindowState = status.LastHostState.AsWindowState();
-        context.Handle(this);
-        break;
       case CenterOnScreenIntent:
         window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
         context.Handle(this);
@@ -444,39 +438,6 @@ public abstract partial class AvaloniaShell : ShellBase
       HostState.FullScreen => PWindowState.FullScreen,
       _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
     };
-
-  // ── Host status channel ──
-
-  private HostProperty? Status => field ??= ShellServiceScope?.ServiceProvider.GetService<HostProperty>();
-
-  /// <inheritdoc />
-  public void FeedHostPropertyChanged(AvaloniaPropertyChangedEventArgs e)
-  {
-    if (Lifetime.Lifecycle == ShellLifecycle.Disposed || Status is not { } status)
-    {
-      return;
-    }
-
-    if (e.Property == WindowBase.IsActiveProperty)
-      status.IsActive = e.NewValue is true;
-    else if (e.Property == WindowBase.TopmostProperty)
-      status.TopMost = e.NewValue is true;
-    else if (e.Property == Window.TitleProperty)
-      status.Title = e.NewValue as string ?? string.Empty;
-    else if (e.Property == PVisual.BoundsProperty)
-      status.Bounds = e.NewValue is PRect rect
-                        ? new Bounds(rect.X, rect.Y, rect.Width, rect.Height)
-                        : Bounds.Empty;
-    else if (e.Property == PVisual.IsVisibleProperty)
-      status.IsVisible = e.NewValue is true;
-    else if (e.Property == Window.WindowStateProperty)
-    {
-      if (e.OldValue is PWindowState oldState)
-        status.LastHostState = oldState.AsShellState();
-      if (e.NewValue is PWindowState newState)
-        status.HostState = newState.AsShellState();
-    }
-  }
 
   /// <inheritdoc />
   public override nint HostHandle => Window?.TryGetPlatformHandle()?.Handle ?? 0;

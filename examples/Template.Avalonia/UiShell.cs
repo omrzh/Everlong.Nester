@@ -68,8 +68,8 @@ public sealed partial class UiShell(IActivationIntent? startupIntent = null) : A
     services.BridgeSingleton<IMessageHub>(); // cross-window shared broadcast hub (bridged from the process container)
     BridgeActivationAgent(services); // optional — an agent-less app has no activation surface
     services.AddServices(new AppServices());
-    services.AddScoped<HostProperty>(); // the window (host) resolves its own status snapshot from the window scope
-    // Nester-side (activation agent) resolves by base type
+    services.AddScoped<HostProperty>(); // the host window feeds its own status snapshot from the window scope
+    // Models observe the snapshot by base type — the host window writes through the concrete type only.
     services.AddScoped<HostPropertyBase>(sp => sp.GetRequiredService<HostProperty>());
 
     // ② Every shell builds and owns its provider.

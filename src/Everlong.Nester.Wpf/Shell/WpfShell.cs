@@ -7,7 +7,6 @@ using Everlong.Nester.Activation;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Intent;
 using Everlong.Nester.Layer;
-using Everlong.Nester.Primitives;
 using Everlong.Nester.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -187,12 +186,6 @@ public abstract partial class WpfShell : ShellBase
         window.Topmost = top;
         context.Handle(this);
         break;
-      case RestoreShellStateIntent:
-        // The shell mirrors the host's state — restore from its snapshot.
-        if (Status is { } status)
-          window.WindowState = status.LastHostState.AsWindowState();
-        context.Handle(this);
-        break;
       case CenterOnScreenIntent:
         window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
         context.Handle(this);
@@ -286,53 +279,6 @@ public abstract partial class WpfShell : ShellBase
     {
       e.Handled = true;
       await this.DispatchIntent(sender, intent);
-    }
-  }
-
-  // ── Host status channel ──
-
-
-  /// <summary>Gets the host's status snapshot, resolved from the shell's service scope.</summary>
-  protected HostStatus? Status => field ??= ShellServiceScope?.ServiceProvider.GetService<HostStatus>();
-
-  /// <inheritdoc />
-  public void FeedHostPropertyChanged(DependencyPropertyChangedEventArgs e)
-  {
-    if (Lifetime.Lifecycle == ShellLifecycle.Disposed || Status is not { } status)
-    {
-      return;
-    }
-
-    if (e.Property == Window.WindowStateProperty)
-    {
-      if (e.OldValue is PWindowState oldState)
-        status.LastHostState = oldState.AsShellState();
-      if (e.NewValue is PWindowState newState)
-        status.HostState = newState.AsShellState();
-    }
-    else if (e.Property == Window.TopmostProperty)
-    {
-      status.TopMost = e.NewValue is true;
-    }
-    else if (e.Property == Window.TitleProperty)
-    {
-      status.Title = e.NewValue as string ?? string.Empty;
-    }
-    else if (e.Property == Window.IsActiveProperty)
-    {
-      status.IsActive = e.NewValue is true;
-    }
-    else if (e.Property == UIElement.IsVisibleProperty)
-    {
-      status.IsVisible = e.NewValue is true;
-    }
-    else if (e.Property == Window.LeftProperty || e.Property == Window.TopProperty
-                                               || e.Property == FrameworkElement.WidthProperty ||
-                                               e.Property == FrameworkElement.HeightProperty)
-    {
-      // Bounds components carry a single value with no window instance — the
-      // shell reads its own window for the full geometry.
-      status.Bounds = new Bounds(Window.Left, Window.Top, Window.Width, Window.Height);
     }
   }
 

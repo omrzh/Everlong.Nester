@@ -3,17 +3,21 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Everlong.Nester.Chrome;
+using Everlong.Nester.Intent;
 using Everlong.Nester.Routing;
 using Everlong.Nester.Shell;
 using Everlong.Nester.Presentation;
+using Microsoft.Extensions.DependencyInjection;
 using NesterApp.Dialogs;
 
 namespace NesterApp.Pages.Shell;
 
 [ViewFor<MainViewModel>]
-public partial class MainWindow : Window, IWpfShellHost
+public partial class MainWindow : Window, IWpfShellHost, IIntentHandler
 {
   internal IWpfShell? Shell { get; init; }
+
+  private HostProperty? _status;
 
   public MainWindow()
   {
@@ -31,6 +35,11 @@ public partial class MainWindow : Window, IWpfShellHost
   /// </summary>
   public void HostShell(IWpfShell shell, System.Windows.FrameworkElement stage)
   {
+    // The container is built and its window scope is cut before the host is
+    // connected, so the snapshot resolves and seeds here, once.
+    _status = shell.Services.GetService<HostProperty>();
+    _status?.Prime(this);
+
     var ctrl = stage as Control ?? new ContentControl { Content = stage };
     MainGrid.Children.Add(ctrl);
   }
@@ -61,15 +70,30 @@ public partial class MainWindow : Window, IWpfShellHost
   }
 
   /// <summary>
-  ///   Forwards the window's property changes into the shell's status
-  ///   snapshot through the host channel — the shell maps them; the
-  ///   window only leaves the channel open (the framework never hooks
-  ///   window events).
+  ///   Feeds the window's own property changes into the shell's status
+  ///   snapshot — the window is the source of its state, so it writes the
+  ///   snapshot directly.
   /// </summary>
   protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
   {
     base.OnPropertyChanged(e);
-    Shell?.FeedHostPropertyChanged(e);
+    _status?.Feed(this, e);
+  }
+
+  /// <summary>
+  ///   Restores the window to the state it held before its last change —
+  ///   the window owns that state, so it answers the intent itself.
+  /// </summary>
+  public ValueTask HandleAsync(IntentContext context, IntentDelegate next)
+  {
+    if (context.Intent is RestoreShellStateIntent && _status is { } status)
+    {
+      WindowState = status.LastHostState.AsWindowState();
+      context.Handle(this);
+      return ValueTask.CompletedTask;
+    }
+
+    return next(context);
   }
 
   protected override void OnPreviewMouseUp(MouseButtonEventArgs e)

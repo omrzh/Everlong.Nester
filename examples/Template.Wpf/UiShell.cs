@@ -62,10 +62,9 @@ public sealed partial class UiShell(IActivationIntent? startupIntent = null) : W
     services.BridgeSingleton<IMessageHub>(); // cross-window shared broadcast hub (bridged from the process container)
     BridgeActivationAgent(services); // optional — an agent-less app has no activation surface
     services.AddServices(new AppServices());
-    services.AddScoped<HostStatus>(); // the window (host) resolves its own status snapshot from the window scope
-    services.AddScoped<HostPropertyBase>(sp => sp
-                                           .GetRequiredService<
-                                             HostStatus>()); // Nester-side (activation agent) resolves by base type
+    services.AddScoped<HostProperty>(); // the host window feeds its own status snapshot from the window scope
+    // Models observe the snapshot by base type — the host window writes through the concrete type only.
+    services.AddScoped<HostPropertyBase>(sp => sp.GetRequiredService<HostProperty>());
 
     // ② Every shell builds and owns its provider.
     return services.BuildServiceProvider(new ServiceProviderOptions
@@ -218,11 +217,6 @@ public sealed partial class UiShell(IActivationIntent? startupIntent = null) : W
         break;
       case MutateShellStateIntent { TargetState: var target }:
         Window.WindowState = target.AsWindowState();
-        context.Handle(this);
-        break;
-      case RestoreShellStateIntent:
-        if (Status is { } status)
-          Window.WindowState = status.LastHostState.AsWindowState();
         context.Handle(this);
         break;
       case TopmostIntent { IsTopmost: var top }:
