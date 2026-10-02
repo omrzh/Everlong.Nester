@@ -7,7 +7,12 @@ migration, a renamed package, a raised framework floor — not what the commit l
 Below 1.0 nothing is promised stable: a minor version may rename a type or change a contract, and an
 entry says so when it does. That is the one thing a consumer should assume rather than read here.
 
-## 0.1.12 — 2026-10-01
+## 0.1.12 — 2026-10-03
+
+Nothing between 0.1.10 and this one shipped — no tag exists since `v0.1.10` — so this entry carries the
+whole span: the layer bands become planes with one focus grant, a derived router takes options, a
+transition is directed by its first difference, the shell's close and its bounds are renamed, the host
+window owns the state snapshot, and the notice chrome moves onto a panel.
 
 **Migrate.** `KnownLayers`, `LayerBand` and `LayerPolicy` are gone. A lease is granted in a
 `LayerPlane` — `Ground`, `Base`, `Dock`, `Overlay`, `Notice`, `Debug` or `Ghost` — and the plane
@@ -33,12 +38,27 @@ state, and the layer domain's new foreground concept is **layer focus**, not act
 **New.** Layer focus is the single foreground grant: `ILayerBroker.Focused` reports the holder and
 `ILayerBroker.RequestFocus` lets a live layer claim it. A layer opts in by having its content implement
 `IFocusableContent` — `TryFocus` accepts or declines per transfer, and `OnFocusing` / `OnFocused` /
-`OnUnfocusing` / `OnUnfocused` are the pre/post transfer hooks. A layer whose content does not
-implement the capability never takes focus. The platform routing surface is where the hooks land, so
-it is also where the element focus is saved before a transfer and restored after one.
+`OnUnfocusing` / `OnUnfocused` are the pre/post transfer hooks, each handed a `LayerFocusContext` that
+names what moved the focus. A layer whose content does not implement the capability never takes focus.
+The platform routing surface is where the hooks land, so it is also where the element focus is saved
+before a transfer and restored after one.
 
-**Migrate.** `DeriveOptions.Band` and `DeriveOptions.Policy` collapse to `DeriveOptions.Plane`
-(default `Overlay`), and `IRouterSeed` follows (`Plane`, no `Policy`).
+**Migrate.** `IRouter.Derive(bool isEphemeral)` is gone. A derived router is created from
+`DeriveOptions`: the `Plane` its lease is granted in (default `Overlay`) and the `Parents` every route
+is completed with. The parents are the overlay's default layouts — prepended to every route it computes
+and reused across its entries, so a dialog's dimmer outlives the stages it wraps. The one-shot surface
+is retired: a derived router stacks, traverses and closes like any other, a caller that wants the
+ground addresses it directly, and `IRouterSeed.IsEphemeral` goes with the flag. `PresentOnDerivedAsync`
+takes the options first.
+
+**Migrate.** `IRouterSeed` follows: `Band` and `Policy` collapse to `Plane`, `IsEphemeral` is gone, and
+`Borrowed` goes too — the site the overlay was said to borrow had no reader. What the seed carries
+instead is the lease of the layer the router was derived from, `IRouterSeed.Counterpart`, and
+`IRouterSeed.Initialize` takes the plane, the scope, the parents and the counterpart.
+
+**Migrate.** `RouteIntent` is removed. A route is an addressed directive — `RouteAsync` — and is never
+dispatched as an intent; the consulted form survives for traversal alone. `IRouteIntent` is renamed
+`ITraversalIntent` — it marks `BackIntent`, `ForwardIntent` and `RefreshIntent`.
 
 **Migrate.** The transition anchor is the surface's own, not a value a view parks in a window slot:
 `FlyingCanvas.Anchor` and the `n:Transition.Anchor` attached property (`Transition` in both extensions
@@ -61,6 +81,42 @@ needs the whole side hidden moves the lever down itself as it delegates; the shi
 (a `PControl` `IBodyHolder` in the extensions packages) instead of forwarding the two `ISceneTransition`
 members by hand: they are defaulted to the delegation above.
 
+**Migrate.** `TryCloseIntent` is gone — every intent is refusable, so `CloseIntent` alone stands for a
+user close affordance, and the imperative close the pair was standing in for is the new
+`IShell.CloseAsync`: teardown followed by the platform's presentation end, consulting no handler. It is
+to `CloseIntent` what `RouteAsync` is to a route, so a logout, a settings rebuild or a successful login
+calls it directly, while a window close, a title-bar button or the terminal quit key dispatches the
+intent. The window-close translators are renamed with it — `WindowClosingToCloseIntent` and
+`ClosingToCloseIntent`.
+
+**Migrate.** `IMessageBox` is renamed `IModalPrompt`, and `RequestSessionEnding` takes a
+`promptFactory`; the default implementations follow as `AvaloniaModalPrompt` and `WpfModalPrompt`. The
+surface is synchronous by contract — a prompt blocks the calling thread until the user answers — and
+`Alert(title, message)` is added for the acknowledgement, which has no answer to report.
+
+**Migrate.** `ShellBounds` is renamed `Bounds` — a position and a size for any surface, which never
+needed a platform's name; `ShellBounds.Empty` is `Bounds.Empty`. Neither framework declares a type called
+`Bounds` (both name the rectangle `Rect`), so the name resolves on either platform side without an
+alias.
+
+**Migrate.** The host-state snapshot belongs to the window, and everyone else only observes it:
+`HostPropertyBase`'s setters are `protected`, `HostStatus` is renamed `HostProperty` so a window scope
+resolves one type on both platforms, and `IAvaloniaShell.FeedHostPropertyChanged` /
+`IWpfShell.FeedHostPropertyChanged` are gone. The host window resolves the snapshot once at
+`HostShell`, seeds it with `Prime(window)` and feeds every later change through `Feed(...)` — a window
+that forwarded its properties to the shell now writes the snapshot itself, and a model that wrote
+`Title`, `TopMost` or the rest directly can no longer do so. `RestoreShellStateIntent` is answered by
+the host window, the only holder of `LastHostState`.
+
+**Migrate.** The notice chrome is a panel: `INoticePanel` is its platform surface, resolved from a
+`NoticePanelModel` through the application's template table, never injected, and one panel owns the
+three regions, each entry's view, its placement and its animation. `INoticeEngine` loses the entry-view
+collections it exposed and gains `AttachPanel`; `NoticeServiceOptions` loses the positions and the
+margins to `NoticePanelModel`; `INoticeDirector`, `DefaultNoticeDirector` and `BottomSlideItemViewBase`
+are gone, so a custom item view derives from `FeedbackItemViewBase`. An entry's own `ISceneTransition`
+still wins, and a view that implements none gets its channel's default, derived from the region's
+anchor — which fixes the toast, whose default slid up from the bottom and now drops from the top.
+
 **New.** `ViewResolution` is public in both platform packages and `ThemeDictionarySwap` in
 `Everlong.Nester.Wpf` — the view-resolution and theming seams an extension package builds on.
 
@@ -70,26 +126,10 @@ carries — a derived router's presentation traps Tab and excludes every layer b
 routing surface cycles. A consumer that implemented the interface to declare a Tab intent can no longer
 do so.
 
-## 0.1.11 — 2026-09-25
-
-**Migrate.** `IRouter.Derive(bool isEphemeral)` is gone. A derived router is created from
-`DeriveOptions` — the band its lease is granted in, the `LayerPolicy` that positions it, and the
-`Parents` every route is completed with. The one-shot surface is retired: a derived router stacks,
-traverses and closes like any other, and a caller that wants the ground addresses it directly.
-
-**Migrate.** `RouteIntent` is removed. A route is an addressed directive — `RouteAsync` — and is never
-dispatched as an intent; the consulted form survives for traversal alone. `IRouteIntent` is renamed
-`ITraversalIntent` — it marks `BackIntent`, `ForwardIntent` and `RefreshIntent`.
-
-**Migrate.** `IRouterSeed.IsEphemeral` is replaced by `IRouterSeed.Parents`, and
-`PresentOnDerivedAsync` takes the options first. `DeriveOptions.Parents` is the overlay's default
-layouts: prepended to every route the overlay computes and reused across its entries, so a dialog's
-dimmer outlives the stages it wraps.
-
-**Migrate.** `IMessageBox` is renamed `IModalPrompt`, and `RequestSessionEnding` takes a
-`promptFactory`; the default implementations follow as `AvaloniaModalPrompt` and `WpfModalPrompt`. The
-surface is synchronous by contract — a prompt blocks the calling thread until the user answers — and
-`Alert(title, message)` is added for the acknowledgement, which has no answer to report.
+**Migrate.** A custom exit hook calls `AppLifetimeBase.RunExitTeardown` instead of awaiting the teardown
+cascade: the platform tears its dispatcher down the moment the exit handler returns and aborts every
+continuation still queued, so the cascade is pumped until it settles and only then does the hook return.
+A failing cascade is reported through the app's error channel, never thrown into the exit path.
 
 ## 0.1.10 — 2026-09-22
 
