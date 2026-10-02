@@ -61,10 +61,11 @@ public sealed record WorkspaceChangedMessage(IReadOnlyList<WorkspaceChange> Chan
 /// <remarks>
 ///   <para>
 ///     The shutting-down half of the contract is <see cref="IHostLifetime" />:
-///     the watcher awaits the host's <c>Stopping</c> token and releases the OS
-///     handle itself, so the domain never reaches for the shell or the app
-///     lifetime — the same service compiles into every platform and stays
-///     usable outside a shell's container.
+///     the watcher registers on the host's <c>Stopping</c> signal and releases
+///     the OS handle there — the host waits for that callback, so the handle
+///     is gone before the window's container is.  The domain therefore reaches
+///     for neither the shell nor the app lifetime: the same service compiles
+///     into every platform and stays usable outside a shell's container.
 ///   </para>
 ///   <para>
 ///     Facts leave through <see cref="IMessageHub" />; the watcher publishes on
@@ -76,6 +77,11 @@ public sealed record WorkspaceChangedMessage(IReadOnlyList<WorkspaceChange> Chan
 ///     how loud a burst is (the debounce window).  <see cref="Start" /> is
 ///     driven by the Director — desktop windows only, once the shell is
 ///     assembled.
+///   </para>
+///   <para>
+///     Template content — a demonstration of the domain, not a production-grade
+///     guarantee.  The race between a stop and the reattach that follows a
+///     watcher error is closed by construction alone; no test covers it.
 ///   </para>
 /// </remarks>
 [Singleton]
@@ -97,6 +103,18 @@ public sealed class WorkspaceFileMonitor
   /// <summary>What a project root looks like when it was never initialized as a repository.</summary>
   private static readonly string[] ProjectMarkers = ["*.slnx", "*.sln", "*.csproj"];
 
+  /// <summary>
+  ///   How one directory is listed — the simple <c>Directory.Enumerate*</c>
+  ///   overloads' behavior: hidden entries are included, because a workspace may
+  ///   keep source in a dot directory.
+  /// </summary>
+  private static readonly EnumerationOptions Listing = new()
+  {
+    AttributesToSkip = 0,
+    IgnoreInaccessible = false,
+    MatchType = MatchType.Win32,
+  };
+
   private readonly IHostLifetime _lifetime;
   private readonly IMessageHub _hub;
   private readonly ILogger<WorkspaceFileMonitor> _logger;
@@ -109,6 +127,9 @@ public sealed class WorkspaceFileMonitor
   private Timer? _debounce;
   private DateTime _firstPendingUtc;
   private int _started;
+
+  /// <summary>Set once by <see cref="Stop" /> — the gate <see cref="Attach" /> publishes behind.</summary>
+  private bool _stopped;
 
   /// <summary>Creates the watcher over the host's lifetime signals.</summary>
   public WorkspaceFileMonitor(IHostLifetime lifetime, IMessageHub hub, ILogger<WorkspaceFileMonitor> logger)
@@ -125,11 +146,11 @@ public sealed class WorkspaceFileMonitor
   public WorkspaceRootSource RootSource { get; private set; }
 
   /// <summary>Whether the OS handle is currently held — the domain's on/off fact.</summary>
-  public bool IsWatching => _watcher is not null;
+  public bool IsWatching => Volatile.Read(ref _watcher) is not null;
 
   /// <summary>
   ///   Starts watching — idempotent.  The first call resolves the root, takes
-  ///   the OS handle and observes the host's stop signal.
+  ///   the OS handle and registers the host's stop handler.
   /// </summary>
   public void Start()
   {
@@ -141,7 +162,7 @@ public sealed class WorkspaceFileMonitor
 
     _debounce = new Timer(OnDebounceElapsed, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
     Attach();
-    _ = ObserveStoppingAsync();
+    _lifetime.Stopping.Register(Stop);
   }
 
   /// <summary>
@@ -149,6 +170,12 @@ public sealed class WorkspaceFileMonitor
   ///   the list a palette opens with (the watcher only keeps it current).
   /// </summary>
   /// <param name="max">The cap on how many files are returned.</param>
+  /// <remarks>
+  ///   An ignored directory is never descended into, so the walk costs what the
+  ///   workspace means instead of the artifacts under it.  A directory that
+  ///   cannot be listed is skipped and logged, and only the files it held drop
+  ///   out of the result.
+  /// </remarks>
   public IReadOnlyList<string> Snapshot(int max = 20_000)
   {
     if (Root.Length == 0)
@@ -158,47 +185,84 @@ public sealed class WorkspaceFileMonitor
     {
       return
       [
-        .. Directory.EnumerateFiles(Root, "*", SearchOption.AllDirectories)
-                    .Where(path => !IsIgnored(Relative(path)))
-                    .OrderByDescending(File.GetLastWriteTimeUtc)
-                    .Take(max)
-                    .Select(Relative)
+        .. Walk().OrderByDescending(File.GetLastWriteTimeUtc)
+                 .Take(max)
+                 .Select(Relative)
       ];
     }
     catch (Exception e) when (e is IOException or UnauthorizedAccessException)
     {
-      // A tree being written to while it is walked is normal, not fatal.
+      // The walk skips a directory it cannot list on its own; this is the net
+      // under it — a tree being written to while it is walked is normal, not
+      // fatal.
       _logger.LogWarning(e, "Could not enumerate the workspace root {Root}.", Root);
       return [];
     }
   }
 
-  // ── The host's stop signal — the domain's only shutdown path ───────────────
-
-  private async Task ObserveStoppingAsync()
+  /// <summary>
+  ///   The files under <see cref="Root" /> that the ignore list leaves, in no
+  ///   particular order.
+  /// </summary>
+  /// <remarks>
+  ///   The descent is the walk's own, not <c>SearchOption.AllDirectories</c>'s:
+  ///   no <c>Directory.Enumerate*</c> overload can exclude a directory, and
+  ///   listing a build tree only to drop it is the walk's whole cost.
+  /// </remarks>
+  private IEnumerable<string> Walk()
   {
-    try
-    {
-      await Task.Delay(Timeout.Infinite, _lifetime.Stopping);
-    }
-    catch (OperationCanceledException)
-    {
-      // The stop signal — the one way out of this wait.
-    }
+    var pending = new Stack<string>();
+    pending.Push(Root);
 
-    Stop();
+    while (pending.Count > 0)
+    {
+      string directory = pending.Pop();
+
+      string[] subdirectories;
+      string[] files;
+      try
+      {
+        // Materialized before the loops: these enumerations throw lazily, and
+        // one unreadable directory is a hole in the list, not a failed walk.
+        subdirectories = [.. Directory.EnumerateDirectories(directory, "*", Listing)];
+        files = [.. Directory.EnumerateFiles(directory, "*", Listing)];
+      }
+      catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+      {
+        _logger.LogWarning(e, "Could not list {Directory} under the workspace root {Root}.", directory, Root);
+        continue;
+      }
+
+      foreach (string subdirectory in subdirectories)
+      {
+        if (!IsIgnoredSegment(Path.GetFileName(subdirectory)))
+          pending.Push(subdirectory);
+      }
+
+      foreach (string file in files)
+      {
+        if (!IsIgnoredSegment(Path.GetFileName(file)))
+          yield return file;
+      }
+    }
   }
 
+  // ── The host's stop signal — the domain's only shutdown path ───────────────
+
   /// <summary>Releases the OS handle and drops the batch that was not announced.</summary>
+  /// <remarks>Idempotent — a second signal finds nothing left to release.</remarks>
   private void Stop()
   {
     lock (_gate)
     {
+      _stopped = true;
       _debounce?.Dispose();
       _debounce = null;
       _pending.Clear();
     }
 
+    // Outside the gate: Dispose waits for an event callback in flight, and
+    // that callback takes the gate.
     Detach();
     _logger.LogInformation("Workspace watcher stopped: {Root}", Root);
   }
@@ -228,7 +292,20 @@ public sealed class WorkspaceFileMonitor
       watcher.Error += OnWatcherError;
       watcher.EnableRaisingEvents = true;
 
-      _watcher = watcher;
+      // The publish, not the creation, is what a stop has to interleave with:
+      // the reattach below arrives on a delay and can land here after Stop.
+      bool refused;
+      lock (_gate)
+      {
+        refused = _stopped;
+        if (!refused)
+          Volatile.Write(ref _watcher, watcher);
+      }
+
+      // Released outside the gate — the dispose above it waits for an event
+      // callback in flight, and that callback takes the gate.
+      if (refused)
+        Release(watcher);
     }
     catch (Exception e) when (e is IOException or UnauthorizedAccessException or ArgumentException)
     {
@@ -239,9 +316,13 @@ public sealed class WorkspaceFileMonitor
   private void Detach()
   {
     var watcher = Interlocked.Exchange(ref _watcher, null);
-    if (watcher is null)
-      return;
+    if (watcher is not null)
+      Release(watcher);
+  }
 
+  /// <summary>Drops one watcher — an already-disposed handle is the goal, not a fact to report.</summary>
+  private void Release(FileSystemWatcher watcher)
+  {
     try
     {
       watcher.EnableRaisingEvents = false;
@@ -272,15 +353,13 @@ public sealed class WorkspaceFileMonitor
 
   private void OnWatcherError(object sender, ErrorEventArgs e)
   {
-    // An overflow loses events, not the watcher: reattach from scratch, but
-    // only if the host is still alive (a teardown eats the last events anyway).
+    // An overflow loses events, not the watcher: reattach from scratch.  A
+    // teardown that lands during the delay is refused where the handle is
+    // published, not here.
     _logger.LogWarning(e.GetException(), "The workspace watcher lost events; reattaching.");
     _ = Task.Run(async () =>
     {
       await Task.Delay(Debounce);
-      if (_lifetime.Stopping.IsCancellationRequested)
-        return;
-
       Detach();
       Attach();
     });
@@ -403,10 +482,13 @@ public sealed class WorkspaceFileMonitor
   {
     foreach (string segment in relativePath.Split('/', StringSplitOptions.RemoveEmptyEntries))
     {
-      if (IgnoredSegments.Contains(segment, StringComparer.OrdinalIgnoreCase))
+      if (IsIgnoredSegment(segment))
         return true;
     }
 
     return false;
   }
+
+  private static bool IsIgnoredSegment(string segment)
+    => IgnoredSegments.Contains(segment, StringComparer.OrdinalIgnoreCase);
 }

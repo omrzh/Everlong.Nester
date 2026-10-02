@@ -7,8 +7,8 @@ namespace Everlong.Nester.Routing;
 // Core interfaces of the routing domain — the router, its stack, and the route and location surfaces.
 
 
-/// <summary>The marker for routing-domain intents.</summary>
-public interface IRouteIntent : IIntent;
+/// <summary>The marker for the routing domain's traversal commands — back, forward and refresh.</summary>
+public interface ITraversalIntent : IIntent;
 
 
 /// <summary>The navigation entry point of a surface.</summary>
@@ -19,20 +19,16 @@ public interface IRouter
 
   /// <summary>Routes to a new location according to the locator.</summary>
   /// <returns>A task that finishes when the location is reached.</returns>
-  Task RouteAsync(ILocator location);
+  Task RouteAsync(ILocator locator);
 
   /// <summary>Records a fresh visit to the live entry that presents the given site.</summary>
   /// <returns><see langword="true"/> when the visit landed or the site is already current; <see langword="false"/> when no live entry presents the site.</returns>
   /// <remarks>A visit that faults before it lands faults the returned task; <see langword="false"/> means only that no live entry presents the site.</remarks>
   Task<bool> JumpAsync(ILocation site);
 
-  /// <summary> Creates a derived router. </summary>
-  /// <param name="isEphemeral">
-  ///   <see langword="true" /> for a one-shot surface: it accepts one route
-  ///   request and hands every later one off for a navigable surface to take,
-  ///   instead of stacking it.
-  /// </param>
-  IRouter Derive(bool isEphemeral = false);
+  /// <summary>Creates a derived router — an overlay stack with its own scope, lease and result channel.</summary>
+  /// <param name="options">The creation parameters — the band, the position asked for inside it, and the overlay's default layouts.</param>
+  IRouter Derive(DeriveOptions options);
 
   /// <summary>The router's result channel — <see langword="null"/> when <see cref="Role"/> is <see cref="RouterRole.Base"/>, always present on a derived router.</summary>
   IRouterCompletion? Completion { get; }
@@ -151,7 +147,7 @@ public interface ITarget
 ///   A location descriptor — an instance that describes a destination
 ///   (its target chain) without navigating it.
 /// </summary>
-public interface ILocator
+public interface ILocator : IImpulse
 {
   /// <summary>The described target chain, outermost first — the content target last.</summary>
   /// <remarks>The value is fixed for the descriptor's lifetime.</remarks>

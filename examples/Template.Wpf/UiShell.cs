@@ -62,10 +62,9 @@ public sealed partial class UiShell(IActivationIntent? startupIntent = null) : W
     services.BridgeSingleton<IMessageHub>(); // cross-window shared broadcast hub (bridged from the process container)
     BridgeActivationAgent(services); // optional — an agent-less app has no activation surface
     services.AddServices(new AppServices());
-    services.AddScoped<HostStatus>(); // the window (host) resolves its own status snapshot from the window scope
-    services.AddScoped<HostPropertyBase>(sp => sp
-                                           .GetRequiredService<
-                                             HostStatus>()); // Nester-side (activation agent) resolves by base type
+    services.AddScoped<HostProperty>(); // the host window feeds its own status snapshot from the window scope
+    // Models observe the snapshot by base type — the host window writes through the concrete type only.
+    services.AddScoped<HostPropertyBase>(sp => sp.GetRequiredService<HostProperty>());
 
     // ② Every shell builds and owns its provider.
     return services.BuildServiceProvider(new ServiceProviderOptions
@@ -220,32 +219,15 @@ public sealed partial class UiShell(IActivationIntent? startupIntent = null) : W
         Window.WindowState = target.AsWindowState();
         context.Handle(this);
         break;
-      case RestoreShellStateIntent:
-        if (Status is { } status)
-          Window.WindowState = status.LastHostState.AsWindowState();
-        context.Handle(this);
-        break;
       case TopmostIntent { IsTopmost: var top }:
         Window.Topmost = top;
         context.Handle(this);
         break;
-      case TryCloseIntent:
       case CloseIntent:
-        // The intent reached the last link = nobody vetoed: destroy the
-        // shell, then close the window (the re-entrant OnClosing falls
-        // through — the shell is already disposed).  The close translation
-        // is the framework's only window hook; veto lives in the intent
-        // chain.
-        await DisposeAsync();
-        try
-        {
-          Window.Close();
-        }
-        catch
-        {
-          // best-effort: the window may already be closed
-        }
-
+        // The intent reached the last link = nobody vetoed: end the shell
+        // and its window.  The close translation is the framework's only
+        // window hook; veto lives in the intent chain.
+        await CloseAsync();
         context.Handle(this);
         break;
     }

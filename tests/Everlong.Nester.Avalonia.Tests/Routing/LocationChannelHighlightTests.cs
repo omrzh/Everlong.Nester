@@ -2,11 +2,8 @@ using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.RouteSync;
-using Everlong.Nester.Tests.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-using Everlong.Nester.Intent;
 using Everlong.Nester.Routing;
 
 namespace Everlong.Nester.Tests.Routing;
@@ -189,29 +186,3 @@ public class NavChromeHighlightTests
   }
 }
 
-/// <summary>
-///   A route request dispatched as an intent is consumed by the router —
-///   the intent-chain navigation entry the nav chrome uses.
-/// </summary>
-[Collection("RealShell")]
-public class RouteIntentTests
-{
-  [AvaloniaFact]
-  public async Task Route_DispatchedAsIntent_RoutesOnRealShell()
-  {
-    var shell = TestHost.CreateShell<NoopDirector>(s =>
-    {
-      s.AddSingleton<TestContent>(_ => new TestContent());
-    });
-    shell.Start();
-
-    var router = new Router(shell.Services);
-    await router.RouteAsync(new Locator(typeof(TestContent)));
-
-    IntentResult handled = await shell.DispatchIntent(null, new RouteIntent(new Locator(typeof(TestContent))));
-
-    Assert.Equal(IntentResult.Handled, handled);
-    Assert.NotNull(router.Model);
-    Assert.Equal(typeof(TestContent), router.Model!.CurrentChain![^1].Type);
-  }
-}

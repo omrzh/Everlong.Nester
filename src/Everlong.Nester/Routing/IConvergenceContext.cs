@@ -9,9 +9,6 @@ namespace Everlong.Nester.Routing;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public interface IConvergenceContext : IConvergenceScene, IRoutingContext
 {
-  /// <summary>The presented site this overlay presentation borrowed, or <see langword="null" /> for the base router.</summary>
-  Location? Borrowed { get; }
-
   /// <summary>The participants whose arrival convergence replays — the arriving side as concrete nodes.</summary>
   IReadOnlyList<Location> ArrivingNodes { get; }
 

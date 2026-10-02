@@ -5,35 +5,34 @@ using Everlong.Nester.Primitives;
 namespace Everlong.Nester.Shell;
 
 /// <summary>
-///   Standalone snapshot of the shell's window state, owned by the
-///   <see cref="IShell" />.
+///   The observable snapshot of a host window's state.
 /// </summary>
 /// <remarks>
-///   The state is raised through <see cref="INotifyPropertyChanged" /> on the
-///   snapshot object itself, so bindings may subscribe directly.
+///   Raises <see cref="INotifyPropertyChanged" /> from the snapshot itself;
+///   only a derived implementation can write it.
 /// </remarks>
 public abstract class HostPropertyBase : INotifyPropertyChanged
 {
   /// <summary><c>true</c> when this shell is the active foreground surface.</summary>
-  public bool IsActive { get; set => SetField(ref field, value); }
+  public bool IsActive { get; protected set => SetField(ref field, value); }
 
   /// <summary>Gets a value indicating whether the shell is the topmost surface.</summary>
-  public bool TopMost { get; set => SetField(ref field, value); }
+  public bool TopMost { get; protected set => SetField(ref field, value); }
 
   /// <summary>Gets the last known shell-state.</summary>
-  public HostState LastHostState { get; set => SetField(ref field, value); }
+  public HostState LastHostState { get; protected set => SetField(ref field, value); }
 
   /// <summary>Gets the current shell-state.</summary>
-  public HostState HostState { get; set => SetField(ref field, value); }
+  public HostState HostState { get; protected set => SetField(ref field, value); }
 
   /// <summary>Gets the shell title.</summary>
-  public string Title { get; set => SetField(ref field, value); } = string.Empty;
+  public string Title { get; protected set => SetField(ref field, value); } = string.Empty;
 
   /// <summary>Gets the bounds of the shell host.</summary>
-  public ShellBounds Bounds { get; set => SetField(ref field, value); }
+  public Bounds Bounds { get; protected set => SetField(ref field, value); }
 
   /// <summary>Gets a value indicating whether the shell is currently visible.</summary>
-  public bool IsVisible { get; set => SetField(ref field, value); }
+  public bool IsVisible { get; protected set => SetField(ref field, value); }
 
   #region INPC
 

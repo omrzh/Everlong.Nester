@@ -37,11 +37,27 @@ partial class Build : NukeBuild
   Target CleanOutput => _ => _
       .Executes(() =>
       {
+        // artifacts/ holds the whole release, so only a full Publish resets it.  A single
+        // target packs a subset, and wiping the directory would leave that subset behind
+        // looking like a complete release.  An explicit CleanOutput still clears it.
+        var fullRelease = InvokedTargets.Count == 0
+                          || InvokedTargets.Contains(Publish)
+                          || InvokedTargets.Contains(CleanOutput);
+
+        // BuildTempRoot holds only per-build intermediates; clearing it discards no release.
         if (Directory.Exists(BuildTempRoot))
         {
           Log.Information("Cleaning {BuildTempRoot}...", BuildTempRoot);
           ClearReadOnlyRecursively(BuildTempRoot);
           Directory.Delete(BuildTempRoot, recursive: true);
+        }
+        Directory.CreateDirectory(BuildTempRoot);
+        Directory.CreateDirectory(ArtifactsDir);
+
+        if (!fullRelease)
+        {
+          Log.Information("Keeping {ArtifactsDir}: a single-target run does not reset the release output.", ArtifactsDir);
+          return;
         }
 
         if (Directory.Exists(ArtifactsDir))
@@ -51,7 +67,6 @@ partial class Build : NukeBuild
           Directory.Delete(ArtifactsDir, recursive: true);
         }
         Directory.CreateDirectory(ArtifactsDir);
-        Directory.CreateDirectory(BuildTempRoot);
       });
 
   Target ValidateTemplates => _ => _

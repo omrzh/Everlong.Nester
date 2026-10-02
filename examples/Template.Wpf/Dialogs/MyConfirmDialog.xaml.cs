@@ -12,7 +12,6 @@ public partial class MyConfirmDialog : UserControl, ISceneTransition
 
   public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
   {
-    context.RevealBefore(this);
     return this.ZoomInAsync(1.1d, 100, token);
   }
 

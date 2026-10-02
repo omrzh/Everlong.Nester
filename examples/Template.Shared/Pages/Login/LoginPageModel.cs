@@ -87,7 +87,7 @@ public partial class LoginPageModel : RoutableModel, IDeparted
       AppLifetime.SetMainShell(shell);   // the main-shell declaration is explicit (Start never promotes)
       await shell.Lifetime.Startup;   // wait for the first navigation to settle (optional — needed before closing the login window)
 
-      await Shell.DispatchIntent(this, new CloseIntent());
+      await Shell.CloseAsync();
     }
   }
 

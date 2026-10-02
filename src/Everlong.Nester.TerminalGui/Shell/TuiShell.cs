@@ -33,8 +33,8 @@ public abstract class TuiShell : ShellBase
   public override nint HostHandle => 0;
 
   /// <inheritdoc />
-  protected override ILayerLease CreateLease(ILayerLedger ledger, int z)
-    => new TuiLayerLease(new TuiLayer(), ledger, z);
+  protected override ILayerHandle CreateHandle(ILayerLedger ledger, object content, LayerPlane plane, int z)
+    => new TuiLayerHandle(new TuiLayer(), content, ledger, plane, z);
 
   /// <inheritdoc />
   protected override void PrepareStage()
@@ -72,13 +72,18 @@ public abstract class TuiShell : ShellBase
     switch (context.Intent)
     {
       case CloseIntent:
-      case TryCloseIntent:
-        // The intent reached the last link = nobody vetoed: destroy the
-        // shell, then end the app session.
-        await DisposeAsync();
-        TerminalRuntime.App?.RequestStop();
+        // The intent reached the last link = nobody vetoed: end the shell
+        // and the terminal session.
+        await CloseAsync();
         context.Handle(this);
         break;
     }
+  }
+
+  /// <inheritdoc />
+  protected override ValueTask EndPresentationAsync()
+  {
+    TerminalRuntime.App?.RequestStop();
+    return ValueTask.CompletedTask;
   }
 }

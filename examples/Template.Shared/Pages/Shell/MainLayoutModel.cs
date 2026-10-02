@@ -198,9 +198,9 @@ public partial class MainLayoutModel : RoutableModel, IBodyChanged, IMessageReci
     var loginShell = new UiShell { DirectorType = typeof(LoginWindowModel) };
     loginShell.Start();   // the login window is synchronously presented
     AppLifetime.SetMainShell(loginShell);   // the main-shell declaration is explicit: activation intents route here (Start never promotes)
-    await loginShell.Lifetime.Startup;   // wait for the first navigation to settle
 
-    await Shell.DispatchIntent(this, new CloseIntent());
+    await Shell.CloseAsync();
+    await loginShell.Lifetime.Startup;   // wait for the first navigation to settle
   }
 
   // Admin shortcut shown only to Admin-role users via n:Authorize.Visible="Admin" in XAML.

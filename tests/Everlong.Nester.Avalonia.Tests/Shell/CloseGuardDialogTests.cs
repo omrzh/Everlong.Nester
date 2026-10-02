@@ -16,7 +16,7 @@ namespace Everlong.Nester.Tests.Shell;
 
 /// <summary>
 ///   The close-guard dialog flow (the WPF-template close chain): the window's
-///   OnClosing translates to TryCloseIntent, the Director shows a confirm
+///   OnClosing translates to CloseIntent, the Director shows a confirm
 ///   dialog, and the button result decides allow/veto.  Regression surface
 ///   for the "clicked Yes Close, the window stays open" wiring break.
 /// </summary>
@@ -44,7 +44,7 @@ public class CloseGuardDialogTests
     {
       base.OnClosing(e);
       if (Shell is { } shell)
-        shell.WindowClosingToTryCloseIntent(e);
+        shell.WindowClosingToCloseIntent(e);
     }
   }
 
@@ -62,7 +62,7 @@ public class CloseGuardDialogTests
 
     public async ValueTask HandleAsync(IntentContext context, IntentDelegate next)
     {
-      if (context.Intent is TryCloseIntent)
+      if (context.Intent is CloseIntent)
       {
         var session = new ConfirmDialogSession
         {

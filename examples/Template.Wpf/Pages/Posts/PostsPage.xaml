@@ -4,7 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:NesterApp.Pages.Posts"
-             xmlns:n="https://nester.dev"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=viewModels:PostsPageModel}"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -33,7 +32,6 @@
                 <Button
                   Content="{Binding DataContext.PagesStrings.ViewDetail,
                                  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                  n:Transition.Anchor="{Binding ElementName=Card}"
                   HorizontalAlignment="Right"
                   Command="{Binding DataContext.OpenPostCommand,
                                  RelativeSource={RelativeSource AncestorType=ItemsControl}}"

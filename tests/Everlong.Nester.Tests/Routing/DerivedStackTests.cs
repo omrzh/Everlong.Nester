@@ -21,7 +21,7 @@ public class DerivedStackTests
   // ── derived lifecycle: push / back / root back closes ─────────────────────────────
 
   [Fact]
-  public async Task Derived_RouteIntent_Pushes_BackTraverses_RootBackCloses()
+  public async Task Derived_RoutePushes_BackTraverses_RootBackCloses()
   {
     var shell = new FakeShell();
     var router = new TestRouter(shell);
@@ -34,11 +34,9 @@ public class DerivedStackTests
     Assert.False(result.Stack.CanGoBack);            // one entry — no history yet
     Assert.Same(first, result.Stack.Location!.Trail[0].Instance);
 
-    // A route command consumed by the derived router pushes a second entry (in-router nav).
+    // A second route on the derived router pushes another entry (in-overlay nav).
     var second = new TestContent();
-    IntentResult routed = await shell.DispatchIntent(null,
-      new RouteIntent(new Locator([Target.Of(typeof(TestContent), instance: second)])));
-    Assert.Equal(IntentResult.Handled, routed);
+    await result.RouteAsync(new Locator([Target.Of(typeof(TestContent), instance: second)]));
     Assert.True(result.Stack.CanGoBack);
     Assert.Same(second, result.Stack.Location!.Trail[0].Instance);
     Assert.False(result.Completion!.Result.IsCompleted);

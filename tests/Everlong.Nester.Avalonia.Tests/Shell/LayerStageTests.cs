@@ -24,8 +24,8 @@ public class LayerStageTests
   private static StagePanel NewPanel() => new();
 
   /// <summary>A live platform lease over the given slot, positioned at <paramref name="z"/>.</summary>
-  private static ContentLayerLease Lease(ContentLayer slot, int z)
-    => new(slot, StubLedger.Instance, z);
+  private static ContentLayerHandle Lease(ContentLayer slot, int z)
+    => new(slot, new object(), StubLedger.Instance, LayerPlane.Overlay, z);
 
   /// <summary>A detached ledger channel: every lease stays live, no ledger actions.</summary>
   private sealed class StubLedger : ILayerLedger
@@ -111,11 +111,11 @@ public class LayerStageTests
     var tenant = new LayerTestTenant();
     var content = new object();
 
-    var lease = shell.Acquire(tenant, content, 100);
+    var lease = shell.AcquireAt(tenant, content, LayerPlane.Overlay, 100);
 
     var slot = panel.Children.OfType<ContentControl>().Single();
     Assert.Same(content, slot.Content);
-    Assert.Equal(100, lease.Z);
+    Assert.Equal(100, lease.Lease.Z);
     Assert.Equal(100, slot.ZIndex);
   }
 
@@ -123,13 +123,13 @@ public class LayerStageTests
   public void Acquire_TopPlacement_ProjectsTheGrantedZIndex()
   {
     var (shell, panel) = ShellWithPanel();
-    shell.Acquire(new LayerTestTenant(), new object(), KnownLayers.Dialog, LayerPolicy.AboveHighest);
+    shell.Acquire(new LayerTestTenant(), new object(), LayerPlane.Overlay);
 
-    var lease = shell.Acquire(new LayerTestTenant(), new object(), KnownLayers.Dialog, LayerPolicy.AboveHighest);
+    var lease = shell.Acquire(new LayerTestTenant(), new object(), LayerPlane.Overlay);
 
     var slot = panel.Children.OfType<ContentControl>().Last();
-    Assert.Equal(KnownLayers.Dialog.Floor + 1, lease.Z);
-    Assert.Equal(KnownLayers.Dialog.Floor + 1, slot.ZIndex);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor + 1, lease.Lease.Z);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Overlay).Floor + 1, slot.ZIndex);
   }
 
   [AvaloniaFact]
@@ -137,7 +137,7 @@ public class LayerStageTests
   {
     var (shell, panel) = ShellWithPanel();
     var content = new object();
-    shell.Acquire(new LayerTestTenant(), content, 100);
+    shell.Acquire(new LayerTestTenant(), content, LayerPlane.Overlay);
 
     var slot = panel.Children.OfType<ContentControl>().Single();
     slot.DataTemplates.Add(new FuncDataTemplate<object>((_, _) => new TextBlock { Text = "mapped" }));
@@ -161,7 +161,7 @@ public class LayerStageTests
 
 /// <summary>
 ///   The flying layer contract (2026-09): the window-scoped tenant rents the
-///   top band (<see cref="KnownLayers.Flying" />) from the shell; the same
+///   top plane (<see cref="LayerPlane.Ghost" />) from the shell; the same
 ///   plane figure is the stage's <see cref="StagePanel.FlyingCanvas" /> and
 ///   the container's <see cref="IFlyingLayer" />.
 /// </summary>
@@ -182,7 +182,7 @@ public class FlyingLayerServiceTests
 
       // It is pulled into the top-band slot mounted on the shell stage.
       var slot = shell.Panel.Children.OfType<ContentControl>()
-        .Single(c => KnownLayers.Flying.Contains(ZOrder.Get(c)));
+        .Single(c => LayerPlanes.Range(LayerPlane.Ghost).Contains(ZOrder.Get(c)));
       Assert.Same(flying.Canvas, slot.Content);
     }
     finally

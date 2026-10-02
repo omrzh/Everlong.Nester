@@ -5,15 +5,15 @@ using NesterApp.Pages.Labs;
 namespace NesterApp.Services;
 
 /// <summary>
-///   The floating player's layer tenant — rents the floating band's ceiling
-///   (immediately below the dialog band) and delivers a
-///   <see cref="FloatingPlayerViewModel" /> into the slot.
+///   The floating player's layer tenant — rents a <see cref="LayerPlane.Dock" />
+///   slot (the band below the dialog band) and delivers a
+///   <see cref="FloatingPlayerViewModel" /> into it.
 /// </summary>
 [Scoped<FloatingPlayerHost>]
 public sealed class FloatingPlayerHost : ILayerTenant
 {
   private readonly ILayerBroker _broker;
-  private ILayerLease? _lease;
+  private ILayerHandle? _handle;
   private FloatingPlayerViewModel? _vm;
   private bool _evicted;
 
@@ -38,9 +38,10 @@ public sealed class FloatingPlayerHost : ILayerTenant
     vm.StartPlaybackLoop();
 
     _vm = vm;
-    // The floating band's ceiling sits immediately below the dialog band.
-    _lease ??= _broker.Acquire(this, vm, KnownLayers.Floating, LayerPolicy.Ceiling);
-    _lease.Content = vm;
+    // Content is fixed at the grant, so a replacement is a fresh lease; the
+    // old lease is released first, so the replacement takes the Dock floor.
+    _handle?.Release();
+    _handle = _broker.Acquire(this, vm, LayerPlane.Dock);
   }
 
   /// <summary>Stops playback and returns the layer lease.</summary>
@@ -48,8 +49,8 @@ public sealed class FloatingPlayerHost : ILayerTenant
   {
     _vm?.Stop();
     _vm = null;
-    _lease?.Release();
-    _lease = null;
+    _handle?.Release();
+    _handle = null;
   }
 
   /// <summary>The landlord reclaimed the lease — stop playback and forget it.</summary>
@@ -58,7 +59,7 @@ public sealed class FloatingPlayerHost : ILayerTenant
     _evicted = true;
     _vm?.Stop();
     _vm = null;
-    _lease = null;
+    _handle = null;
     return ValueTask.CompletedTask;
   }
 }

@@ -56,8 +56,9 @@ public partial class MainViewModel : ObservableObject, IShellDirector
     // Director-owned background work: the workspace watcher serves a window.
     // The palette behind it is a desktop gesture, and a single view (mobile /
     // browser / TUI) has no key for it — so it never pays for a watcher.  The
-    // service releases itself on IHostLifetime.Stopping: the shell's own
-    // signal, handed to it by the container, awaited by nobody here.
+    // service releases itself on IHostLifetime.Stopping — the shell's own
+    // signal, handed to it by the container, so this call site awaits neither
+    // its startup nor its shutdown.
     if (!_isSingleView)
       shell.Services.GetRequiredService<WorkspaceFileMonitor>().Start();
   }
@@ -116,7 +117,7 @@ public partial class MainViewModel : ObservableObject, IShellDirector
         await Router.ShowAsync<string>(new WorkspacePaletteSession());
         context.Handle(this);
         return;
-      case TryCloseIntent:
+      case CloseIntent:
         // veto the close request (true); allow it by passing through.
         if (await CancelClosing())
         {

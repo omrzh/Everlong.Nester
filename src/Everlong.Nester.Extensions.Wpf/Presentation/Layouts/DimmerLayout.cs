@@ -11,7 +11,7 @@ namespace Everlong.Nester.Presentation;
 ///   The dimmer of a dialog: hosts the layer's body, paints the scrim and
 ///   arbitrates dismissal.
 /// </summary>
-public class DimmerLayout : PContentControl, IBodyHolder, IIntentHandler, ISceneTransition
+public class DimmerLayout : PContentControl, IBodyHolder, IIntentHandler, IPassThroughTransition
 {
   private const string BackdropKey = "Nester.Dimmer.Backdrop";
 
@@ -146,12 +146,4 @@ public class DimmerLayout : PContentControl, IBodyHolder, IIntentHandler, IScene
       _isShaking = false;
     }
   }
-
-  /// <inheritdoc />
-  public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
-    => this.PassThroughAsync(context, token);
-
-  /// <inheritdoc />
-  public Task AnimateExitAsync(TransitionContext context, CancellationToken token)
-    => this.PassExitAsync(context, token);
 }

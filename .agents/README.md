@@ -20,6 +20,12 @@ This repository's local agent workspace:
 | `py/rename_aliases.py` | rewrite platform alias spellings to the `P` prefix, comments left readable |
 | `py/template_smoke.py` | install the packed templates, generate and build one project per template, uninstall again |
 
+## Hooks
+
+`.githooks/pre-push` runs `commit-gate.sh --all` for a push to `dev` or `main`,
+the pushes CI does not see.  Git reads the directory only once the clone opts
+in: `git config core.hooksPath .githooks`.
+
 ## Conventions
 
 - **Never write inside `.git`.** The tools touch the working tree and `tmp/`

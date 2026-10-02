@@ -3,17 +3,21 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Everlong.Nester.Chrome;
+using Everlong.Nester.Intent;
 using Everlong.Nester.Routing;
 using Everlong.Nester.Shell;
 using Everlong.Nester.Presentation;
+using Microsoft.Extensions.DependencyInjection;
 using NesterApp.Dialogs;
 
 namespace NesterApp.Pages.Shell;
 
 [ViewFor<MainViewModel>]
-public partial class MainWindow : Window, IWpfShellHost
+public partial class MainWindow : Window, IWpfShellHost, IIntentHandler
 {
   internal IWpfShell? Shell { get; init; }
+
+  private HostProperty? _status;
 
   public MainWindow()
   {
@@ -31,6 +35,11 @@ public partial class MainWindow : Window, IWpfShellHost
   /// </summary>
   public void HostShell(IWpfShell shell, System.Windows.FrameworkElement stage)
   {
+    // The container is built and its window scope is cut before the host is
+    // connected, so the snapshot resolves and seeds here, once.
+    _status = shell.Services.GetService<HostProperty>();
+    _status?.Prime(this);
+
     var ctrl = stage as Control ?? new ContentControl { Content = stage };
     MainGrid.Children.Add(ctrl);
   }
@@ -38,7 +47,7 @@ public partial class MainWindow : Window, IWpfShellHost
   /// <summary>
   ///   The window owns its close — the framework doesn't hook <c>Window.Closing</c>.
   ///   Every close path (X button, Alt+F4, <c>Close()</c>) funnels into this override: the close is translated
-  ///   into a <c>TryCloseIntent</c> and arbitrated through the intent chain,
+  ///   into a <c>CloseIntent</c> and arbitrated through the intent chain,
   ///   so the shell can shut down gracefully — or the window stays open when
   ///   a guard vetoes.
   /// </summary>
@@ -46,9 +55,9 @@ public partial class MainWindow : Window, IWpfShellHost
   ///   Chain of effects:
   ///   <list type="number">
   ///     <item><c>base.OnClosing(e)</c> raises the <c>Closing</c> event for any remaining subscribers.</item>
-  ///     <item><c>ClosingToTryCloseIntent</c> holds the close (<c>e.Cancel = true</c>) and dispatches <c>TryCloseIntent</c>.</item>
+  ///     <item><c>ClosingToCloseIntent</c> holds the close (<c>e.Cancel = true</c>) and dispatches <c>CloseIntent</c>.</item>
   ///     <item>The intent walks the chain — layers → Director → the shell fallback.  A link that answers keeps the window open (veto, e.g. an unsaved-changes guard).</item>
-  ///     <item>Nobody answers → the shell fallback disposes the shell (<c>DisposeAsync</c>: stop token, layer leases, window container), then calls <c>Close()</c>.</item>
+  ///     <item>Nobody answers → the shell fallback calls <c>CloseAsync</c>: the shell is torn down (<c>DisposeAsync</c>: stop token, layer leases, window container), then the window is closed.</item>
   ///     <item>The re-entrant <c>OnClosing</c> falls through — the shell is already disposed, so no arbitration runs — and the window closes.</item>
   ///   </list>
   ///   Disposal always completes before the window's visual death: no
@@ -57,19 +66,34 @@ public partial class MainWindow : Window, IWpfShellHost
   protected override void OnClosing(CancelEventArgs e)
   {
     base.OnClosing(e);
-    Shell?.ClosingToTryCloseIntent(e);
+    Shell?.ClosingToCloseIntent(e);
   }
 
   /// <summary>
-  ///   Forwards the window's property changes into the shell's status
-  ///   snapshot through the host channel — the shell maps them; the
-  ///   window only leaves the channel open (the framework never hooks
-  ///   window events).
+  ///   Feeds the window's own property changes into the shell's status
+  ///   snapshot — the window is the source of its state, so it writes the
+  ///   snapshot directly.
   /// </summary>
   protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
   {
     base.OnPropertyChanged(e);
-    Shell?.FeedHostPropertyChanged(e);
+    _status?.Feed(this, e);
+  }
+
+  /// <summary>
+  ///   Restores the window to the state it held before its last change —
+  ///   the window owns that state, so it answers the intent itself.
+  /// </summary>
+  public ValueTask HandleAsync(IntentContext context, IntentDelegate next)
+  {
+    if (context.Intent is RestoreShellStateIntent && _status is { } status)
+    {
+      WindowState = status.LastHostState.AsWindowState();
+      context.Handle(this);
+      return ValueTask.CompletedTask;
+    }
+
+    return next(context);
   }
 
   protected override void OnPreviewMouseUp(MouseButtonEventArgs e)

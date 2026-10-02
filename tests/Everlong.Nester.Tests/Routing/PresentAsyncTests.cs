@@ -1,5 +1,4 @@
 using Everlong.Nester.Layer;
-using Everlong.Nester.Tests.Layer;
 using Everlong.Nester.Routing;
 using Xunit;
 
@@ -83,7 +82,7 @@ public class ResultRouterTests
 
     // The model's owned view is installed in the layer and publishes the
     // content view model's truth.
-    ILayerLease derivedLease = shell.Leases.First(l => l is TestLease);
+    ILayerLease derivedLease = shell.Leases.First(l => l.Content is IRoutingView);
     var view = (IRoutingView)derivedLease.Content!;
     Assert.Same(content, view.Location!.Instance);
     Assert.NotNull(view.Location);

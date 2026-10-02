@@ -19,12 +19,12 @@ public static class SessionEndingArbitration
   ///   action is isolated.
   /// </remarks>
   /// <param name="hub">The hub that broadcasts the request.</param>
-  /// <param name="messageBox">The prompt surface.</param>
+  /// <param name="prompt">The prompt surface.</param>
   /// <returns><see langword="true" /> when every guard was confirmed.</returns>
-  public static bool Run(IMessageHub hub, IMessageBox messageBox)
+  public static bool Run(IMessageHub hub, IModalPrompt prompt)
   {
     ArgumentNullException.ThrowIfNull(hub);
-    ArgumentNullException.ThrowIfNull(messageBox);
+    ArgumentNullException.ThrowIfNull(prompt);
 
     if (_arbitrating)
       return false;
@@ -36,7 +36,7 @@ public static class SessionEndingArbitration
       hub.Publish(message);
 
       foreach (SessionEndingGuard guard in message.Guards)
-        if (!messageBox.Confirm(guard.Title, guard.Message))
+        if (!prompt.Confirm(guard.Title, guard.Message))
           return false;
 
       foreach (SessionEndingGuard guard in message.Guards)

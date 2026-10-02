@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Everlong.DI;
 using Everlong.Nester.ComponentModel;
 using Everlong.Nester.Dialog;
+using Everlong.Nester.Layer;
 using Everlong.Nester.Routing;
 using NesterApp.Models;
 using NesterApp.Pages.Shell;
@@ -67,13 +68,16 @@ public partial class PostsPageModel : RoutableModel
     // Derived-router presentation: PostDetail opens in an overlay over the
     // dimmer + chrome chain (its own layer, its own chrome) — the dimmer is
     // non-light-dismiss, so the overlay closes by back alone.
-    IRouter result = Router.Derive();
-    return result.RouteAsync(new Locator(
+    IRouter result = Router.Derive(new DeriveOptions
+    {
+      Plane = LayerPlane.Overlay,
+      Parents =
       [
         new DefaultDimmerModel { LightDismiss = true },
-        Target.Of(typeof(PostDetailChromeLayoutModel)),
-        Target.Of(typeof(PostDetailPageModel), args)
-      ]));
+        Target.Of(typeof(PostDetailChromeLayoutModel))
+      ],
+    });
+    return result.RouteAsync(new Locator([Target.Of(typeof(PostDetailPageModel), args)]));
   }
 
   [RelayCommand]

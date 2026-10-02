@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#
+# The full sweep at the push, for the pushes CI does not see.
+#
+# `ci.yml` runs `--all` on a pull request and on a push to `main`; a push to
+# `dev` reaches no runner, so the strict half of the gate would otherwise first
+# run inside the pull request that follows.  This hook closes that gap: a push
+# to `dev` or `main` runs the full sweep here.  Other refs are left to the
+# pull request.
+#
+# `git push --no-verify` bypasses it — the gate is a check, not a lock.
+#
+# Enable once per clone: git config core.hooksPath .githooks
+
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+FULL_SWEEP=0
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  case "$remote_ref" in
+    refs/heads/dev|refs/heads/main) FULL_SWEEP=1 ;;
+  esac
+done
+
+[ "$FULL_SWEEP" = 1 ] || exit 0
+
+cd "$REPO_ROOT" || exit 1
+exec ./.agents/commit-gate.sh --all

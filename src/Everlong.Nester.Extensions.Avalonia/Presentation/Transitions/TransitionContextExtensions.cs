@@ -33,30 +33,30 @@ public static class TransitionContextExtensions
   extension(TransitionContext ctx)
   {
     /// <summary>
-    ///   Slides the departing head out.  Requires a departing chain
-    ///   (exit or dismiss).  The arriving chain is not touched — the
+    ///   Slides the departing head out.  Requires a departing head
+    ///   (exit or dismiss).  The arriving head is not touched — the
     ///   framework reveals it after the director returns.
     /// </summary>
     public Task ExitWithSlideAsync(SlideDirection to,
                                    double offset,
                                    int durationMs,
                                    CancellationToken token)
-      => TransitionEffects.SlideOutAsync(ctx.DepartingHead!, to, offset, durationMs, token);
+      => TransitionEffects.SlideOutAsync(ctx.Departing!, to, offset, durationMs, token);
 
     /// <summary>Fades the departing head out — mirror of <see cref="ExitWithSlideAsync"/>.</summary>
     public Task ExitWithFadeAsync(int durationMs, CancellationToken token)
-      => TransitionEffects.FadeOutAsync(ctx.DepartingHead!, durationMs, token);
+      => TransitionEffects.FadeOutAsync(ctx.Departing!, durationMs, token);
 
     /// <summary>Zooms the departing head out — mirror of <see cref="ExitWithSlideAsync"/>.</summary>
     public Task ExitWithZoomAsync(double toScale,
                                   int durationMs,
                                   CancellationToken token)
-      => TransitionEffects.ZoomOutAsync(ctx.DepartingHead!, toScale, durationMs, token);
+      => TransitionEffects.ZoomOutAsync(ctx.Departing!, toScale, durationMs, token);
 
     /// <summary>
     ///   The arriving scene takes over with a slide: hides the departing
-    ///   chain, reveals the arriving chain, and slides the arriving head in.
-    ///   Requires an arriving chain.
+    ///   head, reveals the arriving head, and slides the arriving head in.
+    ///   Requires an arriving head.
     /// </summary>
     public Task EnterWithSlideAsync(SlideDirection from,
                                     double offset,
@@ -65,7 +65,7 @@ public static class TransitionContextExtensions
     {
       ctx.HideDeparting();
       ctx.ShowArriving();
-      return TransitionEffects.SlideInAsync(ctx.ArrivingHead!, from, offset, durationMs, token);
+      return TransitionEffects.SlideInAsync(ctx.Arriving!, from, offset, durationMs, token);
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public static class TransitionContextExtensions
     {
       ctx.HideDeparting();
       ctx.ShowArriving();
-      return TransitionEffects.FadeInAsync(ctx.ArrivingHead!, durationMs, token);
+      return TransitionEffects.FadeInAsync(ctx.Arriving!, durationMs, token);
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ public static class TransitionContextExtensions
     {
       ctx.HideDeparting();
       ctx.ShowArriving();
-      return TransitionEffects.ZoomInAsync(ctx.ArrivingHead!, fromScale, durationMs, token);
+      return TransitionEffects.ZoomInAsync(ctx.Arriving!, fromScale, durationMs, token);
     }
   }
 
@@ -116,35 +116,51 @@ public static class TransitionContextExtensions
   extension(ISceneTransition transition)
   {
     /// <summary>
-    ///   The common pass-through pattern for an outer scene director: reveals
-    ///   this view (<c>Opacity</c> = 1, hit-test on) and delegates the enter
-    ///   transition to the next inner <see cref="ISceneTransition"/>.  When
-    ///   there is no inner director, completes immediately.
+    ///   The common pass-through pattern for an outer scene director: dips the
+    ///   arriving node below this view, reveals this view and delegates the
+    ///   enter transition to that node's director.  When there is no inner
+    ///   director, completes immediately.
     /// </summary>
     public Task PassThroughAsync(TransitionContext context, CancellationToken token)
     {
-      if (transition is PControl view && context.NextDirectorAfter(view) is { } director)
+      if (transition is not PControl view)
+        return Task.CompletedTask;
+
+      PControl? inner = TransitionTree.ArrivingBelow(view);
+
+      // The lever moves one step down the arriving path: the node below is
+      // dipped so the frame can show over an empty body while the inner scene
+      // plays.  A refresh re-engaged that node in place, so it stays visible.
+      if (inner is not null && context.Kind is not TransitionKind.Refresh)
       {
-        // The frame takes no part in the inner animation: reveal it fully now.
-        view.Opacity = 1;
-        view.IsHitTestVisible = true;
-        return director.AnimateEnterAsync(context.ScopedFrom(view), token);
+        inner.Opacity = 0;
+        inner.IsHitTestVisible = false;
       }
 
-      return Task.CompletedTask;
+      // The frame takes no part in the inner animation: reveal it fully now.
+      view.Opacity = 1;
+      view.IsHitTestVisible = true;
+
+      return inner is ISceneTransition director
+               ? director.AnimateEnterAsync(context with { Arriving = inner }, token)
+               : Task.CompletedTask;
     }
 
     /// <summary>
     ///   The exit counterpart of <see cref="PassThroughAsync"/>: delegates
-    ///   the exit transition to the next inner director without touching
-    ///   visibility.  When there is no inner director, completes immediately.
+    ///   the exit transition to the departing node below this view without
+    ///   touching visibility.  When there is no inner director, completes
+    ///   immediately.
     /// </summary>
     public Task PassExitAsync(TransitionContext context, CancellationToken token)
     {
-      if (transition is PControl view && context.NextDirectorAfter(view) is { } director)
-        return director.AnimateExitAsync(context.ScopedFrom(view), token);
+      if (transition is not PControl view)
+        return Task.CompletedTask;
 
-      return Task.CompletedTask;
+      PControl? inner = TransitionTree.DepartingBelow(view);
+      return inner is ISceneTransition director
+               ? director.AnimateExitAsync(context with { Departing = inner }, token)
+               : Task.CompletedTask;
     }
   }
 }

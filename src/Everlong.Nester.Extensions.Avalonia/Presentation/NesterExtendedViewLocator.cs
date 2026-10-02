@@ -13,6 +13,7 @@ namespace Everlong.Nester.Presentation;
 /// <remarks>
 ///   Covers the notice entries (<see cref="ToastEntry" />,
 ///   <see cref="SnackbarEntry" />, <see cref="NotificationEntry" />), the
+///   notice panel model (<see cref="NoticePanelModel" />), the
 ///   dimmer chrome model (<see cref="DefaultDimmerModel" />) and the dialog
 ///   session types: alert, confirm, wait, choice, option select, numpad,
 ///   signature pad, date/time picker, color picker, IPv4 composer and image
@@ -28,6 +29,7 @@ public sealed class NesterExtendedViewLocator : IDataTemplate
     typeof(ToastEntry),
     typeof(SnackbarEntry),
     typeof(NotificationEntry),
+    typeof(NoticePanelModel),
     typeof(DefaultDimmerModel),
     typeof(AlertDialogSession),
     typeof(ConfirmDialogSession),
@@ -68,6 +70,7 @@ public sealed class NesterExtendedViewLocator : IDataTemplate
       ToastEntry => new ToastItemView(),
       SnackbarEntry => new SnackbarItemView(),
       NotificationEntry => new NotificationItemView(),
+      NoticePanelModel => new NoticePanel(),
       DefaultDimmerModel => new DimmerLayout(),
       AlertDialogSession => new AlertDialogView(),
       ConfirmDialogSession => new ConfirmDialogView(),

@@ -109,16 +109,16 @@ public partial class PostDetailPageModel
   {
     // ── Retention is wired here, not declared on the route ───────────────────
     //
-    // There is no route-level retention declaration anymore — the old ephemeral
+    // There is no route-level retention declaration anymore — the old retention
     // hint is retired with no replacement attribute.  The page owns its policy
     // and drives it through `Router.Stack`: backing out drops the forward trail,
     // so Forward cannot re-enter this stale instance (the router's tree is the
     // only retention there is).
     //
-    // A one-shot *surface* is the other lever, and it is derived explicitly —
-    // a capsule that must take one route request and hand every later one off
-    // instead of stacking it is `router.Derive(isEphemeral: true)` (what
-    // `PresentOnDerivedAsync` does for dialogs).
+    // A derived *overlay* is the other lever, and it is derived explicitly —
+    // `router.Derive(new DeriveOptions { Plane = LayerPlane.Overlay })` opens
+    // an overlay at a chosen band, which is the shape `PresentOnDerivedAsync`
+    // uses for dialogs.
     if (context.Direction == RoutingDirection.Back)
     {
       Router.Stack.TrimForward();

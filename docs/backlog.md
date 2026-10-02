@@ -8,15 +8,8 @@ not belong here, and an entry is deleted when it is done, never struck through.
 - **The generic `IntentCommand` posts nothing.** `IntentCommands.IntentCommand` is bound nowhere: no
   `CommandBinding` names it, and `RegisterCommandBindings` binds the five shell-state commands only.
   `PostIntent(control, intent)` is the static path a binding would call. Bind it or drop it.
-- **`DialogShake.PlayBlockedSound` is an empty body on Avalonia**
-  (`src/Everlong.Nester.Extensions.Avalonia/Presentation/Controls/DialogShake.cs`), where the WPF twin
-  plays `SystemSounds.Beep`. Public API whose caller is a consumer, so not dead code: wire a playback
-  path.
-- **Analyzer release tracking is weaker than it reads.** `Microsoft.CodeAnalysis.Analyzers 3.3.4` arrives
-  transitively and nothing pins it; `.editorconfig` sets no `RS*` severity, so `RS2000`–`RS2008` cannot fail a
-  build (they do fire when provoked); `src/Everlong.Nester.Generators/Everlong.Nester.Generators.csproj`
-  removes the two `AnalyzerReleases.*.md` from `AdditionalFiles`, which the package's targets include
-  first, so the pair removes nothing.
+- **`DialogShake.PlayBlockedSound` is a no-op off Windows.** The Avalonia body plays the system beep
+  through `Win32Helper.MessageBeep` on Windows; Linux, macOS and the browser have no playback path.
 - **Absorption at package level is untested.** The absorbed-revision flow, the transfer's two moving sides and
   the re-armed `IArriving` case run from HEAD source only, and the moving sides have never run on TerminalGui
   (`tests/Everlong.Nester.Tests/Routing/`).
@@ -24,13 +17,10 @@ not belong here, and an entry is deleted when it is done, never struck through.
   (`GeneratesRouteWithParameterProjection`) but absent from `docs/guide/navigation.md`; a page that consumes
   `BackIntent` and re-engages itself is written down nowhere. The contract section of
   `docs/design/absorption.md` has both shapes.
-- **Three threads were never written down**: the focus-declared-by-the-view intent behind `FocusPolicy`
-  (`StagePanel` maps it by stack position); the release-accounting numbers behind `PinChain` / `InstancePins`
+- **Two threads were never written down**: the release-accounting numbers behind `PinChain` / `InstancePins`
   (the identity-and-retention section of `docs/design/routing.md` has the shape, and the drill that measured
   them was dropped); the RouteSync matcher audit and performance numbers (the section of
   `docs/design/routesync.md` on how a highlight is derived has the mechanism).
-- **`CleanOutput` wipes `artifacts/`**, so a single target run leaves a partial output directory
-  (`.\build.cmd PackTemplates` leaves only the template package). `Publish` is unaffected.
 - **The template smoke test's cleanup is best-effort** — an IDE build host holds a freshly generated project
   open, so a run leaves it behind and the next one sweeps it (`min_age=900`).
 - **Without an Android SDK the Android example host is skipped, silently.** MSBuild reports
@@ -44,7 +34,15 @@ not belong here, and an entry is deleted when it is done, never struck through.
   (`tests/Everlong.Nester.Avalonia.Tests/Everlong.Nester.Avalonia.Tests.csproj`), not the layout views,
   so its `MainLayout` is a stub routing participant. `.agents/py/template_smoke.py` — CI's `templates` job —
   is what exercises the real ones.
-
+- **The layer-focus broker carries two focus-election gaps.** `ShellBase.Broker.RequestFocus` calls
+  `ApplyFocus` directly, outside the `_electing` loop, so a claim is not serialized with a running
+  election and can steal focus from a modal. `Elect` always re-walks the stack from the top (`BottomUp`
+  is z-descending), so a newcomer that declines can let a middle layer win the foreground.
+- **`TestBrokerCore` duplicates the broker.** It re-implements `ResolveZ` and the focus election
+  (`tests/Everlong.Nester.Tests/Layer/TestBrokerCore.cs`), so it drifts from `ShellBase.Broker.cs`
+  silently.
+- **The placement / anchor seam does not exist.** No `ILayerAnchor`, no flip/clamp/DPI, and one
+  window-confined `ILayerStage` per shell (`ConnectLedger` in `ShellBase.Broker.cs`).
 ## Open verdicts
 
 - **`dialog.md`'s chrome contract** — the theme-key table (`Nester.DialogChrome.*`, `Nester.Dialog.Width.*`,
@@ -53,7 +51,7 @@ not belong here, and an entry is deleted when it is done, never struck through.
 - **Who owns the platform packages' chrome.** `Extensions.*` took the animation kit; the platform packages
   still ship `TreeControl` / `TreeItem`, their themes and three palette keys nothing consumes. Measure
   consumer impact first: WPF resolves a control's default template from its own assembly, and the palette is
-  shared. Payoff: `Everlong.Nester.Wpf` would need no `InternalsVisibleTo`.
+  shared.
 - **Whether to make the test tiers explicit** — parallelization is off in three heads, 27
   `[Collection("RealShell")]`, no `Trait`. Three options with their costs; landing it means a HARD RULE.
 - **What `AGENTS.md` still owes.** Reviewed once: the `.agents/` pointer and a rule that documentation follows
@@ -64,14 +62,6 @@ not belong here, and an entry is deleted when it is done, never struck through.
 - **macOS has never built this tree.** `ci.yml` verifies Linux on every push and the Windows gate runs locally,
   so what remains unrun is a Mac. `build.sh` and the workloads are the parts that could differ.
   *Decided by: someone running it, or dropping the claim.*
-- **`CloseIntent` is not as uncancellable as its old doc promised.** The pair differs only in which handler
-  probes it: the app Director's guard is keyed on `TryCloseIntent`
-  (`examples/Template.Shared/Pages/Shell/MainViewModel.cs`), while any presented page vetoes either one
-  through the chain consultation `RouterBase.HandleAsync` runs first
-  (`src/Everlong.Nester/Routing/RouterBase.cs`). The claim the doc used to make is a property of the
-  sender, not of the record. Either the teardown leaves the intent path for a direct shell-teardown entry,
-  or one record is enough and `TryCloseIntent`'s `Try` is the whole difference.
-  *Decided by: a caller that needs a close nothing can refuse.*
 - **`HostState` names one thing three ways.** Its doc says "Window state for the shell"
   (`src/Everlong.Nester/Primitives/HostState.cs`), its dispatch site is `MutateShellStateIntent`, and the
   snapshot that carries it is `HostPropertyBase` — whose own members say "shell-state" and "shell title".
@@ -109,6 +99,12 @@ Decided against, recorded so the question is not opened twice.
 - **Runtime test heads for the Android and Browser example hosts** — either needs a device or a browser
   runner, and what the repository owes an example host is that it compiles, which is what the two workloads
   in `ci.yml` check.
+- **`docs/design/session-ending.md` fixes the domain, not the reasoning behind its shape.** The spec carries
+  what the arbitration is, why its prompt is synchronous and the rules that follow; it does not carry the
+  placement argument — why `IModalPrompt` sits beside the arbitration rather than in `Everlong.Nester.Dialog`,
+  whose spec calls the dialog domain presentation sugar over the routing stack, while the prompt's
+  precondition is that no routing stack is at hand — nor the rejected unification of `IRouter.AlertAsync`
+  and `IModalPrompt.Alert` into one shape. Write it when the domain is next touched.
 - **A test head for `Everlong.Nester.TerminalGui`** — the surface is experimental and unpackable, so a head
   would pin behaviour the API is explicitly free to change before 1.0.
 - **A post-publish consumption check in `release.yml`** — the job already installs and builds the packed

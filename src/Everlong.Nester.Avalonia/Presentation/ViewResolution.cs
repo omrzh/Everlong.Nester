@@ -12,9 +12,9 @@ namespace Everlong.Nester.Presentation;
 ///   separate locator contract to consult — an Avalonia locator is an
 ///   <see cref="IDataTemplate" />, and the lookup already reaches it.
 /// </remarks>
-internal static class ViewResolution
+public static class ViewResolution
 {
   /// <summary>Builds the view <paramref name="data" /> resolves to, or <see langword="null" /> when nothing claims it.</summary>
-  internal static PControl? Build(PControl from, object? data)
+  public static PControl? Build(PControl from, object? data)
     => from.FindDataTemplate(data)?.Build(data);
 }

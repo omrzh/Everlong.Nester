@@ -1,11 +1,12 @@
 using System.ComponentModel;
+using Everlong.Nester.Layer;
 
 namespace Everlong.Nester.Routing;
 
 /// <summary>
 ///   The default convergence run — a landed navigation's sites and signal.
 ///   The run's chains derive from the arrival and departure sites; the
-///   moving sides and the borrowed site ride along.
+///   moving sides ride along.
 /// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public class ConvergenceContext : IConvergenceContext
@@ -20,7 +21,9 @@ public class ConvergenceContext : IConvergenceContext
   private List<Location>? _departureChain;
 
   /// <summary>Converts a committed transaction — the run adopts the decision's sites and the transaction's signal.</summary>
-  protected internal ConvergenceContext(TransactionContext context, Location? borrowed = null)
+  /// <param name="context">The committed transaction.</param>
+  /// <param name="counterpart">The lease of the layer this run crosses to or from, or <see langword="null" /> inside one layer.</param>
+  protected internal ConvergenceContext(TransactionContext context, ILayerLease? counterpart = null)
   {
     _arrival = context.Arrival;
     _departure = context.DepartureSite;
@@ -29,11 +32,14 @@ public class ConvergenceContext : IConvergenceContext
     Arrival = _arrival;
     Departure = _departure;
     IsElevated = context.IsDerived;
-    Borrowed = borrowed;
     Direction = context.Direction;
     Cts = context.Cts;
     Features = context.Features;
+    Counterpart = counterpart;
   }
+
+  /// <inheritdoc />
+  public ILayerLease? Counterpart { get; }
 
   /// <inheritdoc />
   public ILocation? Arrival { get; }
@@ -55,9 +61,6 @@ public class ConvergenceContext : IConvergenceContext
 
   /// <inheritdoc />
   public IReadOnlyList<Location> DepartingNodes => _departings;
-
-  /// <summary>The presented site this overlay presentation borrowed, or <see langword="null" /> for the base router.</summary>
-  public Location? Borrowed { get; }
 
   /// <inheritdoc />
   public RoutingDirection Direction { get; }

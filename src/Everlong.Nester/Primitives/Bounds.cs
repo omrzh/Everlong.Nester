@@ -1,15 +1,15 @@
 namespace Everlong.Nester.Primitives;
 
 /// <summary>
-///   Represents the bounds of a shell, including its position and size.
+///   Represents a rectangular region by its position and size.
 ///   Valid across all platforms; on non-windowed platforms, X and Y are zero.
 /// </summary>
-public readonly record struct ShellBounds(double X, double Y, double Width, double Height)
+public readonly record struct Bounds(double X, double Y, double Width, double Height)
 {
   /// <summary>
   ///   A static empty bounds instance with zeroed position and size.
   /// </summary>
-  public static ShellBounds Empty => new(0, 0, 0, 0);
+  public static Bounds Empty => new(0, 0, 0, 0);
 
   /// <summary>
   ///   Whether the bounds are empty.

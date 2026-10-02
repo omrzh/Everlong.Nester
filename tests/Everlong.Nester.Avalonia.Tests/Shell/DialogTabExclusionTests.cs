@@ -176,4 +176,46 @@ public sealed class DialogTabExclusionTests
       window.Close();
     }
   }
+
+  // ── the ground's element focus is saved when it loses the foreground and put back when it returns ──
+
+  [AvaloniaFact]
+  public async Task DialogClosed_RestoresTheGroundsElementFocus()
+  {
+    var (window, panel, sp) = await CreateRig();
+    var router = sp.GetRequiredService<IRouter>();
+
+    try
+    {
+      await router.RouteAsync(new Locator([Target.Of(typeof(GroundVm), instance: new GroundVm())]));
+      await WaitUntilAsync(() => TryGroundHost(panel) is not null);
+      RoutingView ground = TryGroundHost(panel)!;
+      Button ground1 = await WaitForButtonAsync(window, "Ground 1");
+
+      // The user was interacting with the ground — focus is on its first button.
+      ground1.Focus();
+      Assert.Same(ground1, window.FocusManager?.GetFocusedElement());
+
+      Task<bool> alert = router.AlertAsync("message", "title", "OK");
+      await WaitUntilAsync(() => panel.DerivedHosts().Count() == 1);
+      await WaitForButtonAsync(window, "OK");
+
+      // Enter the overlay — element focus leaves the ground.
+      window.KeyPressQwerty(PhysicalKey.Tab, RawInputModifiers.None);
+      Control? focused = window.FocusManager?.GetFocusedElement() as Control;
+      Assert.False(IsWithin(focused, ground));
+
+      // Close the overlay with Enter on the OK.
+      window.KeyPressQwerty(PhysicalKey.Enter, RawInputModifiers.None);
+      await alert.WaitAsync(TimeSpan.FromSeconds(5));
+      await WaitUntilAsync(() => panel.DerivedHosts().Count() == 0);
+
+      // The ground takes the foreground again and puts element focus back where it was.
+      Assert.Same(ground1, window.FocusManager?.GetFocusedElement());
+    }
+    finally
+    {
+      window.Close();
+    }
+  }
 }

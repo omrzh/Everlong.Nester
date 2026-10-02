@@ -12,7 +12,7 @@ namespace Everlong.Nester.Shell;
 public static class IntentCommands
 {
   // ── Shell-state intents ────────────────────────────────────────
-  /// <summary>The command that posts a <see cref="TryCloseIntent" />.</summary>
+  /// <summary>The command that posts a <see cref="CloseIntent" />.</summary>
   public static readonly RoutedCommand CloseCommand = new(nameof(CloseCommand), typeof(IntentCommands));
   /// <summary>The command that posts a minimized <see cref="MutateShellStateIntent" />.</summary>
   public static readonly RoutedCommand MinimizeCommand = new(nameof(MinimizeCommand), typeof(IntentCommands));
@@ -28,9 +28,9 @@ public static class IntentCommands
   public static readonly RoutedCommand IntentCommand = new(nameof(IntentCommand), typeof(IntentCommands));
 
   // ── Static execution methods ──────────────────────────────────
-  /// <summary>Posts a <see cref="TryCloseIntent" /> from <paramref name="control" />.</summary>
+  /// <summary>Posts a <see cref="CloseIntent" /> from <paramref name="control" />.</summary>
   public static void Close(DependencyObject control)
-    => control.PostIntent(new TryCloseIntent());
+    => control.PostIntent(new CloseIntent());
 
   /// <summary>Posts a minimized <see cref="MutateShellStateIntent" /> from <paramref name="control" />.</summary>
   public static void Minimize(DependencyObject control)

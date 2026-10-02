@@ -12,7 +12,6 @@ public partial class AnchorDemoDialog : UserControl, ISceneTransition
 
   public Task AnimateEnterAsync(TransitionContext ctx, CancellationToken token)
   {
-    ctx.RevealBefore(this);
     return this.SlideInAsync(SlideDirection.BottomToTop, 100, 100, token);
   }
 

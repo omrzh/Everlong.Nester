@@ -11,17 +11,17 @@ slot below it, a result channel, and a dismissal rule.
 
 ## 2. The sugar it is made of
 
-- The overlay stack and its result channel — the present-on-derived call and the ephemeral derivation
-  that rents the dialog band.
+- The overlay stack and its result channel — the present-on-derived call and the derived overlay that
+  rents the dialog band with the dimmer as its default layout.
 - The dialog band lease that carries the dimmer and the session.
 - Dismissal as a back-intent consultation.
 
 ## 3. The pieces of sugar
 
-- **`ShowAsync(model[, dimmer])`** — the whole sugar in one call: it presents the chain `[dimmer,
-  session]` on a derived router and returns the settled result. A dismissal yields `null`; the typed
-  overload casts it. An omitted dimmer is the default one — light-dismiss; a caller that wants a
-  specific dimmer hands one in.
+- **`ShowAsync(model[, dimmer])`** — the whole sugar in one call: it presents the session on a
+  dialog-band derived overlay whose default layout is the dimmer, and returns the settled result. A
+  dismissal yields `null`; the typed overload casts it. An omitted dimmer is the default one —
+  light-dismiss; a caller that wants a specific dimmer hands one in.
 - **`DialogSessionBase[<TResult>]`** — the write-back side of the result channel and the dismissal:
   the completion is captured from the routing context's features when the session joins the chain (at
   the commit, so a close racing the arrival still settles), `Close(result)` settles with a result, and

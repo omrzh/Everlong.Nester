@@ -14,7 +14,7 @@ namespace Everlong.Nester.Tests.Shell;
 
 /// <summary>
 ///   The window-owned close chain: the host window's <c>OnClosing</c>
-///   override translates the close into a <see cref="TryCloseIntent" /> — the
+///   override translates the close into a <see cref="CloseIntent" /> — the
 ///   framework never hooks <c>Window.Closing</c>.  Unlike
 ///   <see cref="DisposalFlowTests" /> (which calls the translator directly),
 ///   these tests drive a REAL window: <c>Close()</c> → <c>OnClosing</c> →
@@ -47,17 +47,17 @@ public class WindowCloseFlowTests
     {
       base.OnClosing(e);
       if (Shell is { } shell)   // before mount there is no shell — the close falls through untranslated
-        shell.WindowClosingToTryCloseIntent(e);
+        shell.WindowClosingToCloseIntent(e);
     }
   }
 
-  /// <summary>Director that vetoes TryClose (the user's close guard).</summary>
+  /// <summary>Director that vetoes the user close (the close guard).</summary>
   private sealed class VetoingDirector : IShellDirector
   {
 
     public ValueTask HandleAsync(IntentContext context, IntentDelegate next)
     {
-      if (context.Intent is TryCloseIntent)
+      if (context.Intent is CloseIntent)
       {
         context.Veto();
         return ValueTask.CompletedTask;

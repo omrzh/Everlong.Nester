@@ -11,29 +11,26 @@ public interface IRouterSeed
   /// <summary>The router's role.</summary>
   RouterRole Role { get; }
 
-  /// <summary>The band this router's lease is granted in.</summary>
-  LayerBand Band { get; }
-
-  /// <summary>The policy this router's lease is granted under.</summary>
-  LayerPolicy Policy { get; }
+  /// <summary>The plane this router's lease is granted in.</summary>
+  LayerPlane Plane { get; }
 
   /// <summary>The scope this router owns, or <see langword="null" /> for the base router.</summary>
   IServiceScope? OwnScope { get; }
 
-  /// <summary>The site the overlay borrows — the presenting router's presented content when the seed initialized a derived router; <see langword="null" /> for the base router.</summary>
-  Location? Borrowed { get; }
+  /// <summary>The lease of the layer this router was derived from, or <see langword="null" /> for the base router.</summary>
+  ILayerLease? Counterpart { get; }
 
-  /// <summary>Whether the router is one-shot — it accepts one route request and hands later ones off.</summary>
-  bool IsEphemeral { get; }
+  /// <summary>The parent targets every route the router computes is completed with, outermost first; empty for the base router.</summary>
+  IReadOnlyList<ITarget> Parents { get; }
 
   /// <summary>Initializes the seed for a router.</summary>
-  void Initialize(RouterRole role, LayerBand band, LayerPolicy policy, IServiceScope? ownScope, Location? borrowed = null,
-                 bool isEphemeral = false);
+  void Initialize(RouterRole role, LayerPlane plane, IServiceScope? ownScope,
+                 IReadOnlyList<ITarget>? parents = null, ILayerLease? counterpart = null);
 }
 
 /// <summary>
 ///   The default router seed — uninitialized it describes the base router:
-///   role <see cref="RouterRole.Base" /> at the navigation band's floor, no
+///   role <see cref="RouterRole.Base" /> in <see cref="LayerPlane.Base" />, no
 ///   owner.
 /// </summary>
 public sealed class RouterSeed : IRouterSeed
@@ -42,29 +39,25 @@ public sealed class RouterSeed : IRouterSeed
   public RouterRole Role { get; private set; } = RouterRole.Base;
 
   /// <inheritdoc />
-  public LayerBand Band { get; private set; } = KnownLayers.Navigation;
-
-  /// <inheritdoc />
-  public LayerPolicy Policy { get; private set; } = LayerPolicy.Floor;
+  public LayerPlane Plane { get; private set; } = LayerPlane.Base;
 
   /// <inheritdoc />
   public IServiceScope? OwnScope { get; private set; }
 
   /// <inheritdoc />
-  public Location? Borrowed { get; private set; }
+  public IReadOnlyList<ITarget> Parents { get; private set; } = [];
 
   /// <inheritdoc />
-  public bool IsEphemeral { get; private set; }
+  public ILayerLease? Counterpart { get; private set; }
 
   /// <inheritdoc />
-  public void Initialize(RouterRole role, LayerBand band, LayerPolicy policy, IServiceScope? ownScope, Location? borrowed = null,
-                         bool isEphemeral = false)
+  public void Initialize(RouterRole role, LayerPlane plane, IServiceScope? ownScope,
+                         IReadOnlyList<ITarget>? parents = null, ILayerLease? counterpart = null)
   {
     Role = role;
-    Band = band;
-    Policy = policy;
+    Plane = plane;
     OwnScope = ownScope;
-    Borrowed = borrowed;
-    IsEphemeral = isEphemeral;
+    Parents = parents ?? [];
+    Counterpart = counterpart;
   }
 }

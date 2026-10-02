@@ -105,28 +105,27 @@ public class RouterPlatformTests
     var groundLayer = Assert.Single(
       panel.Children.OfType<ContentControl>(),
       c => ReferenceEquals(c.Content, router.View));
-    Assert.Equal(KnownLayers.Navigation.Floor, groundLayer.ZIndex);
+    Assert.Equal(LayerPlanes.Range(LayerPlane.Base).Floor, groundLayer.ZIndex);
   }
 
   [AvaloniaFact]
-  public void Derive_LeasesTheBandItsLifetimeImplies()
+  public void Derive_LeasesTheRequestedBand()
   {
     (AvaloniaShell shell, Router router) = Create();
     var panel = Assert.IsType<StagePanel>(shell.StagePanel);
 
-    // A full navigator — a derived router that pushes and traverses — shares
-    // the ground router's navigation band, one slot above its floor.
-    var navigator = (Router)router.Derive();
+    // A navigator rents the dock plane, above the ground's floor.
+    var navigator = (Router)router.Derive(new DeriveOptions { Plane = LayerPlane.Dock });
     var navigatorLayer = Assert.Single(panel.Children.OfType<ContentControl>(),
       c => ReferenceEquals(c.Content, navigator.View));
-    Assert.True(navigatorLayer.ZIndex > KnownLayers.Navigation.Floor);
-    Assert.True(KnownLayers.Navigation.Contains(navigatorLayer.ZIndex));
+    Assert.True(navigatorLayer.ZIndex > LayerPlanes.Range(LayerPlane.Base).Floor);
+    Assert.True(LayerPlanes.Range(LayerPlane.Dock).Contains(navigatorLayer.ZIndex));
 
-    // A one-shot dialog rents the dialog band, above every navigator.
-    var oneShot = (Router)router.Derive(isEphemeral: true);
+    // A dialog rents the overlay plane, above every navigator.
+    var dialog = (Router)router.Derive(new DeriveOptions { Plane = LayerPlane.Overlay });
     var dialogLayer = Assert.Single(panel.Children.OfType<ContentControl>(),
-      c => ReferenceEquals(c.Content, oneShot.View));
-    Assert.True(KnownLayers.Dialog.Contains(dialogLayer.ZIndex));
+      c => ReferenceEquals(c.Content, dialog.View));
+    Assert.True(LayerPlanes.Range(LayerPlane.Overlay).Contains(dialogLayer.ZIndex));
   }
 
   [AvaloniaFact]

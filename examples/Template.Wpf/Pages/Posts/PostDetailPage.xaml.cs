@@ -13,17 +13,13 @@ public partial class PostDetailPage : UserControl, ISceneTransition
 
   public async Task AnimateEnterAsync(TransitionContext ctx, CancellationToken token)
   {
-    // The view parked what it wants flown — the card this button sits in;
-    // taking it, checking it belongs to this post, and emptying the slot
-    // are this director's own.
-    FrameworkElement? anchor = ctx.FlyingCanvas?.Anchor as FrameworkElement;
-    if (ctx.FlyingCanvas is { } plane)
-      plane.Anchor = null;
-
+    // The source is the departing list — the same page the exit animation
+    // reaches, from the other side of the change.
     Rect? sourceRect = null;
-    if (DataContext is PostDetailPageModel { Post: { } post }
-        && anchor is Border card && ReferenceEquals(card.DataContext, post))
-      sourceRect = ctx.CaptureRelativeRect(card);
+    if (ctx.Departing is PostsPage { PostList: { } postsList }
+        && DataContext is PostDetailPageModel { Post: { } post }
+        && postsList.ItemContainerGenerator.ContainerFromItem(post) is FrameworkElement container)
+      sourceRect = ctx.CaptureRelativeRect(container);
 
     const int durationMs = 600;
     const int stagger = 80;
@@ -42,7 +38,7 @@ public partial class PostDetailPage : UserControl, ISceneTransition
 
   public async Task AnimateExitAsync(TransitionContext ctx, CancellationToken token)
   {
-    if (ctx.ArrivingHead is not PostsPage { PostList: { } postsList } ||
+    if (ctx.Arriving is not PostsPage { PostList: { } postsList } ||
         DataContext is not PostDetailPageModel { Post: { } post } ||
         postsList.ItemContainerGenerator.ContainerFromItem(post) is not FrameworkElement container)
     {

@@ -4,17 +4,21 @@ using Everlong.Nester.Layer;
 namespace Everlong.Nester.Tests.Layer;
 
 /// <summary>
-///   A test-side <see cref="ILayerLedger"/> backed by <see cref="TestLease"/>
-///   leases.
+///   A test-side broker/ledger over <see cref="TestHandle" /> — the plane
+///   table and focus election mirror the shell broker, with exact-z overloads
+///   for suites that pin dispatch order.
 /// </summary>
-internal sealed class TestBrokerCore : ILayerLedger
+internal sealed class TestBrokerCore : ILayerBroker, ILayerLedger
 {
   private readonly List<Entry> _entries = [];
   private ILayerStage? _stage;
+  private ILayerLease? _focused;
+  private bool _electing;
+  private bool _focusDirty;
 
-  private sealed record Entry(ILayerLease Lease, ILayerTenant Tenant);
+  private sealed record Entry(ILayerHandle Handle, ILayerTenant Tenant);
 
-  /// <summary>Connects the ledger to the stage and mounts every live lease.</summary>
+  /// <summary>Connects the ledger to the stage and mounts every live handle.</summary>
   internal void Connect(ILayerStage? stage)
   {
     if (ReferenceEquals(_stage, stage))
@@ -22,46 +26,67 @@ internal sealed class TestBrokerCore : ILayerLedger
     if (_stage is not null)
     {
       foreach (var entry in _entries)
-        _stage.UnmountLease(entry.Lease);
+        _stage.UnmountLease(entry.Handle);
     }
 
     _stage = stage;
     if (stage is null)
       return;
     foreach (var entry in _entries)
-      stage.MountLease(entry.Lease);
+      stage.MountLease(entry.Handle);
   }
 
-  /// <summary>Grants a lease at the neutral band's floor.</summary>
-  internal ILayerLease Acquire(ILayerTenant tenant)
-    => Acquire(tenant, new object(), KnownLayers.Neutral, LayerPolicy.Floor);
+  /// <summary>Grants a lease in <paramref name="plane" /> at the plane's stacking position.</summary>
+  internal ILayerHandle Acquire(ILayerTenant tenant, LayerPlane plane)
+    => Acquire(tenant, new object(), plane);
 
-  /// <summary>Grants a lease at the exact z <paramref name="z"/>.</summary>
-  internal ILayerLease Acquire(ILayerTenant tenant, int z)
+  /// <summary>Grants a lease with the given content in <paramref name="plane" /> at the plane's stacking position.</summary>
+  internal ILayerHandle Acquire(ILayerTenant tenant, object content, LayerPlane plane)
+    => AcquireAt(tenant, content, plane, ResolveZ(plane));
+
+  /// <summary>Grants a lease at the exact z <paramref name="z" /> in the overlay plane.</summary>
+  internal ILayerHandle Acquire(ILayerTenant tenant, int z)
     => Acquire(tenant, new object(), z);
 
-  /// <summary>Grants a lease at the exact z <paramref name="z"/> with the given content.</summary>
-  internal ILayerLease Acquire(ILayerTenant tenant, object content, int z)
-    => AcquireAt(tenant, content, z);
+  /// <summary>Grants a lease at the exact z <paramref name="z" /> with the given content.</summary>
+  internal ILayerHandle Acquire(ILayerTenant tenant, object content, int z)
+    => AcquireAt(tenant, content, LayerPlane.Overlay, z);
 
-  /// <summary>Grants a lease at the closest feasible position inside <paramref name="band"/> under <paramref name="policy"/>.</summary>
-  internal ILayerLease Acquire(ILayerTenant tenant, object content, LayerBand band, LayerPolicy policy)
-    => AcquireAt(tenant, content, ResolveZ(band, policy));
-
-  private ILayerLease AcquireAt(ILayerTenant tenant, object content, int z)
+  private ILayerHandle AcquireAt(ILayerTenant tenant, object content, LayerPlane plane, int z)
   {
-    ILayerLease lease = new TestLease(this, z) { Content = content };
-    _stage?.MountLease(lease);
-    _entries.Add(new Entry(lease, tenant));
-    return lease;
+    ILayerHandle handle = new TestHandle(this, content, plane, z);
+    _stage?.MountLease(handle);
+    _entries.Add(new Entry(handle, tenant));
+    ReelectFocus(LayerFocusCause.Granted);
+    return handle;
+  }
+
+  /// <inheritdoc />
+  ILayerHandle ILayerBroker.Acquire(ILayerTenant tenant, object content, LayerPlane plane)
+    => Acquire(tenant, content, plane);
+
+  /// <inheritdoc />
+  public ILayerLease? Focused => _focused;
+
+  /// <inheritdoc />
+  public void RequestFocus(ILayerHandle handle)
+  {
+    ILayerLease lease = handle.Lease;
+    if (!IsLive(lease) || lease.Content is not IFocusableContent)
+      return;
+    ApplyFocus(lease, LayerFocusCause.Requested);
   }
 
   bool ILayerLedger.IsLive(ILayerLease lease) => IsLive(lease);
 
   void ILayerLedger.Drop(ILayerLease lease)
   {
-    if (Remove(lease) is not null)
-      _stage?.UnmountLease(lease);
+    var entry = Remove(lease);
+    if (entry is null)
+      return;
+    _stage?.UnmountLease(entry.Handle);
+    DepartFocus(lease);
+    ReelectFocus(LayerFocusCause.Departed);
   }
 
   /// <summary>Evicts a lease: removed, unmounted, tenant notified.  Returns whether the lease was live.</summary>
@@ -70,30 +95,30 @@ internal sealed class TestBrokerCore : ILayerLedger
     Entry? entry = Remove(lease);
     if (entry is null)
       return false;
-    _stage?.UnmountLease(lease);
+    _stage?.UnmountLease(entry.Handle);
+    DepartFocus(lease);
     entry.Tenant.OnEvictedAsync(lease);
+    ReelectFocus(LayerFocusCause.Departed);
     return true;
   }
 
   /// <summary>Whether the lease is still live.</summary>
   internal bool IsLive(ILayerLease lease)
-    => _entries.Any(e => ReferenceEquals(e.Lease, lease));
+    => _entries.Any(e => ReferenceEquals(e.Handle.Lease, lease));
 
   /// <summary>The intent dispatch order: z desc, latest grant first within a z.</summary>
   internal IEnumerable<ILayerLease> BottomUp()
     => _entries.Select((e, index) => (e, index))
-               .OrderByDescending(x => x.e.Lease.Z)
+               .OrderByDescending(x => x.e.Handle.Lease.Z)
                .ThenByDescending(x => x.index)
-               .Select(x => x.e.Lease);
+               .Select(x => x.e.Handle.Lease);
 
   /// <summary>Intent dispatch over the live leases (z desc, latest grant first) — each lease's intent handler gets first refusal.</summary>
   internal async ValueTask<IntentResult> TryDispatch(IntentContext context)
   {
     var handlers = new List<IIntentHandler>();
-    foreach (var (entry, idx) in _entries.Select((e, i) => (Entry: e, Idx: i))
-                 .OrderByDescending(x => x.Entry.Lease.Z)
-                 .ThenByDescending(x => x.Idx))
-      handlers.Add(entry.Lease.IntentHandler);
+    foreach (ILayerLease lease in BottomUp())
+      handlers.Add(lease.IntentHandler);
     IntentDelegate? pipeline = handlers.Count > 0 ? IntentPipelineHelper.Build(handlers) : null;
     if (pipeline is null)
       return IntentResult.Pass;
@@ -101,20 +126,19 @@ internal sealed class TestBrokerCore : ILayerLedger
     return context.Result;
   }
 
-  /// <summary>Resolves the granted z: the closest position to the policy that stays inside the band.</summary>
-  private int ResolveZ(LayerBand band, LayerPolicy policy)
+  /// <summary>Resolves the granted z: the plane's floor, or one above the plane's highest live z when the plane stacks.</summary>
+  private int ResolveZ(LayerPlane plane)
   {
-    if (policy == LayerPolicy.Ceiling)
-      return band.Ceiling;
-    if (policy != LayerPolicy.AboveHighest)
-      return band.Floor;
+    LayerRange range = LayerPlanes.Range(plane);
+    if (!LayerPlanes.Stacks(plane))
+      return range.Floor;
 
-    int top = band.Floor;
+    int top = range.Floor;
     bool any = false;
     foreach (var entry in _entries)
     {
-      int z = entry.Lease.Z;
-      if (!band.Contains(z))
+      int z = entry.Handle.Lease.Z;
+      if (!range.Contains(z))
         continue;
       if (!any || z > top)
       {
@@ -124,13 +148,82 @@ internal sealed class TestBrokerCore : ILayerLedger
     }
 
     if (!any)
-      return band.Floor;
-    return top >= band.Ceiling ? band.Ceiling : top + 1;
+      return range.Floor;
+    return top >= range.Ceiling ? range.Ceiling : top + 1;
+  }
+
+  // ── focus — mirrors the shell broker ─────────────────────────────────────
+
+  private void ReelectFocus(LayerFocusCause cause)
+  {
+    if (_electing)
+    {
+      _focusDirty = true;
+      return;
+    }
+
+    _electing = true;
+    try
+    {
+      do
+      {
+        _focusDirty = false;
+        ApplyFocus(Elect(cause), cause);
+      } while (_focusDirty);
+    }
+    finally
+    {
+      _electing = false;
+    }
+  }
+
+  private ILayerLease? Elect(LayerFocusCause cause)
+  {
+    var context = new LayerFocusContext(cause);
+    foreach (var entry in _entries.Select((e, index) => (e, index))
+                 .OrderByDescending(x => x.e.Handle.Lease.Z)
+                 .ThenByDescending(x => x.index))
+    {
+      if (entry.e.Handle.Lease.Content is IFocusableContent focusable && focusable.TryFocus(context))
+        return entry.e.Handle.Lease;
+    }
+
+    return null;
+  }
+
+  private void ApplyFocus(ILayerLease? winner, LayerFocusCause cause)
+  {
+    if (ReferenceEquals(winner, _focused))
+      return;
+
+    var context = new LayerFocusContext(cause);
+    ILayerLease? outgoing = _focused;
+    IFocusableContent? outgoingFocus = outgoing?.Content as IFocusableContent;
+    IFocusableContent? incomingFocus = winner?.Content as IFocusableContent;
+
+    outgoingFocus?.OnUnfocusing(context);
+    incomingFocus?.OnFocusing(context);
+
+    _focused = winner;
+
+    outgoingFocus?.OnUnfocused(context);
+    incomingFocus?.OnFocused(context);
+  }
+
+  private void DepartFocus(ILayerLease lease)
+  {
+    if (!ReferenceEquals(_focused, lease) || lease.Content is not IFocusableContent focusable)
+      return;
+
+    var context = new LayerFocusContext(LayerFocusCause.Departed);
+    focusable.OnUnfocusing(context);
+    _focused = null;
+    focusable.OnUnfocused(context);
   }
 
   private Entry? Remove(ILayerLease lease)
   {
-    var entry = _entries.FirstOrDefault(e => ReferenceEquals(e.Lease, lease));
+    var entry = _entries.FirstOrDefault(e => ReferenceEquals(e.Handle.Lease, lease));
     if (entry is null)
       return null;
     _entries.Remove(entry);

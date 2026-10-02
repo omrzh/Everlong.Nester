@@ -1,4 +1,3 @@
-using System.Collections;
 using Everlong.Nester.Intent;
 using Everlong.Nester.Layer;
 using Everlong.Nester.Notice;
@@ -75,9 +74,9 @@ public class NoticeServiceBaseTests : IDisposable
   /// <summary>Records show calls in the shared trace.</summary>
   private sealed class TracingEngine(List<string> trace) : INoticeEngine
   {
-    public IEnumerable ToastEntries => Array.Empty<object>();
-    public IEnumerable SnackbarEntries => Array.Empty<object>();
-    public IEnumerable BannerEntries => Array.Empty<object>();
+    public void AttachPanel(INoticePanel panel)
+    {
+    }
 
     public void ShowToast(ToastEntry entry, NoticeServiceOptions options) => trace.Add("show");
 
@@ -111,21 +110,21 @@ public class NoticeServiceBaseTests : IDisposable
 
     public void Start() => throw new NotSupportedException();
 
+    public ValueTask CloseAsync() => ValueTask.CompletedTask;
+
     public ValueTask<IntentResult> DispatchIntent(object? sender, IIntent intent) => throw new NotSupportedException();
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
-    public ILayerLease Acquire(ILayerTenant tenant, object content, LayerBand band, LayerPolicy policy)
+    public ILayerHandle Acquire(ILayerTenant tenant, object content, LayerPlane plane)
     {
       trace.Add("acquire");
-      return _broker.Acquire(tenant, content, band, policy);
+      return _broker.Acquire(tenant, content, plane);
     }
 
-    public ILayerLease Acquire(ILayerTenant tenant, object content, int z)
-    {
-      trace.Add("acquire");
-      return _broker.Acquire(tenant, content, z);
-    }
+    public ILayerLease? Focused => _broker.Focused;
+
+    public void RequestFocus(ILayerHandle handle) => _broker.RequestFocus(handle);
 
     public void ReportError(Exception exception)
     {

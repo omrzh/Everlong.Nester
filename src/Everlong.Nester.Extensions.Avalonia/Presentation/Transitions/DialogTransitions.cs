@@ -19,8 +19,7 @@ public sealed class SlideFromBottomTransition(int? durationMs = null, double off
   /// <inheritdoc />
   public Task AnimateEnterAsync(TransitionContext ctx, CancellationToken token)
   {
-    PControl target = ctx.ArrivingChain[^1];   // the dialog content
-    ctx.RevealBefore(target);                        // the dimmer frame stays put
+    PControl target = ctx.Arriving!;   // the dialog content
     return Task.WhenAll(
       TransitionEffects.SlideInAsync(target, SlideDirection.BottomToTop, offset, _durationMs, token),
       TransitionEffects.FadeInAsync(target, _durationMs, token));
@@ -31,7 +30,7 @@ public sealed class SlideFromBottomTransition(int? durationMs = null, double off
   {
     // Exit returns the same way it came: downward (TopToBottom is the
     // opposite of the BottomToTop entrance).
-    PControl target = ctx.DepartingChain[^1];
+    PControl target = ctx.Departing!;
     return Task.WhenAll(
       TransitionEffects.SlideOutAsync(target, SlideDirection.TopToBottom, offset, _durationMs, token),
       TransitionEffects.FadeOutAsync(target, _durationMs, token));
@@ -57,13 +56,9 @@ public sealed class FadeTransition : ISceneTransition
 
   /// <inheritdoc />
   public Task AnimateEnterAsync(TransitionContext ctx, CancellationToken token)
-  {
-    PControl target = ctx.ArrivingChain[^1];
-    ctx.RevealBefore(target);
-    return TransitionEffects.FadeInAsync(target, _durationMs, token);
-  }
+    => TransitionEffects.FadeInAsync(ctx.Arriving!, _durationMs, token);
 
   /// <inheritdoc />
   public Task AnimateExitAsync(TransitionContext ctx, CancellationToken token)
-    => TransitionEffects.FadeOutAsync(ctx.DepartingChain[^1], _durationMs, token);
+    => TransitionEffects.FadeOutAsync(ctx.Departing!, _durationMs, token);
 }

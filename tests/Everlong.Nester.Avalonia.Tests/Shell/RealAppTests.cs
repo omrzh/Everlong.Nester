@@ -201,6 +201,55 @@ public sealed class RealAppTests
     Assert.False(monitor.IsWatching);
   }
 
+  /// <summary>Mirrors the walk's ignore list — a copy on purpose, so the test states the contract and not the implementation's constant.</summary>
+  private static readonly string[] IgnoredSegments =
+    [".git", "bin", "obj", "node_modules", ".vs", ".idea", "nester-topology"];
+
+  [AvaloniaFact]
+  public async Task Workspace_Snapshot_LeavesTheIgnoredSegmentsOut()
+  {
+    var shell = BuildMainShell();
+    shell.Start();
+    await shell.Lifetime.Startup;
+
+    var monitor = shell.Services!.GetRequiredService<WorkspaceFileMonitor>();
+    var snapshot = monitor.Snapshot();
+
+    Assert.NotEmpty(snapshot);
+
+    // The walk prunes by segment name and the palette renders the rows as they
+    // come: every row is a live file under the root, relative and
+    // '/'-separated, with no ignored segment anywhere in its path.
+    foreach (string path in snapshot)
+    {
+      Assert.DoesNotContain('\\', path);
+      Assert.False(Path.IsPathRooted(path), path);
+      Assert.False(path.Split('/').Any(segment => IgnoredSegments.Contains(segment, StringComparer.OrdinalIgnoreCase)), path);
+      Assert.True(File.Exists(Path.Combine(monitor.Root, path)), path);
+    }
+  }
+
+  [AvaloniaFact]
+  public async Task Workspace_Snapshot_CapsTheNewestFirst()
+  {
+    var shell = BuildMainShell();
+    shell.Start();
+    await shell.Lifetime.Startup;
+
+    var monitor = shell.Services!.GetRequiredService<WorkspaceFileMonitor>();
+
+    var all = monitor.Snapshot();
+    var capped = monitor.Snapshot(5);
+
+    // The cap cuts the tail of the ranking instead of re-ranking it: the first
+    // rows are the ones the uncapped list opens with.
+    Assert.Equal(5, capped.Count);
+    Assert.Equal(all.Take(capped.Count), capped);
+
+    var stamps = capped.Select(path => File.GetLastWriteTimeUtc(Path.Combine(monitor.Root, path))).ToList();
+    Assert.Equal(stamps.OrderByDescending(stamp => stamp), stamps);
+  }
+
   [AvaloniaFact]
   public async Task Workspace_Palette_AppliesABroadcastChangeWhileItIsOpen()
   {

@@ -10,13 +10,22 @@ namespace Everlong.Nester.Hosting;
 /// <summary>
 ///   The default Avalonia prompt surface — a minimal modal window.
 /// </summary>
-public sealed class AvaloniaMessageBox : IMessageBox
+/// <remarks>
+///   Without a main window there is no surface to prompt on: a confirmation
+///   reports <see langword="true" /> without asking, and an alert is dropped.
+/// </remarks>
+public sealed class AvaloniaModalPrompt : IModalPrompt
 {
   /// <summary>Gets the shared instance — stateless.</summary>
-  public static AvaloniaMessageBox Default { get; } = new();
+  public static AvaloniaModalPrompt Default { get; } = new();
 
   /// <inheritdoc />
-  public bool Confirm(string title, string message)
+  public bool Confirm(string title, string message) => Show(title, message, alert: false);
+
+  /// <inheritdoc />
+  public void Alert(string title, string message) => _ = Show(title, message, alert: true);
+
+  private static bool Show(string title, string message, bool alert)
   {
     Window? owner = (Application.Current?.ApplicationLifetime
                      as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
@@ -32,7 +41,7 @@ public sealed class AvaloniaMessageBox : IMessageBox
       CanResize = false,
       ShowInTaskbar = false,
     };
-    dialog.Content = BuildContent(dialog, message);
+    dialog.Content = BuildContent(dialog, message, alert);
 
     Task<bool> answer = dialog.ShowDialog<bool>(owner);
 
@@ -46,7 +55,7 @@ public sealed class AvaloniaMessageBox : IMessageBox
     return answer.Result;
   }
 
-  private static Control BuildContent(Window dialog, string message)
+  private static Control BuildContent(Window dialog, string message, bool alert)
   {
     var text = new TextBlock
     {
@@ -55,19 +64,29 @@ public sealed class AvaloniaMessageBox : IMessageBox
       Margin = new Thickness(16),
     };
 
-    var no = new Button { Content = "No", IsCancel = true, MinWidth = 80 };
-    var yes = new Button { Content = "Yes", IsDefault = true, MinWidth = 80 };
-    no.Click += (_, _) => dialog.Close(false);
-    yes.Click += (_, _) => dialog.Close(true);
-
     var buttons = new StackPanel
     {
       Orientation = Orientation.Horizontal,
       HorizontalAlignment = HorizontalAlignment.Right,
       Spacing = 8,
       Margin = new Thickness(16, 0, 16, 16),
-      Children = { no, yes },
     };
+
+    if (alert)
+    {
+      var ok = new Button { Content = "OK", IsDefault = true, IsCancel = true, MinWidth = 80 };
+      ok.Click += (_, _) => dialog.Close(true);
+      buttons.Children.Add(ok);
+    }
+    else
+    {
+      var no = new Button { Content = "No", IsCancel = true, MinWidth = 80 };
+      var yes = new Button { Content = "Yes", IsDefault = true, MinWidth = 80 };
+      no.Click += (_, _) => dialog.Close(false);
+      yes.Click += (_, _) => dialog.Close(true);
+      buttons.Children.Add(no);
+      buttons.Children.Add(yes);
+    }
 
     return new StackPanel { Children = { text, buttons } };
   }

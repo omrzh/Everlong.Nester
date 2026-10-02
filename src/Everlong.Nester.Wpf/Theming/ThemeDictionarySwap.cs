@@ -3,7 +3,7 @@ using System.Windows;
 namespace Everlong.Nester.Theming;
 
 /// <summary>Merges and removes a theme color dictionary on the application's resources.</summary>
-internal static class ThemeDictionarySwap
+public static class ThemeDictionarySwap
 {
   /// <summary>Merges the dictionary at <paramref name="uri" /> when <paramref name="dark" /> is true, removes it otherwise.</summary>
   public static void Apply(string uri, bool dark)

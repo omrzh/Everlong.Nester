@@ -64,7 +64,7 @@ outside the tree renders nothing.
 |---|---|
 | `Router.RouteAsync(locator)` | Route by description. Fire-and-forget: it commits the route, no result is bridged back. A live engagement with equal arguments is reused; a dead one is re-materialized. |
 | `Router.JumpAsync(site)` | Record a fresh visit to an **existing** engagement (an `ILocation` the stack handed you). No resolution, no re-materialization. Returns `false` when no live entry presents the site — then rebuild it: `Router.RouteAsync(site.ToLocator())`. A visit that faults reaches the caller as a fault: `false` is never a swallowed failure. |
-| `Router.Derive(isEphemeral: false)` | Open a result-capable derived router. Capsules, dialogs and floating pages are built on it (`docs/guide/interaction.md`). |
+| `Router.Derive(options)` | Open a result-capable derived overlay. The options carry the band, the position inside it, and the overlay's default layouts; capsules, dialogs and floating pages are built on it (`docs/guide/interaction.md`). |
 | `Router.Stack` | The navigation-state surface: `Location`, `CanGoBack`, `CanGoForward`, `Count`, `MaxDepth`, `TrimBackward()`, `TrimForward()`, `PeekPrevious/Next`, `BackStack`, `ForwardStack`, `Snapshot`. Its state members raise `PropertyChanged`, so they bind directly to a button's `IsEnabled`. |
 
 Back, forward and refresh are **intents**, not router calls — a layout control never navigates
@@ -77,7 +77,8 @@ directly, because user input must stay attributable and refusable:
 ```
 
 The distinction matters: `RouteAsync(locator)` is an addressed directive that consults nobody, while
-`RouteIntent(locator)` is the consulted form a page may veto.
+back, forward and refresh are intents the chain arbitrates — a page vetoes a *traversal*, never a
+route.
 
 ## 3. Arguments
 
@@ -198,9 +199,9 @@ public partial class ProfilePageModel : RoutableModel, IIntentHandler
 ```
 
 The router asks the presented chain first — view, then instance, outermost first — so a page vetoes a
-shell close probe (`TryCloseIntent`) or an intent-dispatched route command (`RouteIntent`) the same
-way. A direct `Router.RouteAsync(locator)` is an addressed directive that consults no one; a layer
-that must block navigation behind it does so at the input level (a modal focus trap).
+shell close probe (`CloseIntent`) the same way it vetoes a traversal. A direct
+`Router.RouteAsync(locator)` is an addressed directive that consults no one; a layer that must block
+navigation behind it does so at the input level (a modal focus trap).
 
 ## 6. Retention
 
@@ -217,9 +218,9 @@ public void OnDeparted(IRoutingContext context)
 }
 ```
 
-A one-shot *surface* is the other lever, and it is derived explicitly:
-`Router.Derive(isEphemeral: true)` takes one route request and hands later ones off instead of
-stacking them. `PresentOnDerivedAsync` does exactly that for dialogs.
+A derived *overlay* is the other lever, and it is derived explicitly. `Router.Derive(options)` rents a
+band and gives the overlay its own stack, scope and result channel; its parents are the default
+layouts every route is completed with. `PresentOnDerivedAsync` builds a dialog that way.
 
 ## 7. Next
 

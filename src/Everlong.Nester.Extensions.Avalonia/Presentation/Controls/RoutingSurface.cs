@@ -1,11 +1,17 @@
-// NOTE: Single-source file — the Extensions.Wpf project compiles this exact
+// NOTE: Single-source file — the Extensions WPF project compiles this exact
 // file via <Compile Include> in Everlong.Nester.Extensions.Wpf.csproj.
 // Edit it here only; never create a WPF-side copy (the two builds would drift).
 
-using Everlong.Nester.Routing;
 #if AVALONIA
+using Avalonia;
 using Avalonia.VisualTree;
+#else
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
 #endif
+
+using Everlong.Nester.Routing;
 
 namespace Everlong.Nester.Presentation;
 
@@ -22,56 +28,42 @@ internal static class RoutingSurface
   ///   surface (designer preview, bare test construction, popup roots).
   /// </summary>
   internal static IRouter? FindRouter(PControl control)
-  {
-#if AVALONIA
-    Avalonia.Visual? node = control;
-    while (node is not null)
-    {
-      if (node is IRoutingView view)
-        return view.Router;
-      node = node.GetVisualParent();
-    }
-
-    return null;
-#else
-    System.Windows.DependencyObject? node = control;
-    while (node is not null)
-    {
-      if (node is IRoutingView view)
-        return view.Router;
-      node = System.Windows.Media.VisualTreeHelper.GetParent(node);
-    }
-
-    return null;
-#endif
-  }
+    => FindVisualAncestor<IRoutingView>(control)?.Router;
 
   /// <summary>
   ///   Finds the nearest <see cref="RouteTreeControl" /> ancestor —
   ///   <see langword="null" /> when the control is not inside a nav tree.
   /// </summary>
   internal static RouteTreeControl? FindTreeControl(PControl control)
-  {
+    => FindVisualAncestor<RouteTreeControl>(control);
+
 #if AVALONIA
-    Avalonia.Visual? node = control;
-    while (node is not null)
+  /// <summary>The nearest ancestor of type <typeparamref name="T" /> up the visual tree, the control included.</summary>
+  private static T? FindVisualAncestor<T>(PControl control) where T : class
+  {
+    for (Visual? node = control; node is not null; node = node.GetVisualParent())
     {
-      if (node is RouteTreeControl tree)
-        return tree;
-      node = node.GetVisualParent();
+      if (node is T ancestor)
+        return ancestor;
     }
 
     return null;
-#else
-    System.Windows.DependencyObject? node = control;
-    while (node is not null)
-    {
-      if (node is RouteTreeControl tree)
-        return tree;
-      node = System.Windows.Media.VisualTreeHelper.GetParent(node);
-    }
-
-    return null;
-#endif
   }
+#else
+  /// <summary>The nearest ancestor of type <typeparamref name="T" /> up the visual tree, the control included.</summary>
+  private static T? FindVisualAncestor<T>(PControl control) where T : class
+  {
+    for (DependencyObject? node = control; node is not null; node = StepVisual(node))
+    {
+      if (node is T ancestor)
+        return ancestor;
+    }
+
+    return null;
+  }
+
+  /// <summary>Steps one level up the visual tree.</summary>
+  private static DependencyObject? StepVisual(DependencyObject node)
+    => node is Visual or Visual3D ? VisualTreeHelper.GetParent(node) : null;
+#endif
 }

@@ -276,12 +276,20 @@ public sealed class SingleViewHostTests
     var (sv, original, impl) = InstallSingleViewLifetime();
     try
     {
-      var shell = await BuildSingleViewShell();
+      // A pass-through Director pins the shell's own fallback: the app's
+      // close guard is app policy — it answers CloseIntent before the
+      // fallback and would block on a dialog here.
+      Application.Current!.DataTemplates.Clear();
+      Application.Current!.DataTemplates.Add(new NesterExtendedViewLocator());
+
+      var shell = TestHost.CreateShell<RealShell.RealTestContext>(null, directMount: true);
+      shell.Start();
+      await shell.Lifetime.Startup;
       Assert.NotNull(sv.MainView);
 
       // CloseIntent is handled by the single-view fallback path: the shell
       // is destroyed and the MainView detached — the fallback awaits
-      // DisposeAsync, so the dispatch returns deterministically done.
+      // CloseAsync, so the dispatch returns deterministically done.
       Assert.Equal(IntentResult.Handled, await shell.DispatchIntent(null, new CloseIntent()));
 
       Assert.Null(sv.MainView);

@@ -46,13 +46,13 @@ public partial class LoginWindow : Window, IWpfShellHost
   }
 
   /// <summary>
-  ///   Translate window closing to TryCloseIntent for unified arbitration.
+  ///   Translate window closing to CloseIntent for unified arbitration.
   ///   Nester never hooks <c>Window.Closing</c>.
   /// </summary>
   protected override void OnClosing(CancelEventArgs e)
   {
     base.OnClosing(e);
-    Shell?.ClosingToTryCloseIntent(e);
+    Shell?.ClosingToCloseIntent(e);
   }
 
   /// <summary>Drags the chrome-less window — the rounded Border is the drag zone (the close button is not).</summary>

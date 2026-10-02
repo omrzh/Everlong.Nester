@@ -65,6 +65,9 @@ Day-to-day work lands on `dev`; `main` is what a release is cut from, and it adv
 
 ## Commit Gate
 
-1. Run `./.agents/commit-gate.sh` (usage: `--help`) before a commit, and only before a commit: it checks the pending change, so with nothing pending it refuses, and it is not a build runner — `dotnet build` and `dotnet test` are. `--all` checks every project, for a push or a release.
-2. The gate's policy — which diagnostics fail — lives in `.editorconfig`; the script only runs the toolchain.
-3. Format the commit message according to the `commit-messages` skill, and let the gate check it (`--message <file>`).
+One policy, two depths. The policy — which diagnostics fail — lives in `.editorconfig`; the script only runs the toolchain, because a second script would be a second policy beside it.
+
+1. `.agents/commit-gate.sh` (usage: `--help`) is the fast lane, run before a commit and only before a commit: it checks the pending change, so with nothing pending it refuses, and it is not a build runner — `dotnet build` and `dotnet test` are. Its build half is incremental, so it reports the compiler and analyzer findings of the projects the commit recompiles; formatting is scoped to the projects the change reaches, plus those that link a changed file.
+2. `.agents/commit-gate.sh --all` is the full sweep, for a push or a release: every project, and the build is `--no-incremental` so every analyzer runs. A change to a repository-wide definition — `.editorconfig`, `Directory.*.props`, `Directory.*.targets`, `global.json`, `NesterVersion.props`, the `.slnx` — makes the fast lane escalate to this sweep by itself.
+3. A pull request is where the full sweep is mandatory: `ci.yml` runs `--all`, and `.githooks/pre-push` runs it for a push to `dev` or `main`, the pushes no pull request precedes. A fresh clone opts into the hook once with `git config core.hooksPath .githooks`.
+4. Format the commit message according to the `commit-messages` skill, and let the gate check it (`--message <file>`).

@@ -6,8 +6,8 @@
 ## 1. Shape
 
 The shell is one object per window: its surface (stage and host), its container, its layer ledger and
-its teardown. `IShell` is deliberately thin — dispatch, error reporting, lifetime, services and the
-host handle — and it is a contract, not a component registry.
+its teardown. `IShell` is deliberately thin — dispatch, error reporting, lifetime, services, the host
+handle and the imperative start / close — and it is a contract, not a component registry.
 
 `IShell` does not declare the layer broker (which grants leases) or the activation channel (which
 receives activation intents). `ShellBase` implements both explicitly, and registration publishes the
@@ -96,13 +96,13 @@ not block there.
 The shell's pipeline folds four stages: **layers → Director → host → fallback**. Layers are asked
 topmost first (the stacking order the layer domain fixes); the Director is the application's decision
 surface; the host optionally participates; the fallback is the platform's own families — the window
-intents and the shell-lifecycle pair — reached only when nothing upstream settled.
+intents and the shell-lifecycle intent — reached only when nothing upstream settled.
 
 Three shell-side facts belong here. The layers stage reports a throwing handler and lets the dispatch
 continue. The Director stage arbitrates a throw through `HandleError`: accepted settles as `Pass`,
-declined rethrows to the dispatch caller. The third is the two families themselves. A window intent is
+declined rethrows to the dispatch caller. The third is the families themselves. A window intent is
 answered where a window exists, so a surface without one leaves it `Pass` — consuming it would report a
-window operation as performed on a surface that has no window. The shell-lifecycle pair is the other
+window operation as performed on a surface that has no window. The shell-lifecycle intent is the other
 way round: ending the shell is a fact about every surface, so every platform answers it.
 
 ## 6. The Director
@@ -141,6 +141,14 @@ the first await). The order:
 6. untrack from the app-exit cascade, so a shell that closed at runtime leaves the registry here;
 7. cancel the stopped signal — the teardown cascade is complete.
 
+Two paths reach teardown. `IShell.CloseAsync` is the addressed close — teardown followed by the
+platform's presentation end — and it consults no handler: the caller already decided. A user close
+affordance is the arbitrated path: a close intent dispatched through the chain, which may refuse it
+before it gets there, and whose end calls `CloseAsync`. An app-issued close calls `CloseAsync`
+directly, and nothing refuses it. User code never disposes the shell directly: `DisposeAsync` runs the
+teardown alone and is the host's channel — the app-exit cascade and the single-view main-shell
+replacement.
+
 Platform shells override to detach their surface. Cancellation and unmount failures are best-effort:
 the guard is already set, so a failed cascade is not retryable and must not abort the rest.
 
@@ -162,5 +170,5 @@ the cascade order, the dispatcher and the error hooks — is the hosting domain'
 - Never resolve services before assembly; the container does not exist until `InitializeServices`
   returns.
 - Never dispatch from the ready anchor expecting an answer; the pipeline activates afterwards.
-- Never destroy the shell by closing the window directly — the close path is an intent whose end is
-  the one destruction entry.
+- Never destroy the shell by closing the window directly — the window close is a user affordance
+  translated into a close intent, and both it and an app-issued close end in `CloseAsync`.

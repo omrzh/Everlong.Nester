@@ -200,6 +200,17 @@ dotnet_diagnostic.CS0105.severity = warning
 dotnet_diagnostic.CS1574.severity = warning
 dotnet_diagnostic.MVVMTK0042.severity = warning
 
+# Analyzer release tracking: every diagnostic ID the generators allocate must
+# be recorded in AnalyzerReleases.Shipped.md / AnalyzerReleases.Unshipped.md.
+dotnet_diagnostic.RS2000.severity = warning
+dotnet_diagnostic.RS2001.severity = warning
+dotnet_diagnostic.RS2002.severity = warning
+dotnet_diagnostic.RS2003.severity = warning
+dotnet_diagnostic.RS2004.severity = warning
+dotnet_diagnostic.RS2005.severity = warning
+dotnet_diagnostic.RS2006.severity = warning
+dotnet_diagnostic.RS2007.severity = warning
+
 
 # how to override a warning as error example
 # dotnet_diagnostic.RMG020.severity = error

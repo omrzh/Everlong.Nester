@@ -26,10 +26,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="Everlong.Nester.Extensions.Wpf" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Everlong.Nester\Everlong.Nester.csproj" />
   </ItemGroup>
 
@@ -39,10 +35,13 @@
     <Compile Include="..\Everlong.Nester.Avalonia\DI\ServiceCollectionExtensions.cs" Link="DI\ServiceCollectionExtensions.cs" />
     <!-- Controls -->
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\StagePanel.cs" Link="Presentation\Controls\StagePanel.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\FocusPolicy.cs" Link="Presentation\Controls\FocusPolicy.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\RoutingView.cs" Link="Presentation\Controls\RoutingView.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\RoutingView.Reveal.cs" Link="Presentation\Controls\RoutingView.Reveal.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\RoutingView.Body.cs" Link="Presentation\Controls\RoutingView.Body.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\ContentLayerLease.cs" Link="Presentation\Controls\ContentLayerLease.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\RoutingView.Focus.cs" Link="Presentation\Controls\RoutingView.Focus.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\ContentLayerHandle.cs" Link="Presentation\Controls\ContentLayerHandle.cs" />
+    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\IFocusAnchor.cs" Link="Presentation\Controls\IFocusAnchor.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\TreeControl.shared.cs" Link="Presentation\Controls\TreeControl.shared.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Controls\TreeItem.shared.cs" Link="Presentation\Controls\TreeItem.shared.cs" />
     <!-- Routing -->
@@ -54,9 +53,10 @@
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\IFlyingLayer.cs" Link="Presentation\Transitions\IFlyingLayer.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\ShellFlyingLayer.cs" Link="Presentation\Transitions\ShellFlyingLayer.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\ISceneTransition.cs" Link="Presentation\Transitions\ISceneTransition.cs" />
-    <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\TransitionKind.cs" Link="Presentation\Transitions\TransitionKind.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Transitions\TransitionContext.cs" Link="Presentation\Transitions\TransitionContext.cs" />
     <Compile Include="..\Everlong.Nester.Avalonia\Presentation\Layouts\IBodyHolder.cs" Link="Presentation\Layouts\IBodyHolder.cs" />
+    <!-- Shell -->
+    <Compile Include="..\Everlong.Nester.Avalonia\Shell\ShellExtensions.cs" Link="Shell\ShellExtensions.cs" />
   </ItemGroup>
 
   <!-- The package readme is the repository's own readme.md, packed at the root of

@@ -63,6 +63,12 @@ Two rules follow from that shape. The cascade is **not retryable**: the guard is
 starts, so a pass that failed halfway is not run again. And a broken participant must not strand the
 rest: the shells beneath it are still released.
 
+The hook that starts the cascade **does not await it**. The platform tears its loop down the moment
+the hook returns and aborts every continuation still queued, so an awaiting hook strands teardown at
+its first hop; the hook therefore keeps the platform's loop running until the cascade settles, and
+returns only once teardown is complete. A failure in that path is reported, never thrown into the
+exit path.
+
 ## 5. The facade
 
 A participant deep in the tree needs the process host without passing a reference through every
@@ -93,6 +99,8 @@ still reaches the last hook.
   needs into that window's container instead of resolving window-scoped services from the process one.
 - **Observe shutdown through the lifetime contract.** `Stopping` and `Stopped` are the whole surface a
   service needs in order to react to the process ending, and they stay usable outside any window's
-  container.
+  container.  Observe them by registering: the cascade waits for a registered callback, so a handle
+  that callback releases is gone before the container that owned the service is.  Awaiting the token
+  instead moves the same work off the cascade and onto a scheduler nobody waits for.
 - **The signals are read-only facts.** Nothing outside the host cancels them; teardown order is the
   host's.

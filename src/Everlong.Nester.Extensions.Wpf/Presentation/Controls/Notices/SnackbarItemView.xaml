@@ -1,4 +1,4 @@
-<local:BottomSlideItemViewBase x:Class="Everlong.Nester.Presentation.SnackbarItemView"
+<local:FeedbackItemViewBase x:Class="Everlong.Nester.Presentation.SnackbarItemView"
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Everlong.Nester.Presentation"
@@ -30,4 +30,4 @@
 
     </StackPanel>
   </Border>
-</local:BottomSlideItemViewBase>
+</local:FeedbackItemViewBase>

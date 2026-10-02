@@ -1,23 +1,17 @@
-using System.Collections;
 using System.ComponentModel;
 
 namespace Everlong.Nester.Notice;
 
 /// <summary>
 ///   The notice engine port — drives the three concurrent entry stacks
-///   (toast / snackbar / banner) and their scene lifecycle.
+///   (toast / snackbar / banner) and their scene lifecycle against the
+///   mounted panel.
 /// </summary>
 [EditorBrowsable(EditorBrowsableState.Never)]
 public interface INoticeEngine
 {
-  /// <summary>Toast entry views, in display order.</summary>
-  IEnumerable ToastEntries { get; }
-
-  /// <summary>Snackbar entry views, in display order.</summary>
-  IEnumerable SnackbarEntries { get; }
-
-  /// <summary>Notification banner entry views, in display order.</summary>
-  IEnumerable BannerEntries { get; }
+  /// <summary>Binds the mounted panel — from now on every show presents into it.</summary>
+  void AttachPanel(INoticePanel panel);
 
   /// <summary>Shows a toast entry.  Must run on the UI thread.</summary>
   void ShowToast(ToastEntry entry, NoticeServiceOptions options);

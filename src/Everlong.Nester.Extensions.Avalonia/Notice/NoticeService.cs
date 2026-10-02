@@ -1,50 +1,35 @@
-using System.Collections;
 using Everlong.Nester.Layer;
+using Everlong.Nester.Presentation;
 
 namespace Everlong.Nester.Notice;
 
 /// <summary>
-///   The Avalonia notice tenant — rents the notice band and hands every
-///   show call to the <see cref="NoticeEngine" />.
+///   The Avalonia notice tenant — rents the notice band, resolves the panel
+///   from the tree and hands every show call to the <see cref="NoticeEngine" />.
 /// </summary>
 internal sealed class NoticeService(ILayerBroker broker, NoticeServiceOptions options)
   : NoticeServiceBase(broker, new NoticeEngine(), options)
 {
-  /// <summary>The host is mounted — the notice views resolve from it, from now on.</summary>
+  /// <summary>The panel's mount point — the bare container the resolved panel lands in.</summary>
+  protected override object CreateHost() => new PGrid();
+
+  /// <summary>
+  ///   Resolves the panel from the mounted container (its template table is
+  ///   reachable from there) and binds it to the engine.
+  /// </summary>
   protected override void OnHostMounted(object host)
-    => ((NoticeEngine)Engine).AttachHost((PControl)host);
-
-  protected override object CreateHost()
   {
-    var host = new PGrid();
-    host.Children.Add(BuildStack(Engine.ToastEntries, Options.ToastPosition, Options.ToastMargin));
-    host.Children.Add(BuildStack(Engine.SnackbarEntries, Options.SnackbarPosition, Options.SnackbarMargin));
-    host.Children.Add(BuildStack(Engine.BannerEntries, Options.NotificationPosition, Options.NotificationMargin));
-    return host;
-  }
+    var container = (PGrid)host;
+    PControl? view = ViewResolution.Build(container, Options.Panel);
+    if (view is not INoticePanel panel)
+    {
+      var fallback = new NoticePanel();
+      panel = fallback;
+      view = fallback;
+    }
 
-  private static PItemsControl BuildStack(IEnumerable items, NoticePosition position,
-                                                 Primitives.Thickness margin)
-  {
-    // Convert to the platform thickness at the framework boundary — user code
-    // configures NoticeServiceOptions with the platform-agnostic type.
-    PThickness platformMargin = new(margin.Left, margin.Top, margin.Right, margin.Bottom);
-    var (horizontal, vertical) = position switch
-    {
-      NoticePosition.TopLeft => (PHorizontalAlignment.Left, PVerticalAlignment.Top),
-      NoticePosition.TopCenter => (PHorizontalAlignment.Center, PVerticalAlignment.Top),
-      NoticePosition.TopRight => (PHorizontalAlignment.Right, PVerticalAlignment.Top),
-      NoticePosition.BottomLeft => (PHorizontalAlignment.Left, PVerticalAlignment.Bottom),
-      NoticePosition.BottomCenter => (PHorizontalAlignment.Center, PVerticalAlignment.Bottom),
-      NoticePosition.BottomRight => (PHorizontalAlignment.Right, PVerticalAlignment.Bottom),
-      _ => throw new ArgumentOutOfRangeException(nameof(position))
-    };
-    return new PItemsControl
-    {
-      ItemsSource = items,
-      HorizontalAlignment = horizontal,
-      VerticalAlignment = vertical,
-      Margin = platformMargin
-    };
+    panel.AttachModel(Options.Panel);
+    container.Children.Add(view);
+    ((NoticeEngine)Engine).AttachPanel(panel);
   }
 }

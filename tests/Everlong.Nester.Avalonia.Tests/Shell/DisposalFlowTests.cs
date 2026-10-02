@@ -18,13 +18,13 @@ namespace Everlong.Nester.Tests.Shell;
 [Collection("RealShell")]
 public class DisposalFlowTests
 {
-  /// <summary>Director that vetoes TryClose (the user's close guard).</summary>
+  /// <summary>Director that vetoes the user close (the close guard).</summary>
   private sealed class VetoingDirector : IShellDirector
   {
 
     public ValueTask HandleAsync(IntentContext context, IntentDelegate next)
     {
-      if (context.Intent is TryCloseIntent)
+      if (context.Intent is CloseIntent)
       {
         context.Veto();
         return ValueTask.CompletedTask;
@@ -97,7 +97,33 @@ public class DisposalFlowTests
     // A destroyed shell must not answer intents — the window-close re-entry
     // path depends on this (no arbitration, no exceptions).
     Assert.Equal(IntentResult.Pass, await shell.Shell.DispatchIntent(null, new CloseIntent()));
-    Assert.Equal(IntentResult.Pass, await shell.Shell.DispatchIntent(null, new TryCloseIntent()));
+  }
+
+  // ── The imperative close (IShell.CloseAsync) ─────
+
+  [AvaloniaFact]
+  public async Task CloseAsync_TearsDown_ConsultsNoHandler()
+  {
+    // An addressed directive, not an arbitrated impulse: the vetoing
+    // Director is bypassed — the caller already decided.
+    var shell = RealShell.Create<VetoingDirector>();
+    Assert.Equal(ShellLifecycle.Started, shell.Shell.Lifetime.Lifecycle);
+
+    await shell.Shell.CloseAsync();
+
+    Assert.Equal(ShellLifecycle.Disposed, shell.Shell.Lifetime.Lifecycle);
+  }
+
+  [AvaloniaFact]
+  public async Task CloseAsync_AfterTeardown_NoOps()
+  {
+    var shell = RealShell.Create<RealShell.RealTestContext>();
+    await shell.Shell.CloseAsync();
+
+    // Idempotent and re-entrant: a second call must not throw.
+    await shell.Shell.CloseAsync();
+
+    Assert.Equal(ShellLifecycle.Disposed, shell.Shell.Lifetime.Lifecycle);
   }
 
   // ── Window-close translation (the host window's OnClosing) ──
@@ -105,12 +131,12 @@ public class DisposalFlowTests
   [AvaloniaFact]
   public async Task WindowClosing_Translation_HoldsClose_AndArbitratesThroughChain()
   {
-    // A vetoing Director proves the TryCloseIntent really walked the chain:
+    // A vetoing Director proves the CloseIntent really walked the chain:
     // were it not delivered, nothing could veto it.
     var shell = RealShell.Create<VetoingDirector>();
     var e = NewClosingArgs();
 
-    shell.Shell.WindowClosingToTryCloseIntent(e);
+    shell.Shell.WindowClosingToCloseIntent(e);
 
     Assert.True(e.Cancel, "The translator must hold the close while the chain arbitrates.");
     Assert.False(shell.Shell.Lifetime.Lifecycle == ShellLifecycle.Disposed, "A vetoed close must leave the shell alive.");
@@ -126,7 +152,7 @@ public class DisposalFlowTests
     // Re-entry (Close → DisposeAsync → window.Close → Closing): the
     // destroyed shell must let the close fall through — no arbitration.
     var e = NewClosingArgs();
-    shell.Shell.WindowClosingToTryCloseIntent(e);
+    shell.Shell.WindowClosingToCloseIntent(e);
 
     Assert.False(e.Cancel, "A disposed shell must not hold the close.");
   }
@@ -139,7 +165,7 @@ public class DisposalFlowTests
     var shell = RealShell.Create<VetoingDirector>();
     var e = NewClosingArgs(WindowCloseReason.OSShutdown);
 
-    shell.Shell.WindowClosingToTryCloseIntent(e);
+    shell.Shell.WindowClosingToCloseIntent(e);
 
     // Holding it would abort the shutdown (the window stays in the lifetime's
     // set), and the intent chain has no say in an OS shutdown.
@@ -153,7 +179,7 @@ public class DisposalFlowTests
     var shell = RealShell.Create<VetoingDirector>();
     var e = NewClosingArgs(WindowCloseReason.ApplicationShutdown);
 
-    shell.Shell.WindowClosingToTryCloseIntent(e);
+    shell.Shell.WindowClosingToCloseIntent(e);
 
     Assert.False(e.Cancel, "A lifetime-initiated shutdown must not be held by the close chain.");
     await shell.Shell.DisposeAsync();

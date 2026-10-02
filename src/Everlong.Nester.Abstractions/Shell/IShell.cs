@@ -46,4 +46,19 @@ public interface IShell : IIntentDispatcher, IErrorReporter
   ///   completion is observable via <see cref="IShellLifetime.Startup" />.
   /// </remarks>
   void Start();
+
+  /// <summary>
+  ///   Ends the shell imperatively: tears it down and ends its host
+  ///   presentation.  This is an addressed directive — it consults no
+  ///   handler, so no Director or page can refuse a close the caller
+  ///   itself decided.  A user close affordance is dispatched as a close
+  ///   intent through the chain instead.
+  /// </summary>
+  /// <remarks>
+  ///   Idempotent and re-entrant — a call after teardown no-ops.  The only
+  ///   imperative close entry: destroying the shell through
+  ///   <c>IAsyncDisposable</c> runs the teardown alone, skips the
+  ///   presentation end, and is the host's channel, not a close.
+  /// </remarks>
+  ValueTask CloseAsync();
 }

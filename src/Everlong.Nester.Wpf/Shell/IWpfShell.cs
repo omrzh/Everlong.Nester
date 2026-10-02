@@ -16,11 +16,11 @@ namespace Everlong.Nester.Shell;
 public interface IWpfShell : IShell
 {
   /// <summary>
-  ///   Translates a window-closing notification into a <see cref="TryCloseIntent" />
+  ///   Translates a window-closing notification into a <see cref="CloseIntent" />
   ///   for unified arbitration through the intent chain.  The host window's
   ///   <c>OnClosing</c> override calls this.
   /// </summary>
-  void ClosingToTryCloseIntent(CancelEventArgs e);
+  void ClosingToCloseIntent(CancelEventArgs e);
 
   /// <summary>Translates mouse side buttons (XButton1 / XButton2) into <see cref="BackIntent" /> / <see cref="ForwardIntent" />.</summary>
   void MouseSideButtonToRoutingIntent(object? sender, MouseButtonEventArgs e);
@@ -30,12 +30,6 @@ public interface IWpfShell : IShell
 
   /// <summary>Gets the window's DPI scale on the X axis.</summary>
   double DpiX { get; }
-
-  /// <summary>
-  ///   Channel: forwards the host window's dependency-property change into
-  ///   the shell's status snapshot.
-  /// </summary>
-  void FeedHostPropertyChanged(DependencyPropertyChangedEventArgs e);
 
   /// <summary>Gets the window's DPI scale on the Y axis.</summary>
   double DpiY { get; }

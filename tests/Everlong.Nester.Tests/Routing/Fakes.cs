@@ -126,16 +126,21 @@ internal sealed class FakeShell : IShell, ILayerBroker
   {
   }
 
+  public ValueTask CloseAsync() => ValueTask.CompletedTask;
+
   public void ReportError(Exception exception) => ErrorReporter?.Invoke(exception);
 
   public ValueTask<IntentResult> DispatchIntent(object? sender, IIntent intent)
     => _brokerCore.TryDispatch(new IntentContext(intent, sender));
 
-  public ILayerLease Acquire(ILayerTenant tenant, object content, LayerBand band, LayerPolicy policy)
-    => _brokerCore.Acquire(tenant, content, band, policy);
+  public ILayerHandle Acquire(ILayerTenant tenant, object content, LayerPlane plane)
+    => _brokerCore.Acquire(tenant, content, plane);
 
-  public ILayerLease Acquire(ILayerTenant tenant, object content, int z)
-    => _brokerCore.Acquire(tenant, content, z);
+  /// <inheritdoc />
+  public ILayerLease? Focused => _brokerCore.Focused;
+
+  /// <inheritdoc />
+  public void RequestFocus(ILayerHandle handle) => _brokerCore.RequestFocus(handle);
 
   /// <summary>The live leases in intent-dispatch order (test/observer channel).</summary>
   internal IEnumerable<ILayerLease> Leases => _brokerCore.BottomUp();

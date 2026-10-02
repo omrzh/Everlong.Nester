@@ -2,15 +2,17 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Everlong.Nester.Intent;
 using Everlong.Nester.Shell;
 using Everlong.Nester.Presentation;
+using Microsoft.Extensions.DependencyInjection;
 using NesterApp.Dialogs;
 using NesterApp.Properties;
 
 namespace NesterApp.Pages.Shell;
 
 [ViewFor<MainViewModel>]
-public partial class MainWindow : Window, IAvaloniaShellHost
+public partial class MainWindow : Window, IAvaloniaShellHost, IIntentHandler
 {
   public MainWindow()
   {
@@ -23,9 +25,16 @@ public partial class MainWindow : Window, IAvaloniaShellHost
   /// <inheritdoc />
   public void HostShell(IAvaloniaShell shell, Control stage)
   {
+    // The container is built and its window scope is cut before the host is
+    // connected, so the snapshot resolves and seeds here, once.
+    _status = shell.Services.GetService<HostProperty>();
+    _status?.Prime(this);
+
     Content = stage;
     Shell = shell;
   }
+
+  private HostProperty? _status;
 
   private IAvaloniaShell? Shell { get; set; }
 
@@ -36,15 +45,30 @@ public partial class MainWindow : Window, IAvaloniaShellHost
   }
 
   /// <summary>
-  ///   Forwards the window's property changes into the shell's status
-  ///   snapshot through the host channel — the shell maps them; the
-  ///   window only leaves the channel open (the framework never hooks
-  ///   platform events).
+  ///   Feeds the window's own property changes into the shell's status
+  ///   snapshot — the window is the source of its state, so it writes the
+  ///   snapshot directly.
   /// </summary>
   protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
   {
     base.OnPropertyChanged(change);
-    Shell?.FeedHostPropertyChanged(change);
+    _status?.Feed(change);
+  }
+
+  /// <summary>
+  ///   Restores the window to the state it held before its last change —
+  ///   the window owns that state, so it answers the intent itself.
+  /// </summary>
+  public ValueTask HandleAsync(IntentContext context, IntentDelegate next)
+  {
+    if (context.Intent is RestoreShellStateIntent && _status is { } status)
+    {
+      WindowState = status.LastHostState.AsWindowState();
+      context.Handle(this);
+      return ValueTask.CompletedTask;
+    }
+
+    return next(context);
   }
 
   private void ApplyWindowRect()
@@ -95,14 +119,14 @@ public partial class MainWindow : Window, IAvaloniaShellHost
   }
 
   /// <summary>
-  /// Translate window closing to TryClose intent for unified arbitration.
+  /// Translate window closing to Close intent for unified arbitration.
   /// Nester never hooks <c>Window.Closing</c>.
   /// (no hidden interception, no black magic).
   /// </summary>
   protected override void OnClosing(WindowClosingEventArgs e)
   {
     base.OnClosing(e);
-    Shell?.WindowClosingToTryCloseIntent(e);
+    Shell?.WindowClosingToCloseIntent(e);
     var snapshot = AppSettings.Default.Snapshot();
     snapshot.Shadow.WindowWidth = (int)Width;
     snapshot.Shadow.WindowHeight = (int)Height;

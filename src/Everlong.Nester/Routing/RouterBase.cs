@@ -30,14 +30,8 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
   /// <summary>The router's own scope provider.</summary>
   protected IServiceProvider _services;
 
-  private readonly ILayerLease _lease;
+  private readonly ILayerHandle _handle;
   private readonly ResultChannel? _completion;
-  private readonly Location? _borrowed;
-  private readonly IIntentDispatcher _dispatcher;
-  private readonly bool _ephemeral;
-
-  /// <summary>0 while a one-shot router has not accepted a route yet.</summary>
-  private int _accepted;
 
   // ── the folded pipes — the router's own stage lists, folded once at
   //    construction; each stage owns a file, per-transaction state travels
@@ -66,29 +60,23 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
     _broker = services.GetRequiredService<ILayerBroker>();
     ErrorReporter = services.GetRequiredService<IErrorReporter>();
     _runs = new RunSupervision(ReportFailures);
-    _dispatcher = services.GetRequiredService<IIntentDispatcher>();
     _scopeFactory = services.GetRequiredService<IServiceScopeFactory>();
     IRouterSeed seed = services.GetRequiredService<IRouterSeed>();
     Role = seed.Role;
     _ownScope = seed.OwnScope;
-    _borrowed = seed.Borrowed;
-    _ephemeral = seed.IsEphemeral;
+    Parents = seed.Parents;
+    Counterpart = seed.Counterpart;
 
     Model = model;
     View.SetRouter(this);
 
     // The member connection — the router mounts its routing view into
     // its own lease slot.
-    _lease = _broker.Acquire(this, View, seed.Band, seed.Policy);
-    _lease.IntentHandler = this;
+    _handle = _broker.Acquire(this, View, seed.Plane);
+    _handle.SetIntentHandler(this);
 
     if (Role == RouterRole.Derived)
     {
-      // The modal overlay declares its focus policy on its own content —
-      // the stage maps the declared policy and the stack position onto
-      // the layer's actual Tab mode.
-      if (View is IFocusPolicySurface focusPolicy)
-        focusPolicy.FocusPolicy = FocusPolicy.Trapped;
       // The derived router's completion channel — the write end its
       // participants capture and the creator's result surface forwards to.
       _completion = new ResultChannel(this);
@@ -118,12 +106,23 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
   /// <summary>The router's routing view — the surface this router mounts as its lease body.</summary>
   internal IRoutingView View => Model.View;
 
-  /// <summary>The presented site this overlay router borrowed at its derivation, or <see langword="null" /> for the base router.</summary>
-  protected internal Location? Borrowed => _borrowed;
+  /// <summary>The parent targets every route this router computes is completed with, outermost first; empty for the base router.</summary>
+  internal IReadOnlyList<ITarget> Parents { get; }
+
+  /// <summary>The lease of the layer this router was derived from, or <see langword="null" /> for the base router.</summary>
+  internal ILayerLease? Counterpart { get; }
 
   /// <summary>Creates the convergence context of a landed transaction.</summary>
   protected internal virtual IConvergenceContext CreateConvergenceContext(TransactionContext context)
-    => new ConvergenceContext(context, _borrowed);
+    => new ConvergenceContext(context, CrossesLayer(context) ? Counterpart : null);
+
+  /// <summary>
+  ///   Whether a landed transaction crosses the layer boundary — the layer's
+  ///   first convergence (nothing was presented before it lands) and its close
+  ///   (the dismissal) cross; a change inside the layer carries no counterpart.
+  /// </summary>
+  private bool CrossesLayer(TransactionContext context)
+    => context.Direction == RoutingDirection.Close || context.DepartureSite is null;
 
   /// <summary>The error channel the pipes' stages report through.</summary>
   internal IErrorReporter ErrorReporter { get; }
@@ -148,11 +147,6 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
       _completion?.Complete(null);
       return Task.CompletedTask;
     }
-
-    // A one-shot surface accepts its first request; every later one leaves
-    // it as a hand-off instead of stacking on it.
-    if (_ephemeral && Interlocked.Exchange(ref _accepted, 1) != 0)
-      return HandOffAsync(location);
 
     var context = new TransactionContext(RoutingDirection.Route, location);
 
@@ -191,14 +185,12 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
   }
 
   /// <inheritdoc />
-  public IRouter Derive(bool isEphemeral = false)
+  public IRouter Derive(DeriveOptions options)
   {
     IServiceScope scope = _scopeFactory.CreateScope();
     IRouterSeed seed = scope.ServiceProvider.GetRequiredService<IRouterSeed>();
-    var band = isEphemeral ? KnownLayers.Dialog : KnownLayers.Navigation;
 
-    seed.Initialize(RouterRole.Derived, band, LayerPolicy.AboveHighest, scope, BorrowedEnvironment(),
-                    isEphemeral);
+    seed.Initialize(RouterRole.Derived, options.Plane, scope, options.Parents, _handle.Lease);
 
     IRouter wrapped = scope.ServiceProvider.GetRequiredService<IRouter>();
     try
@@ -217,18 +209,6 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
       throw;
     }
   }
-
-  /// <summary>
-  ///   Re-issues a request this one-shot surface cannot take as the route
-  ///   consultation it never answers — the request falls through to a
-  ///   navigable surface.
-  /// </summary>
-  private Task HandOffAsync(ILocator location)
-    => _dispatcher.DispatchIntent(this, new RouteIntent(location)).AsTask();
-
-  /// <summary>The presented site a derived router borrows — the presented content at the derivation, or <see langword="null" /> when nothing is presented.</summary>
-  private Location? BorrowedEnvironment()
-    => Model.CurrentChain is { Length: > 0 } chain ? chain[^1] : null;
 
   /// <summary>
   ///   Runs a navigation transaction — queued and pumped: its transaction pipe runs
@@ -476,7 +456,7 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
   /// <summary>Returns the lease and disposes the owned scope — the tenant's act, once per router.</summary>
   private void ReturnLease()
   {
-    _lease.Release();
+    _handle.Release();
     _ownScope?.Dispose();
   }
 
@@ -571,20 +551,6 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
       return;
     }
 
-    // A one-shot surface answers no route consultation: it accepted its one
-    // route and never navigates again, so the request falls through to a
-    // navigable surface (an open derived navigation surface, or the base
-    // router).  Skipping before the chain consultation is deliberate — the
-    // derived router's own pages do not arbitrate a request that is not for them,
-    // and this is what keeps stacked one-shot surfaces from handing the same
-    // request to each other forever.  Back stays answered: it is about this
-    // surface's own content.
-    if (_ephemeral && context.Intent is RouteIntent)
-    {
-      await next(context);
-      return;
-    }
-
     // The presented chain's outside-in say — every intent is asked of the
     // chain's own pipeline (an overlay chain's for a derived router, the
     // main chain's for the base router) before the router interprets its
@@ -595,27 +561,17 @@ public class RouterBase : IRouter, IIntentHandler, ILayerTenant
 
     // Only the routing domain's private commands reach the interpretation —
     // any other intent continues up the chain untouched.
-    if (context.Intent is not IRouteIntent)
+    if (context.Intent is not ITraversalIntent)
     {
       await next(context);
       return;
     }
 
-    // Route/Back/Forward/Refresh are the router's domain commands.  A fault
-    // in their transaction is user code throwing in the transaction pipe —
-    // the router does not report it nor consume the command: the exception
+    // Back/Forward/Refresh are the router's domain commands.  A fault in
+    // their transaction is user code throwing in the transaction pipe — the
+    // router does not report it nor consume the command: the exception
     // propagates out of the dispatch into the intent chain's error
     // handling (the shell's layers segment reports through the Director).
-
-    // Route — the routing domain's route command: a dispatched
-    // RouteIntent consults the chain (the pages above may veto); the
-    // router answers by routing the carried location.
-    if (context.Intent is RouteIntent { Locator: var location })
-    {
-      await RouteAsync(location);
-      context.Handle(this);
-      return;
-    }
 
     // Traversal — a back/forward traverses when the stack has room,
     // whether the stack is the base's main stack or an overlay's.  The

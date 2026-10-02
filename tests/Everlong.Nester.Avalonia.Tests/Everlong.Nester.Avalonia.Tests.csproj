@@ -35,10 +35,11 @@
          than moved, and only the files a landed suite needs are listed. -->
     <Compile Include="..\Everlong.Nester.Tests\Layer\LayerTestTenant.cs" Link="Kit\Layer\LayerTestTenant.cs" />
     <Compile Include="..\Everlong.Nester.Tests\Layer\TestBrokerCore.cs" Link="Kit\Layer\TestBrokerCore.cs" />
-    <Compile Include="..\Everlong.Nester.Tests\Layer\TestLease.cs" Link="Kit\Layer\TestLease.cs" />
+    <Compile Include="..\Everlong.Nester.Tests\Layer\TestHandle.cs" Link="Kit\Layer\TestHandle.cs" />
     <Compile Include="..\Everlong.Nester.Tests\Navigation\ChainBuilder.cs" Link="Kit\Navigation\ChainBuilder.cs" />
     <Compile Include="..\Everlong.Nester.Tests\Routing\Fakes.cs" Link="Kit\Routing\Fakes.cs" />
     <Compile Include="..\Everlong.Nester.Tests\Routing\TestContent.cs" Link="Kit\Routing\TestContent.cs" />
+    <Compile Include="..\Everlong.Nester.Tests\Routing\TestDerive.cs" Link="Kit\Routing\TestDerive.cs" />
   </ItemGroup>
 
   <ItemGroup>

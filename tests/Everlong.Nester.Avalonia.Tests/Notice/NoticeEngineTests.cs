@@ -1,8 +1,4 @@
-using Avalonia.Controls;
-using Avalonia.Controls.Templates;
-using Avalonia.Headless.XUnit;
 using Everlong.Nester.Notice;
-using Everlong.Nester.Presentation;
 using Microsoft.Extensions.Time.Testing;
 using Xunit;
 
@@ -10,182 +6,151 @@ namespace Everlong.Nester.Tests.Notice;
 
 using static Everlong.Nester.Tests.AsyncTestHelpers;
 
+/// <summary>
+///   The notice engine's scene lifecycle: an entry is presented in its
+///   channel, timed, and dismissed; the channel limit trims the oldest.
+/// </summary>
 public class NoticeEngineTests
 {
-  private sealed class FakeNoticeView : Control, ISceneTransition
+  /// <summary>A panel that records the engine's calls instead of drawing.</summary>
+  private sealed class RecordingPanel : INoticePanel
   {
-    public List<string> Calls { get; } = [];
+    public List<(INoticeEntry Entry, NoticeChannel Channel)> Presented { get; } = [];
 
-    public Task AnimateEnterAsync(TransitionContext context, CancellationToken token)
+    public List<(INoticeEntry Entry, NoticeChannel Channel)> Dismissed { get; } = [];
+
+    public void AttachModel(NoticePanelModel model)
     {
-      Calls.Add(nameof(AnimateEnterAsync));
+    }
+
+    public Task PresentAsync(INoticeEntry entry, NoticeChannel channel, CancellationToken token)
+    {
+      Presented.Add((entry, channel));
       return Task.CompletedTask;
     }
 
-    public Task AnimateExitAsync(TransitionContext context, CancellationToken token)
+    public Task DismissAsync(INoticeEntry entry, NoticeChannel channel, CancellationToken token)
     {
-      Calls.Add(nameof(AnimateExitAsync));
+      Dismissed.Add((entry, channel));
       return Task.CompletedTask;
     }
   }
 
-  private sealed class PlainView : Control
+  private static (NoticeEngine Engine, RecordingPanel Panel) Engine()
   {
-    public List<string> Calls { get; } = [];
-  }
-
-  private sealed class FakeTemplate : IDataTemplate
-  {
-    public required Func<object?, Control?> Factory { get; init; }
-
-    public bool Match(object? data) => true;
-
-    public Control? Build(object? data) => Factory(data);
-  }
-
-  /// <summary>
-  ///   The engine over a host that resolves every entry through
-  ///   <paramref name="factory" /> — the resolver the notice service installs
-  ///   on the mounted host.
-  /// </summary>
-  private static NoticeEngine Engine(Func<object?, Control?> factory)
-  {
-    var host = new Panel();
-    host.DataTemplates.Add(new FakeTemplate { Factory = factory });
     var engine = new NoticeEngine();
-    engine.AttachHost(host);
-    return engine;
+    var panel = new RecordingPanel();
+    engine.AttachPanel(panel);
+    return (engine, panel);
   }
 
   private static NoticeServiceOptions Options => new();
 
-  private static ToastEntry ToastEntry(TimeSpan duration)
-    => new() { Message = "hello", Duration = duration };
+  private static ToastEntry Toast(TimeSpan duration, TimeProvider time)
+    => new() { Message = "hello", Duration = duration, TimeProvider = time };
 
-  [AvaloniaFact]
+  [Fact]
   public async Task Toast_PlaysFullSceneLifecycle_AndAutoDismisses()
   {
     var time = new FakeTimeProvider();
-    var entry = ToastEntry(TimeSpan.FromMilliseconds(100));
-    entry.TimeProvider = time;
-    var view = new FakeNoticeView();
-    var engine = Engine(_ => view);
+    var entry = Toast(TimeSpan.FromMilliseconds(100), time);
+    var (engine, panel) = Engine();
 
     engine.ShowToast(entry, Options);
 
-    // The enter scene runs synchronously up to the animation — the view is
-    // attached before Show returns.
-    Assert.Single(engine.ToastEntries);
-    Assert.Same(view, engine.ToastEntries[0]);
+    Assert.Single(panel.Presented);
+    Assert.Same(entry, panel.Presented[0].Entry);
+    Assert.Equal(NoticeChannel.Toast, panel.Presented[0].Channel);
 
     time.Advance(TimeSpan.FromMilliseconds(100));
-    await WaitUntilAsync(() => engine.ToastEntries.Count == 0);
+    await WaitUntilAsync(() => panel.Dismissed.Count == 1);
 
-    Assert.Equal(
-    [
-      nameof(FakeNoticeView.AnimateEnterAsync),
-      nameof(FakeNoticeView.AnimateExitAsync)
-    ], view.Calls);
+    Assert.Same(entry, panel.Dismissed[0].Entry);
+    Assert.Equal(NoticeChannel.Toast, panel.Dismissed[0].Channel);
   }
 
-  [AvaloniaFact]
-  public async Task Toast_WithoutTransitionDirector_SkipsAnimations()
+  [Fact]
+  public async Task Snackbar_And_Notification_UseTheirOwnChannels()
   {
-    var view = new PlainView();
-    var engine = Engine(_ => view);
+    var time = new FakeTimeProvider();
+    var snack = new SnackbarEntry { Message = "snack", Duration = TimeSpan.FromMilliseconds(50), TimeProvider = time };
+    var banner = new NotificationEntry { Title = "T", Message = "b", Duration = TimeSpan.FromMilliseconds(50), TimeProvider = time };
+    var (engine, panel) = Engine();
 
-    engine.ShowToast(ToastEntry(TimeSpan.FromMilliseconds(100)), Options);
+    engine.ShowSnackbar(snack, Options);
+    engine.ShowNotification(banner, Options);
 
-    await WaitUntilAsync(() => engine.ToastEntries.Count == 0);
+    Assert.Contains(panel.Presented, p => p.Channel == NoticeChannel.Snackbar && ReferenceEquals(p.Entry, snack));
+    Assert.Contains(panel.Presented, p => p.Channel == NoticeChannel.Notification && ReferenceEquals(p.Entry, banner));
+    Assert.DoesNotContain(panel.Presented, p => p.Channel == NoticeChannel.Toast);
 
-    Assert.Empty(view.Calls);
+    time.Advance(TimeSpan.FromMilliseconds(50));
+    await WaitUntilAsync(() => panel.Dismissed.Count == 2);
   }
 
-  [AvaloniaFact]
-  public async Task Snackbar_And_Notification_UseTheirOwnStacks()
-  {
-    var engine = Engine(_ => new Control());
-
-    engine.ShowSnackbar(new SnackbarEntry { Message = "snack", Duration = TimeSpan.FromMilliseconds(50) },
-                        Options);
-    engine.ShowNotification(new NotificationEntry { Title = "T", Message = "banner", Duration = TimeSpan.FromMilliseconds(50) },
-                            Options);
-
-    Assert.Single(engine.SnackbarEntries);
-    Assert.Single(engine.BannerEntries);
-    Assert.Empty(engine.ToastEntries);
-
-    await WaitUntilAsync(() => engine.SnackbarEntries.Count == 0 && engine.BannerEntries.Count == 0);
-  }
-
-  [AvaloniaFact]
+  [Fact]
   public async Task ConcurrentToasts_AreIndependentScenes()
   {
     var time = new FakeTimeProvider();
-    var shortEntry = ToastEntry(TimeSpan.FromMilliseconds(100));
-    shortEntry.TimeProvider = time;
-    var longEntry = ToastEntry(TimeSpan.FromMilliseconds(300));
-    longEntry.TimeProvider = time;
-    var view1 = new FakeNoticeView();
-    var view2 = new FakeNoticeView();
-    int built = 0;
-    var engine = Engine(_ => built++ == 0 ? view1 : view2);
+    var shortEntry = Toast(TimeSpan.FromMilliseconds(100), time);
+    var longEntry = Toast(TimeSpan.FromMilliseconds(300), time);
+    var (engine, panel) = Engine();
 
     engine.ShowToast(shortEntry, Options);
     engine.ShowToast(longEntry, Options);
 
-    Assert.Equal(2, engine.ToastEntries.Count);
+    Assert.Equal(2, panel.Presented.Count);
 
     // The short toast leaves while the long one stays.
     time.Advance(TimeSpan.FromMilliseconds(100));
-    await WaitUntilAsync(() => engine.ToastEntries.Count == 1);
-    Assert.Same(view2, engine.ToastEntries[0]);
+    await WaitUntilAsync(() => panel.Dismissed.Count == 1);
+    Assert.Same(shortEntry, panel.Dismissed[0].Entry);
 
     time.Advance(TimeSpan.FromMilliseconds(200));
-    await WaitUntilAsync(() => engine.ToastEntries.Count == 0);
+    await WaitUntilAsync(() => panel.Dismissed.Count == 2);
   }
 
-  [AvaloniaFact]
-  public async Task SnackbarEntry_CompletesWithTimeoutResult()
-  {
-    var entry = new SnackbarEntry { Message = "hello", Duration = TimeSpan.FromMilliseconds(100) };
-    var engine = Engine(_ => new Control());
-
-    engine.ShowSnackbar(entry, Options);
-
-    SnackbarResult result = await entry.ShowTask.WaitAsync(TimeSpan.FromSeconds(2));
-    Assert.Equal(SnackbarResult.TimedOut, result);
-  }
-
-  [AvaloniaFact]
+  [Fact]
   public async Task Toast_ExceedingMaxCount_DismissesOldest()
   {
     var options = new NoticeServiceOptions { ToastMaxCount = 1 };
-    var first = ToastEntry(TimeSpan.FromSeconds(30));
-    var second = ToastEntry(TimeSpan.FromSeconds(30));
-    var engine = Engine(_ => new Control());
+    var time = new FakeTimeProvider();
+    var first = Toast(Timeout.InfiniteTimeSpan, time);
+    var second = Toast(Timeout.InfiniteTimeSpan, time);
+    var (engine, panel) = Engine();
 
     engine.ShowToast(first, options);
-    Assert.Single(engine.ToastEntries);
-
-    // The second toast exceeds the limit — the first is dismissed and
-    // leaves via its dismiss scene.
     engine.ShowToast(second, options);
-    await WaitUntilAsync(() => engine.ToastEntries.Count == 1);
-    Assert.Same(second, engine.ToastEntries[0].DataContext);
+
+    await WaitUntilAsync(() => panel.Dismissed.Count == 1);
+    Assert.Same(first, panel.Dismissed[0].Entry);
   }
 
-  [AvaloniaFact]
-  public async Task Toast_InfiniteDuration_DoesNotAutoDismiss()
+  [Fact]
+  public async Task SnackbarEntry_CompletesWithTimeoutResult()
   {
     var time = new FakeTimeProvider();
-    var entry = ToastEntry(Timeout.InfiniteTimeSpan);
-    entry.TimeProvider = time;
-    var engine = Engine(_ => new Control());
+    var entry = new SnackbarEntry { Message = "hello", Duration = TimeSpan.FromMilliseconds(100), TimeProvider = time };
+    var (engine, _) = Engine();
+
+    engine.ShowSnackbar(entry, Options);
+
+    time.Advance(TimeSpan.FromMilliseconds(100));
+    SnackbarResult result = await entry.ShowTask.WaitAsync(TimeSpan.FromSeconds(2), TestContext.Current.CancellationToken);
+    Assert.Equal(SnackbarResult.TimedOut, result);
+  }
+
+  [Fact]
+  public void Toast_InfiniteDuration_DoesNotAutoDismiss()
+  {
+    var time = new FakeTimeProvider();
+    var entry = Toast(Timeout.InfiniteTimeSpan, time);
+    var (engine, panel) = Engine();
 
     engine.ShowToast(entry, Options);
 
     time.Advance(TimeSpan.FromSeconds(5));
-    Assert.Single(engine.ToastEntries);
+    Assert.Single(panel.Presented);
+    Assert.Empty(panel.Dismissed);
   }
 }

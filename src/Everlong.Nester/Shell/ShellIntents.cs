@@ -20,16 +20,19 @@ public sealed record ShowIntent : IWindowIntent;
 /// <summary>Represents an intent to hide the shell's window.</summary>
 public sealed record HideIntent : IWindowIntent;
 
-/// <summary>Represents an intent to close the shell, open to a refusal.</summary>
-public sealed record TryCloseIntent : IShellIntent;
-
-/// <summary>Represents an intent to close the shell, dispatched where no refusal is sought.</summary>
+/// <summary>
+///   Represents a request to close the shell raised by a user close
+///   affordance — the window's close, a title-bar button, a quit shortcut.
+///   Like every intent it is refusable: a presented page or the Director
+///   may veto it.  A close the app itself issues is the addressed
+///   <see cref="IShell.CloseAsync" />, never this intent.
+/// </summary>
 public sealed record CloseIntent : IShellIntent;
 
 /// <summary>Represents an intent to alter the shell's window state.</summary>
 public sealed record MutateShellStateIntent(HostState TargetState) : IWindowIntent;
 
-/// <summary>Represents an intent to restore the shell's window state from the platform defaults.</summary>
+/// <summary>Represents an intent to restore the shell's window to the state it held before its last change.</summary>
 public sealed record RestoreShellStateIntent : IWindowIntent;
 
 /// <summary>Represents an intent to toggle whether the shell's window is topmost.</summary>

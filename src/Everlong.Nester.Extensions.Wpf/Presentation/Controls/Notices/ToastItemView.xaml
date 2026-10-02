@@ -1,4 +1,4 @@
-<local:BottomSlideItemViewBase x:Class="Everlong.Nester.Presentation.ToastItemView"
+<local:FeedbackItemViewBase x:Class="Everlong.Nester.Presentation.ToastItemView"
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Everlong.Nester.Presentation"
@@ -46,4 +46,4 @@
                    Foreground="{DynamicResource Nester.Toast.Foreground}" />
     </StackPanel>
   </Border>
-</local:BottomSlideItemViewBase>
+</local:FeedbackItemViewBase>
