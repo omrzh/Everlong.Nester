@@ -103,6 +103,18 @@ public sealed class WorkspaceFileMonitor
   /// <summary>What a project root looks like when it was never initialized as a repository.</summary>
   private static readonly string[] ProjectMarkers = ["*.slnx", "*.sln", "*.csproj"];
 
+  /// <summary>
+  ///   How one directory is listed — the simple <c>Directory.Enumerate*</c>
+  ///   overloads' behavior: hidden entries are included, because a workspace may
+  ///   keep source in a dot directory.
+  /// </summary>
+  private static readonly EnumerationOptions Listing = new()
+  {
+    AttributesToSkip = 0,
+    IgnoreInaccessible = false,
+    MatchType = MatchType.Win32,
+  };
+
   private readonly IHostLifetime _lifetime;
   private readonly IMessageHub _hub;
   private readonly ILogger<WorkspaceFileMonitor> _logger;
@@ -158,6 +170,12 @@ public sealed class WorkspaceFileMonitor
   ///   the list a palette opens with (the watcher only keeps it current).
   /// </summary>
   /// <param name="max">The cap on how many files are returned.</param>
+  /// <remarks>
+  ///   An ignored directory is never descended into, so the walk costs what the
+  ///   workspace means instead of the artifacts under it.  A directory that
+  ///   cannot be listed is skipped and logged, and only the files it held drop
+  ///   out of the result.
+  /// </remarks>
   public IReadOnlyList<string> Snapshot(int max = 20_000)
   {
     if (Root.Length == 0)
@@ -167,18 +185,65 @@ public sealed class WorkspaceFileMonitor
     {
       return
       [
-        .. Directory.EnumerateFiles(Root, "*", SearchOption.AllDirectories)
-                    .Where(path => !IsIgnored(Relative(path)))
-                    .OrderByDescending(File.GetLastWriteTimeUtc)
-                    .Take(max)
-                    .Select(Relative)
+        .. Walk().OrderByDescending(File.GetLastWriteTimeUtc)
+                 .Take(max)
+                 .Select(Relative)
       ];
     }
     catch (Exception e) when (e is IOException or UnauthorizedAccessException)
     {
-      // A tree being written to while it is walked is normal, not fatal.
+      // The walk skips a directory it cannot list on its own; this is the net
+      // under it — a tree being written to while it is walked is normal, not
+      // fatal.
       _logger.LogWarning(e, "Could not enumerate the workspace root {Root}.", Root);
       return [];
+    }
+  }
+
+  /// <summary>
+  ///   The files under <see cref="Root" /> that the ignore list leaves, in no
+  ///   particular order.
+  /// </summary>
+  /// <remarks>
+  ///   The descent is the walk's own, not <c>SearchOption.AllDirectories</c>'s:
+  ///   no <c>Directory.Enumerate*</c> overload can exclude a directory, and
+  ///   listing a build tree only to drop it is the walk's whole cost.
+  /// </remarks>
+  private IEnumerable<string> Walk()
+  {
+    var pending = new Stack<string>();
+    pending.Push(Root);
+
+    while (pending.Count > 0)
+    {
+      string directory = pending.Pop();
+
+      string[] subdirectories;
+      string[] files;
+      try
+      {
+        // Materialized before the loops: these enumerations throw lazily, and
+        // one unreadable directory is a hole in the list, not a failed walk.
+        subdirectories = [.. Directory.EnumerateDirectories(directory, "*", Listing)];
+        files = [.. Directory.EnumerateFiles(directory, "*", Listing)];
+      }
+      catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+      {
+        _logger.LogWarning(e, "Could not list {Directory} under the workspace root {Root}.", directory, Root);
+        continue;
+      }
+
+      foreach (string subdirectory in subdirectories)
+      {
+        if (!IsIgnoredSegment(Path.GetFileName(subdirectory)))
+          pending.Push(subdirectory);
+      }
+
+      foreach (string file in files)
+      {
+        if (!IsIgnoredSegment(Path.GetFileName(file)))
+          yield return file;
+      }
     }
   }
 
@@ -417,10 +482,13 @@ public sealed class WorkspaceFileMonitor
   {
     foreach (string segment in relativePath.Split('/', StringSplitOptions.RemoveEmptyEntries))
     {
-      if (IgnoredSegments.Contains(segment, StringComparer.OrdinalIgnoreCase))
+      if (IsIgnoredSegment(segment))
         return true;
     }
 
     return false;
   }
+
+  private static bool IsIgnoredSegment(string segment)
+    => IgnoredSegments.Contains(segment, StringComparer.OrdinalIgnoreCase);
 }
