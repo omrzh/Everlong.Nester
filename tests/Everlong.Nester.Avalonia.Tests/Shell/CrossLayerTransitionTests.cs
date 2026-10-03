@@ -1,9 +1,12 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
+using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using Everlong.Nester.ComponentModel;
 using Everlong.Nester.Dialog;
+using Everlong.Nester.Helpers;
 using Everlong.Nester.Layer;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Routing;
@@ -18,8 +21,10 @@ using static Everlong.Nester.Tests.AsyncTestHelpers;
 /// <summary>
 ///   Cross-layer transitions (headless): a derived overlay's director is told
 ///   the transition crosses layers and is handed the source layer's lease,
-///   whose content carries the interaction origin it held when it lost the
-///   foreground — until it takes the foreground back.
+///   whose content carries the interaction origin — the element the
+///   activation inside that surface rested on, or, when no activation did,
+///   the element focus it held when it lost the foreground.  Either is spent
+///   once the surface takes the foreground back.
 /// </summary>
 [Collection("RealShell")]
 public sealed class CrossLayerTransitionTests
@@ -37,7 +42,13 @@ public sealed class CrossLayerTransitionTests
   {
     internal Button First { get; } = new() { Content = "Ground 1" };
 
-    public GroundPage() => Children.Add(First);
+    internal TextBox Editor { get; } = new();
+
+    public GroundPage()
+    {
+      Children.Add(First);
+      Children.Add(Editor);
+    }
   }
 
   public sealed class AnchorProbeDialog : DialogSessionBase<object?>
@@ -92,25 +103,16 @@ public sealed class CrossLayerTransitionTests
       await router.RouteAsync(new Locator([Target.Of(typeof(GroundVm), instance: new GroundVm())]));
       await WaitUntilAsync(() => ground.First.IsAttachedToVisualTree());
 
-      // The user interacts with the ground — element focus rests on its button.
+      // The user interacts with the ground — element focus rests on its button,
+      // with no activation to record (the fallback path).
       Assert.True(ground.First.Focus());
 
-      var session = new AnchorProbeDialog();
-      Task show = router.ShowAsync(session);
-
-      AnchorProbeView? probe = null;
-      await WaitUntilAsync(() =>
-      {
-        probe = window.GetVisualDescendants().OfType<AnchorProbeView>().FirstOrDefault();
-        return probe?.EnterContext is not null;
-      });
-
-      TransitionContext enter = probe!.EnterContext!;
+      (AnchorProbeDialog session, TransitionContext enter, Task show) = await ShowProbeAsync(router, window);
       Assert.True(enter.IsCrossLayer);
       ILayerLease source = Assert.IsAssignableFrom<ILayerLease>(enter.Counterpart);
       Assert.True(source.IsLive);
 
-      // The source layer's own anchor is the element the foreground last rested on.
+      // The source layer's own anchor is the element focus the foreground last rested on.
       var origin = Assert.IsAssignableFrom<IFocusAnchor>(source.Content);
       Assert.Same(ground.First, origin.Anchor);
 
@@ -123,5 +125,144 @@ public sealed class CrossLayerTransitionTests
     {
       window.Close();
     }
+  }
+
+  [AvaloniaFact]
+  public async Task Activation_IsTheOrigin_WithoutElementFocusToRead()
+  {
+    var ground = new GroundPage();
+    var window = new HostWindow { Width = 900, Height = 600 };
+    var shell = RealShell.Create<RealShell.RealTestContext>(
+      template: new ProbeTemplate(ground), rootView: window);
+    var router = shell.Services.GetRequiredService<IRouter>();
+
+    try
+    {
+      await router.RouteAsync(new Locator([Target.Of(typeof(GroundVm), instance: new GroundVm())]));
+      await WaitUntilAsync(() => ground.First.IsAttachedToVisualTree());
+
+      // The user taps the card.  Nothing holds element focus: the focus a
+      // change could read at the grant is not what the interaction chose —
+      // the activation is.
+      ground.First.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+
+      (AnchorProbeDialog session, TransitionContext enter, Task show) = await ShowProbeAsync(router, window);
+      ILayerLease source = Assert.IsAssignableFrom<ILayerLease>(enter.Counterpart);
+      var origin = Assert.IsAssignableFrom<IFocusAnchor>(source.Content);
+
+      Assert.Same(ground.First, origin.Anchor);
+
+      session.Close();
+      await show.WaitAsync(TimeSpan.FromSeconds(5));
+      Assert.Null(origin.Anchor);
+    }
+    finally
+    {
+      window.Close();
+    }
+  }
+
+  [AvaloniaFact]
+  public async Task Origin_SurvivesTheAwaitThatOpensTheOverlay()
+  {
+    var ground = new GroundPage();
+    var window = new HostWindow { Width = 900, Height = 600 };
+    var shell = RealShell.Create<RealShell.RealTestContext>(
+      template: new ProbeTemplate(ground), rootView: window);
+    var router = shell.Services.GetRequiredService<IRouter>();
+
+    try
+    {
+      await router.RouteAsync(new Locator([Target.Of(typeof(GroundVm), instance: new GroundVm())]));
+      await WaitUntilAsync(() => ground.First.IsAttachedToVisualTree());
+
+      // The user taps the card: it activates and the tap lands element focus
+      // on it.
+      Assert.True(ground.First.Focus());
+      ground.First.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+
+      // The trigger's command awaits before it opens the overlay — a database
+      // round trip in a real app — and the list refresh in that window
+      // recycles the card's container, which takes element focus with it.
+      ground.Children.Remove(ground.First);
+      await Task.Delay(1);
+      Assert.Null(window.FocusManager?.GetFocusedElement());
+
+      (AnchorProbeDialog session, TransitionContext enter, Task show) = await ShowProbeAsync(router, window);
+      ILayerLease source = Assert.IsAssignableFrom<ILayerLease>(enter.Counterpart);
+      var origin = Assert.IsAssignableFrom<IFocusAnchor>(source.Content);
+
+      // The focus the grant could read is gone; the interaction it recorded is not.
+      Assert.Same(ground.First, origin.Anchor);
+
+      session.Close();
+      await show.WaitAsync(TimeSpan.FromSeconds(5));
+      Assert.Null(origin.Anchor);
+    }
+    finally
+    {
+      window.Close();
+    }
+  }
+
+  [AvaloniaFact]
+  public async Task Focus_CarriesTheOrigin_ForAnInteractionThatNeverActivates()
+  {
+    var ground = new GroundPage();
+    var window = new HostWindow { Width = 900, Height = 600 };
+    var shell = RealShell.Create<RealShell.RealTestContext>(
+      template: new ProbeTemplate(ground), rootView: window);
+    var router = shell.Services.GetRequiredService<IRouter>();
+
+    try
+    {
+      await router.RouteAsync(new Locator([Target.Of(typeof(GroundVm), instance: new GroundVm())]));
+      await WaitUntilAsync(() => ground.Editor.IsAttachedToVisualTree());
+      await UIDispatcher.WaitForLoadedAsync();
+
+      // The interaction is typing: no control is activated, the editor is
+      // focused, and the editor is the element the change came from.
+      Assert.True(ground.Editor.Focus());
+      window.KeyTextInput("\\");
+      Assert.Equal("\\", ground.Editor.Text);
+
+      // The trigger's command awaits before it opens the overlay, and the
+      // rebuild in that window recycles the editor's container — the grant has
+      // no element focus to read.
+      ground.Children.Remove(ground.Editor);
+      await Task.Delay(1);
+      Assert.Null(window.FocusManager?.GetFocusedElement());
+
+      (AnchorProbeDialog session, TransitionContext enter, Task show) = await ShowProbeAsync(router, window);
+      ILayerLease source = Assert.IsAssignableFrom<ILayerLease>(enter.Counterpart);
+      var origin = Assert.IsAssignableFrom<IFocusAnchor>(source.Content);
+
+      Assert.Same(ground.Editor, origin.Anchor);
+
+      session.Close();
+      await show.WaitAsync(TimeSpan.FromSeconds(5));
+      Assert.Null(origin.Anchor);
+    }
+    finally
+    {
+      window.Close();
+    }
+  }
+
+  /// <summary>Shows the probe dialog and returns it with its enter context, without waiting for it to close.</summary>
+  private static async Task<(AnchorProbeDialog Session, TransitionContext Enter, Task Show)> ShowProbeAsync(
+    IRouter router, Window window)
+  {
+    var session = new AnchorProbeDialog();
+    Task show = router.ShowAsync(session);
+
+    AnchorProbeView? probe = null;
+    await WaitUntilAsync(() =>
+    {
+      probe = window.GetVisualDescendants().OfType<AnchorProbeView>().FirstOrDefault();
+      return probe?.EnterContext is not null;
+    });
+
+    return (session, probe!.EnterContext!, show);
   }
 }

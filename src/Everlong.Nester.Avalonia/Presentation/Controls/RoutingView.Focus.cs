@@ -4,6 +4,8 @@
 
 #if AVALONIA
 using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 #endif
 using Everlong.Nester.Layer;
@@ -20,8 +22,59 @@ internal sealed partial class RoutingView
   /// <summary>The element focused inside this surface when it last gave up layer focus.</summary>
   private PInputElement? _elementFocus;
 
+  /// <summary>The element the last interaction inside this surface rested on.</summary>
+  private PInputElement? _origin;
+
+  /// <summary>
+  ///   Initializes a new instance of the <see cref="RoutingView" /> class,
+  ///   which watches the two kinds of interaction it can see inside itself.
+  /// </summary>
+  internal RoutingView()
+  {
+    // An interaction is knowable when it happens, not when the foreground
+    // moves: the command behind it may await, and the element focus at the
+    // grant may already have moved on (see IFocusAnchor).  Two witnesses reach
+    // this surface by bubbling — focus arriving on a control inside it, which
+    // every focusable control raises, and an activation, which a control
+    // raises itself and which therefore covers one that takes no focus.  The
+    // later one wins: a click and the focus it takes are one interaction, and a
+    // later interaction inside the layer is a newer origin than an earlier one.
+    // handledEventsToo: an inner handler is free to consume either.
+#if AVALONIA
+    AddHandler(InputElement.GotFocusEvent,
+               (_, _) => RecordFocusedElement(),
+               RoutingStrategies.Bubble,
+               handledEventsToo: true);
+    AddHandler(Button.ClickEvent,
+               (_, e) => RecordActivation(e.Source),
+               RoutingStrategies.Bubble,
+               handledEventsToo: true);
+#else
+    AddHandler(System.Windows.UIElement.GotFocusEvent,
+               new System.Windows.RoutedEventHandler((_, _) => RecordFocusedElement()),
+               handledEventsToo: true);
+    AddHandler(System.Windows.Controls.Primitives.ButtonBase.ClickEvent,
+               new System.Windows.RoutedEventHandler((_, e) => RecordActivation(e.Source)),
+               handledEventsToo: true);
+#endif
+  }
+
   /// <inheritdoc />
-  object? IFocusAnchor.Anchor => _elementFocus;
+  object? IFocusAnchor.Anchor => _origin ?? _elementFocus;
+
+  /// <summary>Records the control a control inside this surface activated.</summary>
+  private void RecordActivation(object? source)
+  {
+    if (source is PControl control && IsWithin(control))
+      _origin = control;
+  }
+
+  /// <summary>Records the element focus that landed inside this surface.</summary>
+  private void RecordFocusedElement()
+  {
+    if (FocusedElement() is { } focused && IsWithin(focused))
+      _origin = focused;
+  }
 
   /// <inheritdoc />
   bool IFocusableContent.TryFocus(LayerFocusContext context) => true;
@@ -37,6 +90,7 @@ internal sealed partial class RoutingView
     RestoreElementFocus();
     // The anchor lives exactly as long as the surface is in the background:
     // once the foreground is back, the origin it carried is spent.
+    _origin = null;
     _elementFocus = null;
   }
 
@@ -50,8 +104,11 @@ internal sealed partial class RoutingView
 
   /// <summary>
   ///   Snapshots the element focus while this surface still holds it, so the
-  ///   surface can put it back when it takes the foreground again.  Focus
-  ///   that already moved outside the surface is not this surface's to keep.
+  ///   surface can put it back when it takes the foreground again, and so a
+  ///   change the surface starts with an interaction it never saw — a
+  ///   programmatic one, or focus that was already inside before this surface
+  ///   watched — has an origin to hand over.  Focus that already moved outside
+  ///   the surface is not this surface's to keep.
   /// </summary>
   private void CaptureElementFocus()
   {
