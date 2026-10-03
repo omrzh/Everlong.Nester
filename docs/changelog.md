@@ -7,6 +7,23 @@ migration, a renamed package, a raised framework floor — not what the commit l
 Below 1.0 nothing is promised stable: a minor version may rename a type or change a contract, and an
 entry says so when it does. That is the one thing a consumer should assume rather than read here.
 
+## 0.1.13 — 2026-10-03
+
+**Behaviour.** The cross-layer origin is the interaction's, not the foreground's.  A surface took its
+anchor from the element focus at the moment layer focus left it, which is not the interaction: the
+command behind the trigger may await, and the arriving layer mounts before the transfer, so anything
+that ran in between — a recycled container, a control that focuses as it mounts — emptied the anchor and
+every cross-layer transition fell back to its no-origin path.  A surface records the interactions it sees
+inside itself — focus arriving on a control, and a control's activation — and keeps the newest, falling
+back to the element focus it held when it lost the foreground.  `IFocusAnchor.Anchor` reads the same
+either way, and both are spent once the surface holds the foreground again.
+
+A consumer that parked an origin of its own for a cross-layer flight — a window slot, an attached
+property, a click handler that stored the control — can drop it and read the counterpart again
+(`TransitionContext.Counterpart`, its content as `IFocusAnchor`).  An interaction the surface cannot see
+still leaves only the fallback: a control inside a popup, and a gesture that neither takes focus nor
+activates a control.
+
 ## 0.1.12 — 2026-10-03
 
 Nothing between 0.1.10 and this one shipped — no tag exists since `v0.1.10` — so this entry carries the
