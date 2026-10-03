@@ -1,10 +1,12 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using Everlong.Nester.ComponentModel;
 using Everlong.Nester.Dialog;
+using Everlong.Nester.Helpers;
 using Everlong.Nester.Layer;
 using Everlong.Nester.Presentation;
 using Everlong.Nester.Routing;
@@ -40,7 +42,13 @@ public sealed class CrossLayerTransitionTests
   {
     internal Button First { get; } = new() { Content = "Ground 1" };
 
-    public GroundPage() => Children.Add(First);
+    internal TextBox Editor { get; } = new();
+
+    public GroundPage()
+    {
+      Children.Add(First);
+      Children.Add(Editor);
+    }
   }
 
   public sealed class AnchorProbeDialog : DialogSessionBase<object?>
@@ -186,6 +194,50 @@ public sealed class CrossLayerTransitionTests
 
       // The focus the grant could read is gone; the interaction it recorded is not.
       Assert.Same(ground.First, origin.Anchor);
+
+      session.Close();
+      await show.WaitAsync(TimeSpan.FromSeconds(5));
+      Assert.Null(origin.Anchor);
+    }
+    finally
+    {
+      window.Close();
+    }
+  }
+
+  [AvaloniaFact]
+  public async Task Focus_CarriesTheOrigin_ForAnInteractionThatNeverActivates()
+  {
+    var ground = new GroundPage();
+    var window = new HostWindow { Width = 900, Height = 600 };
+    var shell = RealShell.Create<RealShell.RealTestContext>(
+      template: new ProbeTemplate(ground), rootView: window);
+    var router = shell.Services.GetRequiredService<IRouter>();
+
+    try
+    {
+      await router.RouteAsync(new Locator([Target.Of(typeof(GroundVm), instance: new GroundVm())]));
+      await WaitUntilAsync(() => ground.Editor.IsAttachedToVisualTree());
+      await UIDispatcher.WaitForLoadedAsync();
+
+      // The interaction is typing: no control is activated, the editor is
+      // focused, and the editor is the element the change came from.
+      Assert.True(ground.Editor.Focus());
+      window.KeyTextInput("\\");
+      Assert.Equal("\\", ground.Editor.Text);
+
+      // The trigger's command awaits before it opens the overlay, and the
+      // rebuild in that window recycles the editor's container — the grant has
+      // no element focus to read.
+      ground.Children.Remove(ground.Editor);
+      await Task.Delay(1);
+      Assert.Null(window.FocusManager?.GetFocusedElement());
+
+      (AnchorProbeDialog session, TransitionContext enter, Task show) = await ShowProbeAsync(router, window);
+      ILayerLease source = Assert.IsAssignableFrom<ILayerLease>(enter.Counterpart);
+      var origin = Assert.IsAssignableFrom<IFocusAnchor>(source.Content);
+
+      Assert.Same(ground.Editor, origin.Anchor);
 
       session.Close();
       await show.WaitAsync(TimeSpan.FromSeconds(5));

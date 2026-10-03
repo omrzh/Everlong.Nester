@@ -45,14 +45,15 @@ foreground moved. It belongs to the surface, not to the view that triggered the 
 records it while it still holds the foreground and drops it once the foreground returns, so it is
 valid exactly for the window a cross-layer transition runs in.
 
-The record is taken at the interaction, not read at the hand-over. An activation inside the surface
-is what can say where the interaction rested; the foreground moving is only the moment the answer is
-asked for. Between the two, the change is prepared: the command behind the activation may await, and
-the arriving layer mounts before the foreground moves. Anything that ran in that window — a recycled
-container, a control that focuses as it mounts — would be read as the origin if the origin were the
-element focus at the hand-over. The surface therefore listens for the activations inside itself and
-keeps the last one; a change whose surface saw no activation still falls back to the element focus it
-held when it lost the foreground, which is what a keyboard or programmatic entry leaves behind.
+The record is taken at the interaction, not read at the hand-over. An interaction is what can say where
+it rested; the foreground moving is only the moment the answer is asked for. Between the two the change
+is prepared: the command behind the interaction may await, and the arriving layer mounts before the
+foreground moves. Anything that ran in that window — a recycled container, a control that focuses as it
+mounts — would be read as the origin if the origin were the element focus at the hand-over. The surface
+therefore records the interactions it can see inside itself and keeps the newest, whatever kind it was:
+focus arriving on a control, and an activation. An interaction later in the layer is a newer origin than
+an earlier one, and one kind does not outrank the other — a click and the focus it takes are a single
+interaction, while a control that types is the interaction the change came from.
 
 Parking the origin in a window-scoped slot is the trap this avoids: any layer could write the value
 another layer reads, with no order and no identity, and a stale value would outlive the change that
@@ -71,6 +72,15 @@ and it cannot collide across windows or layers.
   origin is still true, not the first moment it is knowable. A surface that could only read its
   element focus then would depend on nothing else having touched it since the interaction — a
   dependency no type expresses and no test can pin for every host.
+- **Why one interaction kind does not outrank the other.** Focus arriving and an activation are two
+  views of the same thing — an interaction inside the layer — and the code cannot tell which of the
+  two a given change came from. Ordering by recency asks the question the origin actually means;
+  ordering by kind would answer a later interaction with an earlier one.
+- **The interactions a surface cannot see.** An interaction is visible only if it routes to the
+  surface: a control inside a popup rises through the popup root instead, and a gesture that neither
+  takes focus nor activates anything raises nothing the surface listens for. Such a change falls
+  back to the element focus at the hand-over, which is what any change without a witnessed
+  interaction gets anyway.
 - **Why the counterpart is derivation-fixed.** The stack has no stable "below": overlays come and go
   and a z can host several leases. Derivation is the one moment both the layer a router belongs to and
   the layer it covers are known together.
