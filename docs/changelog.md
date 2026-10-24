@@ -18,6 +18,13 @@ as decimal octets and the address is built from the four bytes: padding means wh
 that is not a plain decimal in 0–255 completes nothing instead of throwing, and the ping button composes
 its address through the same path.
 
+**Behaviour.** The toast view no longer logs a binding error.  Its icon bound `IsVisible` to the level
+through `TypeToIconConverter`, which returns a geometry and ignores the `ConverterParameter=NotNull` it
+was given, so every toast logged a failed conversion from a stream geometry to `bool`; the icon stayed
+visible only because a failed binding leaves the target at its default.  The icon now binds its geometry
+alone, as the notification view already did — the four levels always resolve an icon in the shipped
+themes, so no fallback was reachable.
+
 ## 0.1.13 — 2026-10-03
 
 **Behaviour.** The cross-layer origin is the interaction's, not the foreground's.  A surface took its

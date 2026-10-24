@@ -32,7 +32,6 @@
       <PathIcon DockPanel.Dock="Left" Data="{Binding Level, Converter={StaticResource TypeToIconConverter}}"
                 Foreground="{Binding Level, Converter={StaticResource TypeToBrushConverter}}"
                 Width="{DynamicResource Nester.Icon.Size.Small}" Height="{DynamicResource Nester.Icon.Size.Small}"
-                IsVisible="{Binding Level, Converter={StaticResource TypeToIconConverter}, ConverterParameter=NotNull}"
                 VerticalAlignment="Center"/>
 
       <TextBlock Text="{Binding Message}" Foreground="{DynamicResource Nester.Toast.Foreground}"
