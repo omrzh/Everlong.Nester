@@ -1,4 +1,5 @@
 using Everlong.Nester.ComponentModel;
+using System.Globalization;
 using System.Net;
 using System.Net.NetworkInformation;
 using Everlong.Nester.Extensions.Properties;
@@ -282,8 +283,10 @@ public partial class Ipv4ComposerDialogSession : DialogSessionBase<IPAddress?>, 
   [RelayCommand(CanExecute = nameof(CanConfirm))]
   private void Confirm()
   {
-    string ip = $"{GetPartValue(Part1)}.{GetPartValue(Part2)}.{GetPartValue(Part3)}.{GetPartValue(Part4)}";
-    Close(IPAddress.Parse(ip));
+    if (CreateCurrentIpAddress() is { } ipAddress)
+    {
+      Close(ipAddress);
+    }
   }
 
   /// <summary>
@@ -312,12 +315,26 @@ public partial class Ipv4ComposerDialogSession : DialogSessionBase<IPAddress?>, 
            !string.IsNullOrEmpty(Part4);
   }
 
+  // Reads the four parts as decimal octets.  NumberStyles.None admits digits only, so a padded part such
+  // as "010" stays ten rather than being read as octal, and a part outside 0–255 yields null instead of
+  // throwing — IPAddress.Parse would accept the legacy inet_aton grammar, octal and all.
   private IPAddress? CreateCurrentIpAddress()
   {
-    return CanConfirm()
-             ? IPAddress.Parse(
-               $"{GetPartValue(Part1)}.{GetPartValue(Part2)}.{GetPartValue(Part3)}.{GetPartValue(Part4)}")
-             : null;
+    if (!CanConfirm())
+    {
+      return null;
+    }
+
+    Span<byte> octets = stackalloc byte[4];
+    for (int index = 0; index < octets.Length; index++)
+    {
+      if (!byte.TryParse(GetPart(index), NumberStyles.None, CultureInfo.InvariantCulture, out octets[index]))
+      {
+        return null;
+      }
+    }
+
+    return new IPAddress(octets);
   }
 
   private string GetPart(int index)
@@ -349,11 +366,6 @@ public partial class Ipv4ComposerDialogSession : DialogSessionBase<IPAddress?>, 
         Part4 = value;
         break;
     }
-  }
-
-  private static string GetPartValue(string part)
-  {
-    return string.IsNullOrEmpty(part) ? "0" : part;
   }
 
   private static string GetPingFailureReason(IPStatus status)

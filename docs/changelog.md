@@ -7,6 +7,17 @@ migration, a renamed package, a raised framework floor — not what the commit l
 Below 1.0 nothing is promised stable: a minor version may rename a type or change a contract, and an
 entry says so when it does. That is the one thing a consumer should assume rather than read here.
 
+## 0.1.14 — 2026-10-24
+
+**Behaviour.** The IPv4 composer reads a padded octet as decimal.  It joined the four parts into a string
+and handed it to `IPAddress.Parse`, whose grammar is the legacy `inet_aton` one, so `192.168.1.010` — a
+shape the keypad invites, since it advances after three digits — was accepted as `192.168.1.8` while the
+dialog still displayed `010`; and `192.168.1.009`, which is not a legal octal run, threw from inside the
+confirm command, where no handler caught it and a touch device lost the process.  The parts are now read
+as decimal octets and the address is built from the four bytes: padding means what it displays, a part
+that is not a plain decimal in 0–255 completes nothing instead of throwing, and the ping button composes
+its address through the same path.
+
 ## 0.1.13 — 2026-10-03
 
 **Behaviour.** The cross-layer origin is the interaction's, not the foreground's.  A surface took its
